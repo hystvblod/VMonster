@@ -6,6 +6,32 @@ window.VMSRenderer = {
   dpr: 1,
   imageCache: {},
 
+  bgSrc: "./assets/environment/backgrounds/bg_lab_main_01.webp",
+
+  bgDraw: {
+    x: 0,
+    y: 0,
+    w: 0,
+    h: 0,
+    scale: 1,
+    imgW: 928,
+    imgH: 1536
+  },
+
+  // Coordonnées basées sur TON image.
+  // Si un jour l’image change un peu, c’est ici qu’on ajuste.
+  labMap: {
+    trackLeft: 0.205,
+    trackRight: 0.795,
+    trackTop: 0.265,
+    trackBottom: 0.895,
+
+    dangerY: 0.805,
+
+    spawnX: 0.5,
+    spawnY: 0.855
+  },
+
   init(canvas) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d", { alpha: false });
@@ -25,13 +51,37 @@ window.VMSRenderer = {
     this.canvas.style.height = `${this.height}px`;
 
     this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+    this.updateBackgroundCover();
+  },
+
+  updateBackgroundCover() {
+    const img = this.getImage(this.bgSrc);
+
+    const imgW = img?.naturalWidth || this.bgDraw.imgW || 928;
+    const imgH = img?.naturalHeight || this.bgDraw.imgH || 1536;
+
+    this.bgDraw.imgW = imgW;
+    this.bgDraw.imgH = imgH;
+
+    const scale = Math.max(this.width / imgW, this.height / imgH);
+    const w = imgW * scale;
+    const h = imgH * scale;
+    const x = (this.width - w) / 2;
+    const y = (this.height - h) / 2;
+
+    this.bgDraw.x = x;
+    this.bgDraw.y = y;
+    this.bgDraw.w = w;
+    this.bgDraw.h = h;
+    this.bgDraw.scale = scale;
   },
 
   render(state) {
+    this.updateBackgroundCover();
+
     this.drawBackground();
-    this.drawTrack();
     this.drawDangerLine(state);
-    this.drawSpawnZone();
+    this.drawSpawnZone(state);
     this.drawMonsters(state);
     this.drawCurrentMonster();
     this.drawAim(state);
@@ -39,81 +89,45 @@ window.VMSRenderer = {
     this.drawDangerWarning(state);
   },
 
+  imageToScreen(nx, ny) {
+    return {
+      x: this.bgDraw.x + this.bgDraw.w * nx,
+      y: this.bgDraw.y + this.bgDraw.h * ny
+    };
+  },
+
   drawBackground() {
     const ctx = this.ctx;
-    const img = this.getImage("./assets/environment/backgrounds/bg_lab_main_01.webp");
+    const img = this.getImage(this.bgSrc);
+
+    ctx.fillStyle = "#090716";
+    ctx.fillRect(0, 0, this.width, this.height);
 
     if (img) {
-      ctx.drawImage(img, 0, 0, this.width, this.height);
+      ctx.drawImage(img, this.bgDraw.x, this.bgDraw.y, this.bgDraw.w, this.bgDraw.h);
       return;
     }
 
     const grd = ctx.createLinearGradient(0, 0, 0, this.height);
-    grd.addColorStop(0, "#31205f");
+    grd.addColorStop(0, "#24174d");
     grd.addColorStop(0.55, "#17142b");
-    grd.addColorStop(1, "#0c0918");
+    grd.addColorStop(1, "#080611");
     ctx.fillStyle = grd;
     ctx.fillRect(0, 0, this.width, this.height);
 
-    ctx.save();
-    ctx.globalAlpha = 0.18;
-    ctx.fillStyle = "#8fe8ff";
-
-    for (let i = 0; i < 14; i++) {
-      const x = (i * 79 + 37) % this.width;
-      const y = (i * 131 + 52) % this.height;
-      ctx.beginPath();
-      ctx.arc(x, y, 3 + (i % 3), 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    ctx.restore();
-  },
-
-  drawTrack() {
-    const ctx = this.ctx;
     const rect = this.getTrackRect();
-    const img = this.getImage("./assets/environment/track/track_merge_main_01.webp");
 
     ctx.save();
-
-    ctx.shadowColor = "rgba(0,0,0,.46)";
-    ctx.shadowBlur = 32;
-    ctx.fillStyle = "rgba(0,0,0,.30)";
-    this.roundRect(ctx, rect.left - 18, rect.top + 12, rect.width + 36, rect.height, 38);
+    ctx.shadowColor = "rgba(0,0,0,.55)";
+    ctx.shadowBlur = 34;
+    ctx.fillStyle = "#302262";
+    this.roundRect(ctx, rect.left, rect.top, rect.width, rect.height, 38);
     ctx.fill();
 
-    ctx.shadowBlur = 0;
-
-    if (img) {
-      ctx.drawImage(img, rect.left, rect.top, rect.width, rect.height);
-    } else {
-      const grd = ctx.createLinearGradient(rect.left, rect.top, rect.right, rect.bottom);
-      grd.addColorStop(0, "#33265f");
-      grd.addColorStop(0.5, "#5d4aa0");
-      grd.addColorStop(1, "#20183d");
-
-      ctx.fillStyle = grd;
-      this.roundRect(ctx, rect.left, rect.top, rect.width, rect.height, 36);
-      ctx.fill();
-
-      ctx.strokeStyle = "rgba(160,240,255,.26)";
-      ctx.lineWidth = 3;
-      this.roundRect(ctx, rect.left + 5, rect.top + 5, rect.width - 10, rect.height - 10, 32);
-      ctx.stroke();
-
-      ctx.globalAlpha = 0.12;
-      ctx.strokeStyle = "#ffffff";
-      ctx.lineWidth = 2;
-
-      for (let y = rect.top + 70; y < rect.bottom - 40; y += 70) {
-        ctx.beginPath();
-        ctx.moveTo(rect.left + 28, y);
-        ctx.lineTo(rect.right - 28, y);
-        ctx.stroke();
-      }
-    }
-
+    ctx.strokeStyle = "rgba(119, 86, 255, .9)";
+    ctx.lineWidth = 6;
+    this.roundRect(ctx, rect.left + 4, rect.top + 4, rect.width - 8, rect.height - 8, 34);
+    ctx.stroke();
     ctx.restore();
   },
 
@@ -121,53 +135,72 @@ window.VMSRenderer = {
     const ctx = this.ctx;
     const rect = this.getTrackRect();
     const y = this.getDangerY();
-    const img = this.getImage("./assets/environment/track/danger_line_01.webp");
+    const dangerRatio = state?.dangerRatio || 0;
 
     ctx.save();
 
-    const alpha = 0.45 + (state.dangerRatio || 0) * 0.55;
-    ctx.globalAlpha = alpha;
+    const pulse = 0.45 + dangerRatio * 0.55;
 
-    if (img) {
-      ctx.drawImage(img, rect.left + 12, y - 10, rect.width - 24, 20);
-    } else {
-      ctx.shadowColor = "#ff4d35";
-      ctx.shadowBlur = 18;
-      ctx.fillStyle = "#ff5b3f";
-      this.roundRect(ctx, rect.left + 16, y - 5, rect.width - 32, 10, 8);
-      ctx.fill();
-    }
+    ctx.globalAlpha = pulse;
+    ctx.shadowColor = "#ff3b25";
+    ctx.shadowBlur = 18 + dangerRatio * 28;
+
+    const lineH = Math.max(7, rect.width * 0.018);
+    const lineW = rect.width * 0.86;
+    const x = rect.left + (rect.width - lineW) / 2;
+
+    ctx.fillStyle = "#ff4a2e";
+    this.roundRect(ctx, x, y - lineH / 2, lineW, lineH, lineH);
+    ctx.fill();
+
+    ctx.globalAlpha = 0.9;
+    ctx.fillStyle = "rgba(255, 210, 120, .9)";
+    this.roundRect(ctx, x + lineW * 0.08, y - lineH / 2, lineW * 0.84, Math.max(2, lineH * 0.28), lineH);
+    ctx.fill();
 
     ctx.restore();
   },
 
-  drawSpawnZone() {
+  drawSpawnZone(state) {
     const ctx = this.ctx;
     const spawn = this.getSpawnPoint();
-    const img = this.getImage("./assets/environment/track/track_spawn_zone_01.webp");
+    const rect = this.getTrackRect();
+
+    const w = rect.width * 0.42;
+    const h = Math.max(54, rect.width * 0.16);
+    const dangerRatio = state?.dangerRatio || 0;
 
     ctx.save();
 
-    if (img) {
-      ctx.drawImage(img, spawn.x - 86, spawn.y - 42, 172, 84);
-    } else {
-      ctx.shadowColor = "rgba(0,0,0,.35)";
-      ctx.shadowBlur = 18;
-      ctx.fillStyle = "rgba(255,255,255,.12)";
-      this.roundRect(ctx, spawn.x - 92, spawn.y - 38, 184, 76, 30);
-      ctx.fill();
+    ctx.shadowColor = dangerRatio > 0 ? "#ff4a2e" : "#75e9ff";
+    ctx.shadowBlur = dangerRatio > 0 ? 28 : 20;
 
-      ctx.shadowBlur = 0;
-      ctx.strokeStyle = "rgba(255,255,255,.18)";
-      ctx.lineWidth = 2;
-      this.roundRect(ctx, spawn.x - 92, spawn.y - 38, 184, 76, 30);
-      ctx.stroke();
-    }
+    const grd = ctx.createLinearGradient(spawn.x - w / 2, spawn.y - h / 2, spawn.x + w / 2, spawn.y + h / 2);
+    grd.addColorStop(0, "rgba(104, 232, 255, .22)");
+    grd.addColorStop(0.5, "rgba(123, 89, 255, .26)");
+    grd.addColorStop(1, "rgba(255,255,255,.12)");
+
+    ctx.fillStyle = grd;
+    this.roundRect(ctx, spawn.x - w / 2, spawn.y - h / 2, w, h, h * 0.42);
+    ctx.fill();
+
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = dangerRatio > 0 ? "rgba(255, 90, 50, .95)" : "rgba(155, 238, 255, .7)";
+    ctx.lineWidth = Math.max(2, rect.width * 0.006);
+    this.roundRect(ctx, spawn.x - w / 2, spawn.y - h / 2, w, h, h * 0.42);
+    ctx.stroke();
+
+    ctx.globalAlpha = 0.5;
+    ctx.fillStyle = "#ffffff";
+    this.roundRect(ctx, spawn.x - w * 0.25, spawn.y - h * 0.28, w * 0.5, h * 0.08, h);
+    ctx.fill();
 
     ctx.restore();
   },
 
   drawMonsters(state) {
+    if (!state?.monsters) return;
+
     for (const monster of state.monsters) {
       this.drawMonster(monster);
     }
@@ -187,17 +220,17 @@ window.VMSRenderer = {
     ctx.save();
     ctx.translate(monster.x, monster.y);
 
-    ctx.globalAlpha = 0.22;
+    ctx.globalAlpha = 0.24;
     ctx.fillStyle = "#000";
     ctx.beginPath();
-    ctx.ellipse(0, monster.radius * 0.86, monster.radius * 0.86, monster.radius * 0.25, 0, 0, Math.PI * 2);
+    ctx.ellipse(0, monster.radius * 0.82, monster.radius * 0.9, monster.radius * 0.26, 0, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.globalAlpha = 1;
 
     if (isCurrent) {
       ctx.shadowColor = monster.color || meta.color;
-      ctx.shadowBlur = 22;
+      ctx.shadowBlur = 24;
     }
 
     if (img) {
@@ -216,7 +249,13 @@ window.VMSRenderer = {
 
     ctx.shadowColor = color;
     ctx.shadowBlur = 18;
-    ctx.fillStyle = color;
+
+    const grd = ctx.createRadialGradient(-r * 0.3, -r * 0.35, r * 0.1, 0, 0, r);
+    grd.addColorStop(0, "#ffffff");
+    grd.addColorStop(0.25, color);
+    grd.addColorStop(1, "#1a1239");
+
+    ctx.fillStyle = grd;
     ctx.beginPath();
     ctx.arc(0, 0, r, 0, Math.PI * 2);
     ctx.fill();
@@ -243,22 +282,24 @@ window.VMSRenderer = {
   },
 
   drawAim(state) {
-    const aim = state.aim;
+    const aim = state?.aim;
     const monster = window.VMSGame?.currentMonster;
 
-    if (!aim.active || !monster) return;
+    if (!aim?.active || !monster) return;
 
     const ctx = this.ctx;
+    const rect = this.getTrackRect();
+
     const endX = monster.x + aim.vx * 0.18;
     const endY = monster.y + aim.vy * 0.18;
 
     ctx.save();
 
-    ctx.strokeStyle = "rgba(143,232,255,.9)";
-    ctx.lineWidth = 6;
+    ctx.strokeStyle = "rgba(143,232,255,.92)";
+    ctx.lineWidth = Math.max(4, rect.width * 0.018);
     ctx.lineCap = "round";
     ctx.shadowColor = "#8fe8ff";
-    ctx.shadowBlur = 16;
+    ctx.shadowBlur = 18;
 
     ctx.beginPath();
     ctx.moveTo(monster.x, monster.y);
@@ -266,16 +307,17 @@ window.VMSRenderer = {
     ctx.stroke();
 
     const angle = Math.atan2(endY - monster.y, endX - monster.x);
+    const arrowSize = Math.max(18, rect.width * 0.055);
 
     ctx.translate(endX, endY);
     ctx.rotate(angle);
 
     ctx.fillStyle = "#8fe8ff";
     ctx.beginPath();
-    ctx.moveTo(18, 0);
-    ctx.lineTo(-12, -10);
-    ctx.lineTo(-6, 0);
-    ctx.lineTo(-12, 10);
+    ctx.moveTo(arrowSize, 0);
+    ctx.lineTo(-arrowSize * 0.65, -arrowSize * 0.42);
+    ctx.lineTo(-arrowSize * 0.35, 0);
+    ctx.lineTo(-arrowSize * 0.65, arrowSize * 0.42);
     ctx.closePath();
     ctx.fill();
 
@@ -284,6 +326,7 @@ window.VMSRenderer = {
 
   drawParticles(state) {
     const ctx = this.ctx;
+    if (!state?.particles) return;
 
     for (const p of state.particles) {
       ctx.save();
@@ -299,44 +342,38 @@ window.VMSRenderer = {
   },
 
   drawDangerWarning(state) {
-    if (!state.dangerRatio) return;
+    const ratio = state?.dangerRatio || 0;
+    if (ratio <= 0) return;
 
     const ctx = this.ctx;
 
     ctx.save();
-    ctx.globalAlpha = state.dangerRatio * 0.28;
-    ctx.fillStyle = "#ff3f32";
+    ctx.globalAlpha = ratio * 0.22;
+    ctx.fillStyle = "#ff2e1c";
     ctx.fillRect(0, 0, this.width, this.height);
     ctx.restore();
   },
 
   getTrackRect() {
-    const ratio = window.VMSGame?.state?.level?.trackWidthRatio || 0.72;
-    const width = Math.min(this.width * ratio, 430);
-    const left = (this.width - width) / 2;
-    const top = 92;
-    const bottom = this.height - 104;
-    const height = bottom - top;
+    const leftTop = this.imageToScreen(this.labMap.trackLeft, this.labMap.trackTop);
+    const rightBottom = this.imageToScreen(this.labMap.trackRight, this.labMap.trackBottom);
 
     return {
-      left,
-      right: left + width,
-      top,
-      bottom,
-      width,
-      height
+      left: leftTop.x,
+      right: rightBottom.x,
+      top: leftTop.y,
+      bottom: rightBottom.y,
+      width: rightBottom.x - leftTop.x,
+      height: rightBottom.y - leftTop.y
     };
   },
 
   getSpawnPoint() {
-    return {
-      x: this.width / 2,
-      y: this.height - 66
-    };
+    return this.imageToScreen(this.labMap.spawnX, this.labMap.spawnY);
   },
 
   getDangerY() {
-    return this.height - 214;
+    return this.imageToScreen(0.5, this.labMap.dangerY).y;
   },
 
   getImage(src) {
@@ -353,6 +390,7 @@ window.VMSRenderer = {
 
     img.onload = () => {
       this.imageCache[src] = img;
+      this.updateBackgroundCover();
     };
 
     img.onerror = () => {
