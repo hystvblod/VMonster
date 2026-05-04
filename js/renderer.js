@@ -5,6 +5,7 @@ window.VMSRenderer = {
   height: 0,
   dpr: 1,
   imageCache: {},
+  trimCache: {},
 
   bgSrc: "./assets/environment/backgrounds/bg_lab_main_01.webp",
 
@@ -270,7 +271,7 @@ labMap: {
     }
 
     if (img) {
-      ctx.drawImage(img, -size / 2, -size / 2, size, size);
+      this.drawTrimmedImage(ctx, img, -size / 2, -size / 2, size, size);
     } else {
       this.drawFallbackMonster(monster, meta);
     }
@@ -438,6 +439,90 @@ labMap: {
 
   getDangerY() {
     return this.imageToScreen(0.5, this.labMap.dangerY).y;
+  },
+
+  drawTrimmedImage(ctx, img, dx, dy, dw, dh) {
+    const trim = this.getImageTrim(img);
+
+    if (!trim) {
+      ctx.drawImage(img, dx, dy, dw, dh);
+      return;
+    }
+
+    ctx.drawImage(
+      img,
+      trim.x,
+      trim.y,
+      trim.w,
+      trim.h,
+      dx,
+      dy,
+      dw,
+      dh
+    );
+  },
+
+  getImageTrim(img) {
+    const key = img.src;
+
+    if (this.trimCache[key]) {
+      return this.trimCache[key];
+    }
+
+    try {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+
+      ctx.drawImage(img, 0, 0);
+
+      const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+
+      let minX = canvas.width;
+      let minY = canvas.height;
+      let maxX = -1;
+      let maxY = -1;
+
+      for (let y = 0; y < canvas.height; y++) {
+        for (let x = 0; x < canvas.width; x++) {
+          const alpha = data[(y * canvas.width + x) * 4 + 3];
+
+          if (alpha > 12) {
+            if (x < minX) minX = x;
+            if (y < minY) minY = y;
+            if (x > maxX) maxX = x;
+            if (y > maxY) maxY = y;
+          }
+        }
+      }
+
+      if (maxX < minX || maxY < minY) {
+        this.trimCache[key] = null;
+        return null;
+      }
+
+      const padding = Math.round(Math.max(canvas.width, canvas.height) * 0.025);
+
+      minX = Math.max(0, minX - padding);
+      minY = Math.max(0, minY - padding);
+      maxX = Math.min(canvas.width - 1, maxX + padding);
+      maxY = Math.min(canvas.height - 1, maxY + padding);
+
+      const trim = {
+        x: minX,
+        y: minY,
+        w: maxX - minX + 1,
+        h: maxY - minY + 1
+      };
+
+      this.trimCache[key] = trim;
+      return trim;
+    } catch (error) {
+      this.trimCache[key] = null;
+      return null;
+    }
   },
 
   getImage(src) {
