@@ -6,6 +6,38 @@ window.VMSRenderer = {
   dpr: 1,
   imageCache: {},
 
+  bgSrc: "./assets/environment/backgrounds/bg_lab_main_01.webp",
+
+  bgDraw: {
+    x: 0,
+    y: 0,
+    w: 0,
+    h: 0,
+    imgW: 928,
+    imgH: 1536
+  },
+
+  // Réglage précis pour TON image.
+  // La piste est en trapèze, donc on ne fait plus un simple rectangle.
+  labMap: {
+    trackTopY: 0.232,
+    trackBottomY: 0.872,
+
+    trackTopLeftX: 0.300,
+    trackTopRightX: 0.700,
+
+    trackBottomLeftX: 0.170,
+    trackBottomRightX: 0.830,
+
+    dangerY: 0.765,
+
+    spawnX: 0.5,
+    spawnY: 0.835
+  },
+
+  // Mets false quand tout est bien calé.
+  debugZones: true,
+
   init(canvas) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d", { alpha: false });
