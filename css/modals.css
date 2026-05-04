@@ -1,0 +1,36 @@
+﻿.modal-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(5, 4, 10, .66);
+  backdrop-filter: blur(8px);
+}
+
+.modal-card {
+  width: min(360px, 100%);
+  padding: 22px;
+  border-radius: 28px;
+  background: linear-gradient(180deg, #2b2152, #17142b);
+  border: 1px solid rgba(255,255,255,.16);
+  box-shadow: 0 28px 90px rgba(0,0,0,.55);
+  text-align: center;
+}
+
+.modal-card h3 {
+  margin: 0 0 8px;
+  font-size: 24px;
+}
+
+.modal-card p {
+  margin: 0 0 18px;
+  color: rgba(255,255,255,.72);
+  line-height: 1.35;
+}
+
+.modal-actions {
+  display: grid;
+  gap: 10px;
+}

@@ -1,0 +1,13 @@
+﻿@keyframes softFloat {
+  from { transform: translateY(-8px) scale(1); }
+  to { transform: translateY(8px) scale(1.03); }
+}
+
+@keyframes popIn {
+  from { transform: scale(.88); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.modal-card {
+  animation: popIn .18s ease-out;
+}

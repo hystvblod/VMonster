@@ -1,0 +1,24 @@
+﻿{
+  "levels": [
+    {
+      "id": 1,
+      "speed": 1,
+      "portals": ["slime", "vampire", "ghost"]
+    },
+    {
+      "id": 2,
+      "speed": 1.08,
+      "portals": ["slime", "skeleton", "ghost"]
+    },
+    {
+      "id": 3,
+      "speed": 1.16,
+      "portals": ["vampire", "skeleton", "demon"]
+    },
+    {
+      "id": 4,
+      "speed": 1.24,
+      "portals": ["ghost", "demon", "slime"]
+    }
+  ]
+}

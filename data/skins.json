@@ -1,0 +1,28 @@
+﻿{
+  "skins": [
+    {
+      "id": "slime_default",
+      "nameKey": "skin_slime_default",
+      "price": 0,
+      "previewGradient": "radial-gradient(circle at 35% 30%, #ffffff, #48e6a3 42%, #146a52 100%)"
+    },
+    {
+      "id": "vampire_core",
+      "nameKey": "skin_vampire_core",
+      "price": 450,
+      "previewGradient": "radial-gradient(circle at 35% 30%, #ffffff, #ff4d6d 42%, #4b1021 100%)"
+    },
+    {
+      "id": "ghost_core",
+      "nameKey": "skin_ghost_core",
+      "price": 600,
+      "previewGradient": "radial-gradient(circle at 35% 30%, #ffffff, #8fe8ff 42%, #243c8f 100%)"
+    },
+    {
+      "id": "demon_core",
+      "nameKey": "skin_demon_core",
+      "price": 900,
+      "previewGradient": "radial-gradient(circle at 35% 30%, #ffffff, #c073ff 42%, #321052 100%)"
+    }
+  ]
+}

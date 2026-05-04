@@ -1,0 +1,28 @@
+﻿.settings-list {
+  top: 104px;
+  display: grid;
+  gap: 12px;
+}
+
+.setting-row {
+  width: 100%;
+  min-height: 58px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 20px;
+  background: rgba(255,255,255,.12);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.12);
+}
+
+.setting-row select {
+  min-width: 100px;
+  min-height: 36px;
+  border: 0;
+  border-radius: 12px;
+  background: rgba(0,0,0,.25);
+  color: #fff;
+  padding: 0 10px;
+}

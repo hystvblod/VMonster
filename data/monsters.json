@@ -1,0 +1,29 @@
+﻿{
+  "monsters": [
+    {
+      "type": "slime",
+      "color": "#48e6a3",
+      "asset": "./assets/monsters/slime_idle.webp"
+    },
+    {
+      "type": "vampire",
+      "color": "#ff4d6d",
+      "asset": "./assets/monsters/vampire_idle.webp"
+    },
+    {
+      "type": "ghost",
+      "color": "#8fe8ff",
+      "asset": "./assets/monsters/ghost_idle.webp"
+    },
+    {
+      "type": "skeleton",
+      "color": "#f6e7bd",
+      "asset": "./assets/monsters/skeleton_idle.webp"
+    },
+    {
+      "type": "demon",
+      "color": "#c073ff",
+      "asset": "./assets/monsters/demon_idle.webp"
+    }
+  ]
+}

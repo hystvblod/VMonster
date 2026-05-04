@@ -1,0 +1,63 @@
+﻿.home-content,
+.settings-list,
+.rules-card {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+}
+
+.home-content {
+  top: 92px;
+  bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 24px;
+}
+
+.home-actions {
+  display: grid;
+  gap: 14px;
+}
+
+.big-btn {
+  min-height: 64px;
+  font-size: 20px;
+}
+
+.logo-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 32px;
+  padding: 30px 22px;
+  background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.06));
+  border: 1px solid rgba(255,255,255,.14);
+  box-shadow: 0 28px 80px rgba(0,0,0,.28);
+  text-align: center;
+}
+
+.logo-card h1 {
+  margin: 14px 0 8px;
+  font-size: 36px;
+  letter-spacing: -.04em;
+}
+
+.logo-card p {
+  margin: 0 auto;
+  max-width: 320px;
+  color: rgba(255,255,255,.72);
+  line-height: 1.35;
+}
+
+.logo-orb {
+  width: 92px;
+  height: 92px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 30%, #fff, #9af2ff 18%, #7d5dff 48%, #27195f 100%);
+  box-shadow:
+    0 0 24px rgba(133, 104, 255, .8),
+    0 0 62px rgba(70, 219, 255, .35),
+    inset -12px -15px 22px rgba(0,0,0,.26);
+}

@@ -1,0 +1,54 @@
+﻿@media (max-width: 380px) {
+  .logo-card {
+    padding: 22px 16px;
+    border-radius: 26px;
+  }
+
+  .logo-card h1 {
+    font-size: 30px;
+  }
+
+  .logo-orb {
+    width: 78px;
+    height: 78px;
+  }
+
+  .primary-btn {
+    min-height: 50px;
+  }
+
+  .big-btn {
+    min-height: 58px;
+  }
+
+  .skins-grid {
+    gap: 10px;
+  }
+
+  .skin-card {
+    min-height: 158px;
+    padding: 12px;
+  }
+
+  .skin-preview {
+    width: 72px;
+    height: 72px;
+  }
+}
+
+@media (min-width: 700px) {
+  .home-content,
+  .settings-list,
+  .rules-card {
+    left: 50%;
+    right: auto;
+    width: min(480px, calc(100% - 32px));
+    transform: translateX(-50%);
+  }
+
+  .scroll-content {
+    left: 50%;
+    width: min(620px, 100%);
+    transform: translateX(-50%);
+  }
+}

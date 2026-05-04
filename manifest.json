@@ -1,0 +1,9 @@
+﻿{
+  "name": "VMonster Sort",
+  "short_name": "VMonsterSort",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#17122a",
+  "theme_color": "#17122a",
+  "orientation": "portrait"
+}

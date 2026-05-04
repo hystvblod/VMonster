@@ -1,0 +1,38 @@
+﻿{
+  "items": [
+    {
+      "id": "coins_small",
+      "titleKey": "shop_coins_small_title",
+      "descKey": "shop_coins_small_desc",
+      "priceType": "real",
+      "iapId": "vmonster_coins_small",
+      "reward": {
+        "coins": 1200
+      }
+    },
+    {
+      "id": "coins_big",
+      "titleKey": "shop_coins_big_title",
+      "descKey": "shop_coins_big_desc",
+      "priceType": "real",
+      "iapId": "vmonster_coins_big",
+      "reward": {
+        "coins": 6000
+      }
+    },
+    {
+      "id": "no_ads",
+      "titleKey": "shop_no_ads_title",
+      "descKey": "shop_no_ads_desc",
+      "priceType": "real",
+      "iapId": "vmonster_no_ads"
+    },
+    {
+      "id": "starter",
+      "titleKey": "shop_starter_title",
+      "descKey": "shop_starter_desc",
+      "priceType": "real",
+      "iapId": "vmonster_starter"
+    }
+  ]
+}

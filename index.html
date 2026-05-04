@@ -1,0 +1,226 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#17122a" />
+  <title>VMonster Sort</title>
+
+  <link rel="stylesheet" href="./css/base.css" />
+  <link rel="stylesheet" href="./css/layout.css" />
+  <link rel="stylesheet" href="./css/screens.css" />
+  <link rel="stylesheet" href="./css/home.css" />
+  <link rel="stylesheet" href="./css/game.css" />
+  <link rel="stylesheet" href="./css/shop.css" />
+  <link rel="stylesheet" href="./css/skins.css" />
+  <link rel="stylesheet" href="./css/settings.css" />
+  <link rel="stylesheet" href="./css/rules.css" />
+  <link rel="stylesheet" href="./css/modals.css" />
+  <link rel="stylesheet" href="./css/animations.css" />
+  <link rel="stylesheet" href="./css/responsive.css" />
+</head>
+
+<body>
+  <div id="app" class="app-shell">
+    <div class="safe-area">
+
+      <section id="screen-home" class="screen active">
+        <div class="home-bg"></div>
+
+        <header class="topbar">
+          <div class="currency-pill">
+            <span class="coin-dot"></span>
+            <span id="hudCoins">0</span>
+          </div>
+
+          <button class="icon-btn" type="button" data-action="open-settings" aria-label="settings">
+            ⚙
+          </button>
+        </header>
+
+        <main class="home-content">
+          <div class="logo-card">
+            <div class="logo-orb"></div>
+            <h1 data-i18n="app_title"></h1>
+            <p data-i18n="home_subtitle"></p>
+          </div>
+
+          <div class="home-actions">
+            <button class="primary-btn big-btn" type="button" data-action="play" data-i18n="btn_play"></button>
+            <button class="secondary-btn" type="button" data-action="open-skins" data-i18n="btn_skins"></button>
+            <button class="secondary-btn" type="button" data-action="open-shop" data-i18n="btn_shop"></button>
+            <button class="ghost-btn" type="button" data-action="open-rules" data-i18n="btn_rules"></button>
+          </div>
+        </main>
+      </section>
+
+      <section id="screen-game" class="screen">
+        <canvas id="gameCanvas"></canvas>
+
+        <div class="game-hud">
+          <button class="hud-btn" type="button" data-action="pause">Ⅱ</button>
+
+          <div class="hud-center">
+            <div class="level-chip">
+              <span data-i18n="hud_level"></span>
+              <span id="hudLevel">1</span>
+            </div>
+
+            <div class="score-chip">
+              <span data-i18n="hud_score"></span>
+              <span id="hudScore">0</span>
+            </div>
+          </div>
+
+          <div class="combo-chip">
+            <span>x</span>
+            <span id="hudCombo">1</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="screen-shop" class="screen">
+        <header class="screen-header">
+          <button class="back-btn" type="button" data-action="back-home">‹</button>
+          <div>
+            <h2 data-i18n="shop_title"></h2>
+            <p data-i18n="shop_subtitle"></p>
+          </div>
+        </header>
+
+        <main class="scroll-content">
+          <div id="shopList" class="shop-grid"></div>
+        </main>
+      </section>
+
+      <section id="screen-skins" class="screen">
+        <header class="screen-header">
+          <button class="back-btn" type="button" data-action="back-home">‹</button>
+          <div>
+            <h2 data-i18n="skins_title"></h2>
+            <p data-i18n="skins_subtitle"></p>
+          </div>
+        </header>
+
+        <main class="scroll-content">
+          <div id="skinsList" class="skins-grid"></div>
+        </main>
+      </section>
+
+      <section id="screen-settings" class="screen">
+        <header class="screen-header">
+          <button class="back-btn" type="button" data-action="back-home">‹</button>
+          <div>
+            <h2 data-i18n="settings_title"></h2>
+            <p data-i18n="settings_subtitle"></p>
+          </div>
+        </header>
+
+        <main class="settings-list">
+          <button class="setting-row" type="button" data-action="toggle-music">
+            <span data-i18n="settings_music"></span>
+            <strong id="musicState">ON</strong>
+          </button>
+
+          <button class="setting-row" type="button" data-action="toggle-sfx">
+            <span data-i18n="settings_sfx"></span>
+            <strong id="sfxState">ON</strong>
+          </button>
+
+          <button class="setting-row" type="button" data-action="toggle-vibration">
+            <span data-i18n="settings_vibration"></span>
+            <strong id="vibrationState">ON</strong>
+          </button>
+
+          <label class="setting-row">
+            <span data-i18n="settings_language"></span>
+            <select id="languageSelect">
+              <option value="fr">FR</option>
+              <option value="en-US">EN</option>
+              <option value="es-ES">ES</option>
+              <option value="es-419">LATAM</option>
+              <option value="de-DE">DE</option>
+              <option value="it-IT">IT</option>
+              <option value="pt-BR">PT-BR</option>
+              <option value="pt-PT">PT</option>
+              <option value="ja-JP">JA</option>
+              <option value="ko-KR">KO</option>
+              <option value="id">ID</option>
+              <option value="ar">AR</option>
+            </select>
+          </label>
+
+          <button class="setting-row" type="button" data-action="restore-purchases">
+            <span data-i18n="settings_restore"></span>
+            <strong>↻</strong>
+          </button>
+        </main>
+      </section>
+
+      <section id="screen-rules" class="screen">
+        <header class="screen-header">
+          <button class="back-btn" type="button" data-action="back-home">‹</button>
+          <div>
+            <h2 data-i18n="rules_title"></h2>
+            <p data-i18n="rules_subtitle"></p>
+          </div>
+        </header>
+
+        <main class="rules-card">
+          <div class="rule-step">
+            <strong>1</strong>
+            <p data-i18n="rules_1"></p>
+          </div>
+          <div class="rule-step">
+            <strong>2</strong>
+            <p data-i18n="rules_2"></p>
+          </div>
+          <div class="rule-step">
+            <strong>3</strong>
+            <p data-i18n="rules_3"></p>
+          </div>
+          <div class="rule-step">
+            <strong>4</strong>
+            <p data-i18n="rules_4"></p>
+          </div>
+        </main>
+      </section>
+
+      <div id="modalLayer" class="modal-layer hidden">
+        <div class="modal-card">
+          <h3 id="modalTitle"></h3>
+          <p id="modalText"></p>
+
+          <div class="modal-actions">
+            <button id="modalPrimary" class="primary-btn" type="button"></button>
+            <button id="modalSecondary" class="ghost-btn" type="button"></button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="./js/config.js"></script>
+  <script src="./js/utils.js"></script>
+  <script src="./js/storage.js"></script>
+  <script src="./js/i18n.js"></script>
+  <script src="./js/assets.js"></script>
+  <script src="./js/audio.js"></script>
+  <script src="./js/economy.js"></script>
+  <script src="./js/router.js"></script>
+  <script src="./js/modals.js"></script>
+  <script src="./js/settings.js"></script>
+  <script src="./js/shop.js"></script>
+  <script src="./js/skins.js"></script>
+  <script src="./js/rewards.js"></script>
+  <script src="./js/ads.js"></script>
+  <script src="./js/purchases.js"></script>
+  <script src="./js/input.js"></script>
+  <script src="./js/levels.js"></script>
+  <script src="./js/renderer.js"></script>
+  <script src="./js/game.js"></script>
+  <script src="./js/app.js"></script>
+  <script src="./js/main.js"></script>
+</body>
+</html>

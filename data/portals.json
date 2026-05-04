@@ -1,0 +1,34 @@
+﻿{
+  "portals": [
+    {
+      "type": "slime",
+      "label": "SLIME",
+      "color": "#48e6a3",
+      "asset": "./assets/portals/portal_slime.webp"
+    },
+    {
+      "type": "vampire",
+      "label": "VAMP",
+      "color": "#ff4d6d",
+      "asset": "./assets/portals/portal_vampire.webp"
+    },
+    {
+      "type": "ghost",
+      "label": "GHOST",
+      "color": "#8fe8ff",
+      "asset": "./assets/portals/portal_ghost.webp"
+    },
+    {
+      "type": "skeleton",
+      "label": "BONE",
+      "color": "#f6e7bd",
+      "asset": "./assets/portals/portal_skeleton.webp"
+    },
+    {
+      "type": "demon",
+      "label": "DEMON",
+      "color": "#c073ff",
+      "asset": "./assets/portals/portal_demon.webp"
+    }
+  ]
+}

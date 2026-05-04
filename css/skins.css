@@ -1,0 +1,37 @@
+﻿.skins-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.skin-card {
+  min-height: 178px;
+  padding: 14px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06));
+  border: 1px solid rgba(255,255,255,.12);
+  text-align: center;
+}
+
+.skin-preview {
+  width: 86px;
+  height: 86px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff, #bff7ff 18%, #7b5dff 54%, #20133f 100%);
+  box-shadow: 0 0 22px rgba(136, 103, 255, .5);
+}
+
+.skin-card h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+}
+
+.skin-card button {
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 14px;
+  background: rgba(255,255,255,.14);
+  color: #fff;
+  font-weight: 900;
+}

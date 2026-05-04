@@ -1,0 +1,43 @@
+﻿.shop-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.shop-card {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 14px;
+  align-items: center;
+  padding: 14px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06));
+  border: 1px solid rgba(255,255,255,.12);
+}
+
+.shop-img {
+  width: 72px;
+  height: 72px;
+  border-radius: 22px;
+  background: radial-gradient(circle at 35% 30%, #fff7a8, #ff9c35 48%, #5c2b7f 100%);
+  box-shadow: 0 12px 24px rgba(0,0,0,.25);
+}
+
+.shop-card h3 {
+  margin: 0 0 4px;
+  font-size: 17px;
+}
+
+.shop-card p {
+  margin: 0 0 10px;
+  color: rgba(255,255,255,.68);
+  font-size: 13px;
+}
+
+.shop-buy {
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 14px;
+  background: #ffcf5a;
+  color: #2e1700;
+  font-weight: 900;
+}
