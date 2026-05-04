@@ -252,7 +252,8 @@ labMap: {
     const ctx = this.ctx;
     const meta = VMSLevels.getMonsterByLevel(monster.level);
     const img = this.getImage(monster.asset || meta.asset);
-    const size = monster.radius * 2.35;
+    const visualRadius = monster.drawRadius || meta.drawRadius || monster.radius;
+    const size = visualRadius * 2.35;
 
     ctx.save();
     ctx.translate(monster.x, monster.y);
@@ -260,7 +261,15 @@ labMap: {
     ctx.globalAlpha = 0.24;
     ctx.fillStyle = "#000";
     ctx.beginPath();
-    ctx.ellipse(0, monster.radius * 0.82, monster.radius * 0.9, monster.radius * 0.26, 0, 0, Math.PI * 2);
+    ctx.ellipse(
+      0,
+      visualRadius * 0.82,
+      visualRadius * 0.9,
+      visualRadius * 0.26,
+      0,
+      0,
+      Math.PI * 2
+    );
     ctx.fill();
 
     ctx.globalAlpha = 1;

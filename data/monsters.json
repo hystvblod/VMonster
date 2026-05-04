@@ -1,16 +1,124 @@
 {
   "monsters": [
-    {"id":"monster_01_blob","level":1,"nameKey":"monster_01_blob","radius":22,"score":10,"color":"#67e8b6","asset":"./assets/monsters/monster_01_blob.webp"},
-    {"id":"monster_02_slime","level":2,"nameKey":"monster_02_slime","radius":26,"score":25,"color":"#7ce7ff","asset":"./assets/monsters/monster_02_slime.webp"},
-    {"id":"monster_03_fangoo","level":3,"nameKey":"monster_03_fangoo","radius":30,"score":55,"color":"#ffd166","asset":"./assets/monsters/monster_03_fangoo.webp"},
-    {"id":"monster_04_bubblion","level":4,"nameKey":"monster_04_bubblion","radius":35,"score":110,"color":"#ff9f6e","asset":"./assets/monsters/monster_04_bubblion.webp"},
-    {"id":"monster_05_hornyboo","level":5,"nameKey":"monster_05_hornyboo","radius":40,"score":220,"color":"#c084fc","asset":"./assets/monsters/monster_05_hornyboo.webp"},
-    {"id":"monster_06_grompy","level":6,"nameKey":"monster_06_grompy","radius":46,"score":450,"color":"#fb7185","asset":"./assets/monsters/monster_06_grompy.webp"},
-    {"id":"monster_07_batzo","level":7,"nameKey":"monster_07_batzo","radius":52,"score":900,"color":"#a78bfa","asset":"./assets/monsters/monster_07_batzo.webp"},
-    {"id":"monster_08_moogra","level":8,"nameKey":"monster_08_moogra","radius":59,"score":1800,"color":"#38bdf8","asset":"./assets/monsters/monster_08_moogra.webp"},
-    {"id":"monster_09_cronok","level":9,"nameKey":"monster_09_cronok","radius":66,"score":3600,"color":"#f97316","asset":"./assets/monsters/monster_09_cronok.webp"},
-    {"id":"monster_10_zarboom","level":10,"nameKey":"monster_10_zarboom","radius":74,"score":7200,"color":"#ef4444","asset":"./assets/monsters/monster_10_zarboom.webp"},
-    {"id":"monster_11_ultrazog","level":11,"nameKey":"monster_11_ultrazog","radius":83,"score":14500,"color":"#8b5cf6","asset":"./assets/monsters/monster_11_ultrazog.webp"},
-    {"id":"monster_12_megaboss","level":12,"nameKey":"monster_12_megaboss","radius":94,"score":30000,"color":"#facc15","asset":"./assets/monsters/monster_12_megaboss.webp"}
+    {
+      "id": "monster_01_blob",
+      "level": 1,
+      "nameKey": "monster_01_blob",
+      "radius": 9,
+      "drawRadius": 24,
+      "score": 10,
+      "color": "#67e8b6",
+      "asset": "./assets/monsters/monster_01_blob.webp"
+    },
+    {
+      "id": "monster_02_slime",
+      "level": 2,
+      "nameKey": "monster_02_slime",
+      "radius": 13,
+      "drawRadius": 30,
+      "score": 25,
+      "color": "#7ce7ff",
+      "asset": "./assets/monsters/monster_02_slime.webp"
+    },
+    {
+      "id": "monster_03_fangoo",
+      "level": 3,
+      "nameKey": "monster_03_fangoo",
+      "radius": 17,
+      "drawRadius": 36,
+      "score": 55,
+      "color": "#ffd166",
+      "asset": "./assets/monsters/monster_03_fangoo.webp"
+    },
+    {
+      "id": "monster_04_bubblion",
+      "level": 4,
+      "nameKey": "monster_04_bubblion",
+      "radius": 22,
+      "drawRadius": 42,
+      "score": 110,
+      "color": "#ff9f6e",
+      "asset": "./assets/monsters/monster_04_bubblion.webp"
+    },
+    {
+      "id": "monster_05_hornyboo",
+      "level": 5,
+      "nameKey": "monster_05_hornyboo",
+      "radius": 27,
+      "drawRadius": 48,
+      "score": 220,
+      "color": "#c084fc",
+      "asset": "./assets/monsters/monster_05_hornyboo.webp"
+    },
+    {
+      "id": "monster_06_grompy",
+      "level": 6,
+      "nameKey": "monster_06_grompy",
+      "radius": 33,
+      "drawRadius": 55,
+      "score": 450,
+      "color": "#fb7185",
+      "asset": "./assets/monsters/monster_06_grompy.webp"
+    },
+    {
+      "id": "monster_07_batzo",
+      "level": 7,
+      "nameKey": "monster_07_batzo",
+      "radius": 40,
+      "drawRadius": 62,
+      "score": 900,
+      "color": "#a78bfa",
+      "asset": "./assets/monsters/monster_07_batzo.webp"
+    },
+    {
+      "id": "monster_08_moogra",
+      "level": 8,
+      "nameKey": "monster_08_moogra",
+      "radius": 48,
+      "drawRadius": 70,
+      "score": 1800,
+      "color": "#38bdf8",
+      "asset": "./assets/monsters/monster_08_moogra.webp"
+    },
+    {
+      "id": "monster_09_cronok",
+      "level": 9,
+      "nameKey": "monster_09_cronok",
+      "radius": 56,
+      "drawRadius": 78,
+      "score": 3600,
+      "color": "#f97316",
+      "asset": "./assets/monsters/monster_09_cronok.webp"
+    },
+    {
+      "id": "monster_10_zarboom",
+      "level": 10,
+      "nameKey": "monster_10_zarboom",
+      "radius": 65,
+      "drawRadius": 87,
+      "score": 7200,
+      "color": "#ef4444",
+      "asset": "./assets/monsters/monster_10_zarboom.webp"
+    },
+    {
+      "id": "monster_11_ultrazog",
+      "level": 11,
+      "nameKey": "monster_11_ultrazog",
+      "radius": 75,
+      "drawRadius": 97,
+      "score": 14500,
+      "color": "#8b5cf6",
+      "asset": "./assets/monsters/monster_11_ultrazog.webp"
+    },
+    {
+      "id": "monster_12_megaboss",
+      "level": 12,
+      "nameKey": "monster_12_megaboss",
+      "radius": 86,
+      "drawRadius": 108,
+      "score": 30000,
+      "color": "#facc15",
+      "asset": "./assets/monsters/monster_12_megaboss.webp"
+    }
   ]
 }
