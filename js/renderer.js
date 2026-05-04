@@ -13,30 +13,35 @@ window.VMSRenderer = {
     y: 0,
     w: 0,
     h: 0,
-    scale: 1,
     imgW: 928,
     imgH: 1536
   },
 
-  // Coordonnées basées sur TON image.
-  // Si un jour l’image change un peu, c’est ici qu’on ajuste.
+  // Réglage précis pour TON image.
+  // La piste est en trapèze, donc on ne fait plus un simple rectangle.
   labMap: {
-    trackLeft: 0.205,
-    trackRight: 0.795,
-    trackTop: 0.265,
-    trackBottom: 0.895,
+    trackTopY: 0.245,
+    trackBottomY: 0.895,
 
-    dangerY: 0.805,
+    trackTopLeftX: 0.335,
+    trackTopRightX: 0.665,
+
+    trackBottomLeftX: 0.105,
+    trackBottomRightX: 0.895,
+
+    dangerY: 0.815,
 
     spawnX: 0.5,
-    spawnY: 0.855
+    spawnY: 0.865
   },
+
+  // Mets false quand tout est bien calé.
+  debugZones: true,
 
   init(canvas) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d", { alpha: false });
     this.resize();
-
     window.addEventListener("resize", () => this.resize());
   },
 
@@ -66,20 +71,22 @@ window.VMSRenderer = {
     const scale = Math.max(this.width / imgW, this.height / imgH);
     const w = imgW * scale;
     const h = imgH * scale;
-    const x = (this.width - w) / 2;
-    const y = (this.height - h) / 2;
 
-    this.bgDraw.x = x;
-    this.bgDraw.y = y;
     this.bgDraw.w = w;
     this.bgDraw.h = h;
-    this.bgDraw.scale = scale;
+    this.bgDraw.x = (this.width - w) / 2;
+    this.bgDraw.y = (this.height - h) / 2;
   },
 
   render(state) {
     this.updateBackgroundCover();
 
     this.drawBackground();
+
+    if (this.debugZones) {
+      this.drawDebugZones();
+    }
+
     this.drawDangerLine(state);
     this.drawSpawnZone(state);
     this.drawMonsters(state);
@@ -100,7 +107,7 @@ window.VMSRenderer = {
     const ctx = this.ctx;
     const img = this.getImage(this.bgSrc);
 
-    ctx.fillStyle = "#090716";
+    ctx.fillStyle = "#05030c";
     ctx.fillRect(0, 0, this.width, this.height);
 
     if (img) {
@@ -109,53 +116,86 @@ window.VMSRenderer = {
     }
 
     const grd = ctx.createLinearGradient(0, 0, 0, this.height);
-    grd.addColorStop(0, "#24174d");
+    grd.addColorStop(0, "#261957");
     grd.addColorStop(0.55, "#17142b");
     grd.addColorStop(1, "#080611");
     ctx.fillStyle = grd;
     ctx.fillRect(0, 0, this.width, this.height);
+  },
 
-    const rect = this.getTrackRect();
+  drawDebugZones() {
+    const ctx = this.ctx;
+    const p = this.getTrackPolygonPoints();
+    const spawn = this.getSpawnPoint();
+    const dangerY = this.getDangerY();
+    const bounds = this.getTrackBoundsAt(dangerY);
 
     ctx.save();
-    ctx.shadowColor = "rgba(0,0,0,.55)";
-    ctx.shadowBlur = 34;
-    ctx.fillStyle = "#302262";
-    this.roundRect(ctx, rect.left, rect.top, rect.width, rect.height, 38);
+
+    // Zone logique de piste.
+    ctx.globalAlpha = 0.16;
+    ctx.fillStyle = "#35ff8d";
+    ctx.beginPath();
+    ctx.moveTo(p.topLeft.x, p.topLeft.y);
+    ctx.lineTo(p.topRight.x, p.topRight.y);
+    ctx.lineTo(p.bottomRight.x, p.bottomRight.y);
+    ctx.lineTo(p.bottomLeft.x, p.bottomLeft.y);
+    ctx.closePath();
     ctx.fill();
 
-    ctx.strokeStyle = "rgba(119, 86, 255, .9)";
-    ctx.lineWidth = 6;
-    this.roundRect(ctx, rect.left + 4, rect.top + 4, rect.width - 8, rect.height - 8, 34);
+    ctx.globalAlpha = 0.75;
+    ctx.strokeStyle = "#35ff8d";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(p.topLeft.x, p.topLeft.y);
+    ctx.lineTo(p.topRight.x, p.topRight.y);
+    ctx.lineTo(p.bottomRight.x, p.bottomRight.y);
+    ctx.lineTo(p.bottomLeft.x, p.bottomLeft.y);
+    ctx.closePath();
     ctx.stroke();
+
+    // Ligne danger debug.
+    ctx.globalAlpha = 0.95;
+    ctx.strokeStyle = "#ff3b25";
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(bounds.left, dangerY);
+    ctx.lineTo(bounds.right, dangerY);
+    ctx.stroke();
+
+    // Zone spawn debug.
+    ctx.globalAlpha = 0.9;
+    ctx.strokeStyle = "#61eaff";
+    ctx.lineWidth = 4;
+    this.roundRect(ctx, spawn.x - 70, spawn.y - 36, 140, 72, 26);
+    ctx.stroke();
+
     ctx.restore();
   },
 
   drawDangerLine(state) {
     const ctx = this.ctx;
-    const rect = this.getTrackRect();
     const y = this.getDangerY();
+    const bounds = this.getTrackBoundsAt(y);
     const dangerRatio = state?.dangerRatio || 0;
+
+    const lineW = (bounds.right - bounds.left) * 0.88;
+    const lineX = bounds.left + ((bounds.right - bounds.left) - lineW) / 2;
+    const lineH = Math.max(7, lineW * 0.025);
 
     ctx.save();
 
-    const pulse = 0.45 + dangerRatio * 0.55;
-
-    ctx.globalAlpha = pulse;
+    ctx.globalAlpha = 0.55 + dangerRatio * 0.45;
     ctx.shadowColor = "#ff3b25";
-    ctx.shadowBlur = 18 + dangerRatio * 28;
+    ctx.shadowBlur = 18 + dangerRatio * 32;
 
-    const lineH = Math.max(7, rect.width * 0.018);
-    const lineW = rect.width * 0.86;
-    const x = rect.left + (rect.width - lineW) / 2;
-
-    ctx.fillStyle = "#ff4a2e";
-    this.roundRect(ctx, x, y - lineH / 2, lineW, lineH, lineH);
+    ctx.fillStyle = "#ff412e";
+    this.roundRect(ctx, lineX, y - lineH / 2, lineW, lineH, lineH);
     ctx.fill();
 
-    ctx.globalAlpha = 0.9;
-    ctx.fillStyle = "rgba(255, 210, 120, .9)";
-    this.roundRect(ctx, x + lineW * 0.08, y - lineH / 2, lineW * 0.84, Math.max(2, lineH * 0.28), lineH);
+    ctx.globalAlpha = 0.85;
+    ctx.fillStyle = "rgba(255,220,130,.9)";
+    this.roundRect(ctx, lineX + lineW * 0.08, y - lineH / 2, lineW * 0.84, Math.max(2, lineH * 0.28), lineH);
     ctx.fill();
 
     ctx.restore();
@@ -164,20 +204,20 @@ window.VMSRenderer = {
   drawSpawnZone(state) {
     const ctx = this.ctx;
     const spawn = this.getSpawnPoint();
-    const rect = this.getTrackRect();
-
-    const w = rect.width * 0.42;
-    const h = Math.max(54, rect.width * 0.16);
     const dangerRatio = state?.dangerRatio || 0;
+    const bounds = this.getTrackBoundsAt(spawn.y);
+
+    const w = (bounds.right - bounds.left) * 0.42;
+    const h = Math.max(56, w * 0.38);
 
     ctx.save();
 
     ctx.shadowColor = dangerRatio > 0 ? "#ff4a2e" : "#75e9ff";
-    ctx.shadowBlur = dangerRatio > 0 ? 28 : 20;
+    ctx.shadowBlur = dangerRatio > 0 ? 26 : 18;
 
     const grd = ctx.createLinearGradient(spawn.x - w / 2, spawn.y - h / 2, spawn.x + w / 2, spawn.y + h / 2);
-    grd.addColorStop(0, "rgba(104, 232, 255, .22)");
-    grd.addColorStop(0.5, "rgba(123, 89, 255, .26)");
+    grd.addColorStop(0, "rgba(104,232,255,.22)");
+    grd.addColorStop(0.5, "rgba(123,89,255,.30)");
     grd.addColorStop(1, "rgba(255,255,255,.12)");
 
     ctx.fillStyle = grd;
@@ -185,15 +225,10 @@ window.VMSRenderer = {
     ctx.fill();
 
     ctx.shadowBlur = 0;
-    ctx.strokeStyle = dangerRatio > 0 ? "rgba(255, 90, 50, .95)" : "rgba(155, 238, 255, .7)";
-    ctx.lineWidth = Math.max(2, rect.width * 0.006);
+    ctx.strokeStyle = dangerRatio > 0 ? "rgba(255,90,50,.95)" : "rgba(155,238,255,.72)";
+    ctx.lineWidth = Math.max(2, w * 0.018);
     this.roundRect(ctx, spawn.x - w / 2, spawn.y - h / 2, w, h, h * 0.42);
     ctx.stroke();
-
-    ctx.globalAlpha = 0.5;
-    ctx.fillStyle = "#ffffff";
-    this.roundRect(ctx, spawn.x - w * 0.25, spawn.y - h * 0.28, w * 0.5, h * 0.08, h);
-    ctx.fill();
 
     ctx.restore();
   },
@@ -274,7 +309,7 @@ window.VMSRenderer = {
     ctx.arc(r * 0.36, -r * 0.15, r * 0.08, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.fillStyle = "rgba(255,255,255,.9)";
+    ctx.fillStyle = "rgba(255,255,255,.92)";
     ctx.font = `900 ${Math.max(11, r * 0.42)}px Arial`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
@@ -288,15 +323,13 @@ window.VMSRenderer = {
     if (!aim?.active || !monster) return;
 
     const ctx = this.ctx;
-    const rect = this.getTrackRect();
-
     const endX = monster.x + aim.vx * 0.18;
     const endY = monster.y + aim.vy * 0.18;
 
     ctx.save();
 
     ctx.strokeStyle = "rgba(143,232,255,.92)";
-    ctx.lineWidth = Math.max(4, rect.width * 0.018);
+    ctx.lineWidth = 6;
     ctx.lineCap = "round";
     ctx.shadowColor = "#8fe8ff";
     ctx.shadowBlur = 18;
@@ -307,7 +340,7 @@ window.VMSRenderer = {
     ctx.stroke();
 
     const angle = Math.atan2(endY - monster.y, endX - monster.x);
-    const arrowSize = Math.max(18, rect.width * 0.055);
+    const arrowSize = 22;
 
     ctx.translate(endX, endY);
     ctx.rotate(angle);
@@ -354,17 +387,47 @@ window.VMSRenderer = {
     ctx.restore();
   },
 
-  getTrackRect() {
-    const leftTop = this.imageToScreen(this.labMap.trackLeft, this.labMap.trackTop);
-    const rightBottom = this.imageToScreen(this.labMap.trackRight, this.labMap.trackBottom);
+  getTrackPolygonPoints() {
+    return {
+      topLeft: this.imageToScreen(this.labMap.trackTopLeftX, this.labMap.trackTopY),
+      topRight: this.imageToScreen(this.labMap.trackTopRightX, this.labMap.trackTopY),
+      bottomLeft: this.imageToScreen(this.labMap.trackBottomLeftX, this.labMap.trackBottomY),
+      bottomRight: this.imageToScreen(this.labMap.trackBottomRightX, this.labMap.trackBottomY)
+    };
+  },
+
+  getTrackBoundsAt(screenY, padding = 0) {
+    const top = this.imageToScreen(0.5, this.labMap.trackTopY).y;
+    const bottom = this.imageToScreen(0.5, this.labMap.trackBottomY).y;
+
+    const t = this.clamp((screenY - top) / Math.max(1, bottom - top), 0, 1);
+
+    const topLeft = this.imageToScreen(this.labMap.trackTopLeftX, this.labMap.trackTopY);
+    const topRight = this.imageToScreen(this.labMap.trackTopRightX, this.labMap.trackTopY);
+    const bottomLeft = this.imageToScreen(this.labMap.trackBottomLeftX, this.labMap.trackBottomY);
+    const bottomRight = this.imageToScreen(this.labMap.trackBottomRightX, this.labMap.trackBottomY);
+
+    const left = this.lerp(topLeft.x, bottomLeft.x, t) + padding;
+    const right = this.lerp(topRight.x, bottomRight.x, t) - padding;
 
     return {
-      left: leftTop.x,
-      right: rightBottom.x,
-      top: leftTop.y,
-      bottom: rightBottom.y,
-      width: rightBottom.x - leftTop.x,
-      height: rightBottom.y - leftTop.y
+      left,
+      right,
+      center: (left + right) / 2,
+      width: right - left
+    };
+  },
+
+  getTrackRect() {
+    const p = this.getTrackPolygonPoints();
+
+    return {
+      left: Math.min(p.topLeft.x, p.bottomLeft.x),
+      right: Math.max(p.topRight.x, p.bottomRight.x),
+      top: p.topLeft.y,
+      bottom: p.bottomLeft.y,
+      width: Math.max(p.topRight.x, p.bottomRight.x) - Math.min(p.topLeft.x, p.bottomLeft.x),
+      height: p.bottomLeft.y - p.topLeft.y
     };
   },
 
@@ -401,6 +464,14 @@ window.VMSRenderer = {
     this.imageCache[src] = img;
 
     return null;
+  },
+
+  lerp(a, b, t) {
+    return a + (b - a) * t;
+  },
+
+  clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
   },
 
   roundRect(ctx, x, y, w, h, r) {

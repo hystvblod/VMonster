@@ -197,6 +197,17 @@ window.VMSGame = {
       monster.vx *= friction;
       monster.vy *= friction;
 
+      // On garde le lancer fluide, mais on évite que les monstres reviennent trop fort vers le joueur.
+      if (monster.vy > 0) {
+        monster.vy *= 0.74;
+      }
+
+      const dangerY = VMSRenderer.getDangerY();
+
+      if (monster.age > 700 && monster.y + monster.radius > dangerY - 8 && monster.vy > 0) {
+        monster.vy *= 0.35;
+      }
+
       if (Math.abs(monster.vx) < 6) monster.vx = 0;
       if (Math.abs(monster.vy) < 6) monster.vy = 0;
 
@@ -207,26 +218,37 @@ window.VMSGame = {
   },
 
   resolveWall(monster, track, bounce) {
-    if (monster.x - monster.radius < track.left) {
-      monster.x = track.left + monster.radius;
-      monster.vx = Math.abs(monster.vx) * bounce;
-    }
+  const rect = VMSRenderer.getTrackRect();
+  const bounds = VMSRenderer.getTrackBoundsAt(monster.y, monster.radius);
 
-    if (monster.x + monster.radius > track.right) {
-      monster.x = track.right - monster.radius;
-      monster.vx = -Math.abs(monster.vx) * bounce;
-    }
+  if (monster.x - monster.radius < bounds.left) {
+    monster.x = bounds.left + monster.radius;
+    monster.vx = Math.abs(monster.vx) * bounce;
+  }
 
-    if (monster.y - monster.radius < track.top) {
-      monster.y = track.top + monster.radius;
-      monster.vy = Math.abs(monster.vy) * bounce;
-    }
+  if (monster.x + monster.radius > bounds.right) {
+    monster.x = bounds.right - monster.radius;
+    monster.vx = -Math.abs(monster.vx) * bounce;
+  }
 
-    if (monster.y + monster.radius > track.bottom) {
-      monster.y = track.bottom - monster.radius;
-      monster.vy = -Math.abs(monster.vy) * bounce;
-    }
-  },
+  if (monster.y - monster.radius < rect.top) {
+    monster.y = rect.top + monster.radius;
+
+    // Important : on ne veut pas un gros rebond vers le bas.
+    // Le monstre tape le haut, puis il ralentit.
+    monster.vy = Math.max(0, monster.vy) * 0.08;
+    monster.vx *= 0.82;
+  }
+
+  if (monster.y + monster.radius > rect.bottom) {
+    monster.y = rect.bottom - monster.radius;
+
+    // Pas de rebond violent vers la zone joueur.
+    // On le renvoie doucement vers le haut.
+    monster.vy = -Math.abs(monster.vy) * 0.18;
+    monster.vx *= 0.82;
+  }
+},
 
   resolveMonsterCollisions(bounce) {
     const monsters = this.state.monsters;
@@ -330,29 +352,39 @@ window.VMSGame = {
   },
 
   updateDanger(delta) {
-    const dangerY = VMSRenderer.getDangerY();
-    const grace = this.state.level.dangerGraceMs || 1200;
+  const dangerY = VMSRenderer.getDangerY();
 
-    this.state.dangerY = dangerY;
+  // Minimum 2800ms pour éviter le game over instant.
+  const grace = Math.max(2800, this.state.level.dangerGraceMs || 2800);
 
-    const danger = this.state.monsters.some((monster) => {
-      if (!monster.launched) return false;
-      if (monster.age < 900) return false;
-      return monster.y + monster.radius > dangerY;
-    });
+  this.state.dangerY = dangerY;
 
-    if (danger) {
-      this.dangerTimer += delta;
-    } else {
-      this.dangerTimer = Math.max(0, this.dangerTimer - delta * 1.8);
-    }
+  const danger = this.state.monsters.some((monster) => {
+    if (!monster.launched) return false;
 
-    this.state.dangerRatio = VMSUtils.clamp(this.dangerTimer / grace, 0, 1);
+    // Le monstre qui vient d’être lancé ne compte pas.
+    if (monster.age < 2500) return false;
 
-    if (this.dangerTimer >= grace) {
-      this.endGame();
-    }
-  },
+    const speed = Math.sqrt(monster.vx * monster.vx + monster.vy * monster.vy);
+
+    // Tant qu’il bouge encore vraiment, on ne déclenche pas la mort.
+    if (speed > 95) return false;
+
+    return monster.y + monster.radius > dangerY;
+  });
+
+  if (danger) {
+    this.dangerTimer += delta;
+  } else {
+    this.dangerTimer = Math.max(0, this.dangerTimer - delta * 1.4);
+  }
+
+  this.state.dangerRatio = VMSUtils.clamp(this.dangerTimer / grace, 0, 1);
+
+  if (this.dangerTimer >= grace) {
+    this.endGame();
+  }
+},
 
   endGame() {
     if (this.gameOver) return;
