@@ -8,6 +8,7 @@ window.VMSRenderer = {
   trimCache: {},
 
   bgSrc: "./assets/environment/backgrounds/bg_lab_main_01.webp",
+  backgroundMode: "fit-width",
 
   bgDraw: {
     x: 0,
@@ -62,21 +63,50 @@ labMap: {
   },
 
   updateBackgroundCover() {
-  const img = this.getImage(this.bgSrc);
+    const img = this.getImage(this.bgSrc);
 
-  const imgW = img?.naturalWidth || this.bgDraw.imgW || 928;
-  const imgH = img?.naturalHeight || this.bgDraw.imgH || 1536;
+    const imgW = img?.naturalWidth || this.bgDraw.imgW || 928;
+    const imgH = img?.naturalHeight || this.bgDraw.imgH || 1536;
 
-  this.bgDraw.imgW = imgW;
-  this.bgDraw.imgH = imgH;
+    this.bgDraw.imgW = imgW;
+    this.bgDraw.imgH = imgH;
 
-  // STRETCH : l'image prend toujours tout l'écran.
-  // Pas de vide, pas de découpe.
-  this.bgDraw.x = 0;
-  this.bgDraw.y = 0;
-  this.bgDraw.w = this.width;
-  this.bgDraw.h = this.height;
-},
+    if (this.backgroundMode === "fit-width") {
+      const scale = this.width / imgW;
+
+      this.bgDraw.w = this.width;
+      this.bgDraw.h = imgH * scale;
+      this.bgDraw.x = 0;
+      this.bgDraw.y = (this.height - this.bgDraw.h) / 2;
+      return;
+    }
+
+    if (this.backgroundMode === "contain") {
+      const scale = Math.min(this.width / imgW, this.height / imgH);
+
+      this.bgDraw.w = imgW * scale;
+      this.bgDraw.h = imgH * scale;
+      this.bgDraw.x = (this.width - this.bgDraw.w) / 2;
+      this.bgDraw.y = (this.height - this.bgDraw.h) / 2;
+      return;
+    }
+
+    if (this.backgroundMode === "stretch") {
+      this.bgDraw.x = 0;
+      this.bgDraw.y = 0;
+      this.bgDraw.w = this.width;
+      this.bgDraw.h = this.height;
+      return;
+    }
+
+    // cover = comportement d’avant
+    const scale = Math.max(this.width / imgW, this.height / imgH);
+
+    this.bgDraw.w = imgW * scale;
+    this.bgDraw.h = imgH * scale;
+    this.bgDraw.x = (this.width - this.bgDraw.w) / 2;
+    this.bgDraw.y = (this.height - this.bgDraw.h) / 2;
+  },
 
   render(state) {
     this.updateBackgroundCover();
