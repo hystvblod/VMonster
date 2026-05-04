@@ -8,7 +8,7 @@ window.VMSRenderer = {
   trimCache: {},
 
   bgSrc: "./assets/environment/backgrounds/bg_lab_main_01.webp",
-  backgroundMode: "fit-width",
+  backgroundMode: "cover",
 
   bgDraw: {
     x: 0,
