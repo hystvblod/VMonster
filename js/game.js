@@ -252,51 +252,69 @@ window.VMSGame = {
 },
 
   resolveMonsterCollisions(bounce) {
-    const monsters = this.state.monsters;
+  const monsters = this.state.monsters;
 
-    for (let i = 0; i < monsters.length; i++) {
-      for (let j = i + 1; j < monsters.length; j++) {
-        const a = monsters[i];
-        const b = monsters[j];
+  for (let i = 0; i < monsters.length; i++) {
+    for (let j = i + 1; j < monsters.length; j++) {
+      const a = monsters[i];
+      const b = monsters[j];
 
-        if (!a || !b || a.merging || b.merging) continue;
+      if (!a || !b || a.merging || b.merging) continue;
 
-        const dx = b.x - a.x;
-        const dy = b.y - a.y;
-        const distSq = dx * dx + dy * dy;
-        const minDist = a.radius + b.radius;
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const distSq = dx * dx + dy * dy;
 
-        if (distSq >= minDist * minDist) continue;
+      const minDist = a.radius + b.radius;
 
-        if (a.level === b.level) {
+      // Même niveau : fusion dès qu'ils sont très proches.
+      // Comme ça ils ne se chevauchent pas longtemps.
+      if (a.level === b.level) {
+        const mergeDist = minDist * 1.08;
+
+        if (distSq <= mergeDist * mergeDist) {
           this.mergeMonsters(a, b);
           return;
         }
 
-        const dist = Math.max(0.001, Math.sqrt(distSq));
-        const nx = dx / dist;
-        const ny = dy / dist;
-        const overlap = minDist - dist;
-
-        a.x -= nx * overlap * 0.5;
-        a.y -= ny * overlap * 0.5;
-        b.x += nx * overlap * 0.5;
-        b.y += ny * overlap * 0.5;
-
-        const relativeVx = b.vx - a.vx;
-        const relativeVy = b.vy - a.vy;
-        const impulse = relativeVx * nx + relativeVy * ny;
-
-        if (impulse < 0) {
-          const force = impulse * bounce;
-          a.vx += force * nx;
-          a.vy += force * ny;
-          b.vx -= force * nx;
-          b.vy -= force * ny;
-        }
+        continue;
       }
+
+      // Niveaux différents : collision normale, pas de fusion.
+      if (distSq >= minDist * minDist) continue;
+
+      const dist = Math.max(0.001, Math.sqrt(distSq));
+      const nx = dx / dist;
+      const ny = dy / dist;
+      const overlap = minDist - dist;
+
+      // Séparation stricte pour éviter le chevauchement visuel.
+      a.x -= nx * overlap * 0.52;
+      a.y -= ny * overlap * 0.52;
+      b.x += nx * overlap * 0.52;
+      b.y += ny * overlap * 0.52;
+
+      const relativeVx = b.vx - a.vx;
+      const relativeVy = b.vy - a.vy;
+      const impulse = relativeVx * nx + relativeVy * ny;
+
+      if (impulse < 0) {
+        const force = impulse * bounce;
+
+        a.vx += force * nx;
+        a.vy += force * ny;
+        b.vx -= force * nx;
+        b.vy -= force * ny;
+      }
+
+      // Petit amortissement pour éviter qu'ils tremblent ou se repoussent trop fort.
+      a.vx *= 0.96;
+      a.vy *= 0.96;
+      b.vx *= 0.96;
+      b.vy *= 0.96;
     }
-  },
+  }
+},
 
   mergeMonsters(a, b) {
     a.merging = true;
