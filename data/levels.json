@@ -5,10 +5,10 @@
       "theme": "lab_classic",
       "trackWidthRatio": 0.72,
       "spawnPoolMaxLevel": 3,
-      "dangerGraceMs": 3200,
+      "dangerGraceMs": 4200,
       "friction": 0.992,
-      "wallBounce": 0.42,
-      "monsterBounce": 0.22
+      "wallBounce": 0.28,
+      "monsterBounce": 0.12
     }
   ]
 }

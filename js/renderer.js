@@ -62,23 +62,21 @@ labMap: {
   },
 
   updateBackgroundCover() {
-    const img = this.getImage(this.bgSrc);
+  const img = this.getImage(this.bgSrc);
 
-    const imgW = img?.naturalWidth || this.bgDraw.imgW || 928;
-    const imgH = img?.naturalHeight || this.bgDraw.imgH || 1536;
+  const imgW = img?.naturalWidth || this.bgDraw.imgW || 928;
+  const imgH = img?.naturalHeight || this.bgDraw.imgH || 1536;
 
-    this.bgDraw.imgW = imgW;
-    this.bgDraw.imgH = imgH;
+  this.bgDraw.imgW = imgW;
+  this.bgDraw.imgH = imgH;
 
-    const scale = Math.max(this.width / imgW, this.height / imgH);
-    const w = imgW * scale;
-    const h = imgH * scale;
-
-    this.bgDraw.w = w;
-    this.bgDraw.h = h;
-    this.bgDraw.x = (this.width - w) / 2;
-    this.bgDraw.y = (this.height - h) / 2;
-  },
+  // STRETCH : l'image prend toujours tout l'écran.
+  // Pas de vide, pas de découpe.
+  this.bgDraw.x = 0;
+  this.bgDraw.y = 0;
+  this.bgDraw.w = this.width;
+  this.bgDraw.h = this.height;
+},
 
   render(state) {
     this.updateBackgroundCover();
