@@ -26,7 +26,7 @@ labMap: {
   trackTopLeftX: 0.360,
   trackTopRightX: 0.640,
 
-  trackBottomLeftX: 0.105,
+  trackBottomLeftX: 0.098,
   trackBottomRightX: 0.895,
 
   dangerY: 0.815,
