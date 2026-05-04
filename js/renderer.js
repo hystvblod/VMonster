@@ -1,10 +1,10 @@
-﻿window.VMSRenderer = {
+window.VMSRenderer = {
   canvas: null,
   ctx: null,
   width: 0,
   height: 0,
   dpr: 1,
-  beltOffset: 0,
+  imageCache: {},
 
   init(canvas) {
     this.canvas = canvas;
@@ -27,207 +27,362 @@
     this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
   },
 
-  clear() {
-    const ctx = this.ctx;
-    const grd = ctx.createLinearGradient(0, 0, 0, this.height);
-    grd.addColorStop(0, "#2a1d50");
-    grd.addColorStop(.52, "#17142b");
-    grd.addColorStop(1, "#0d0b17");
-    ctx.fillStyle = grd;
-    ctx.fillRect(0, 0, this.width, this.height);
-  },
-
   render(state) {
-    this.clear();
     this.drawBackground();
-    this.drawConveyor(state);
-    this.drawPortals(state);
+    this.drawTrack();
+    this.drawDangerLine(state);
+    this.drawSpawnZone();
     this.drawMonsters(state);
+    this.drawCurrentMonster();
+    this.drawAim(state);
     this.drawParticles(state);
+    this.drawDangerWarning(state);
   },
 
   drawBackground() {
     const ctx = this.ctx;
-    ctx.save();
-    ctx.globalAlpha = .22;
+    const img = this.getImage("./assets/environment/backgrounds/bg_lab_main_01.webp");
 
-    for (let i = 0; i < 9; i++) {
-      const x = (i * 73 + 41) % this.width;
-      const y = (i * 139 + this.beltOffset * .12) % this.height;
+    if (img) {
+      ctx.drawImage(img, 0, 0, this.width, this.height);
+      return;
+    }
+
+    const grd = ctx.createLinearGradient(0, 0, 0, this.height);
+    grd.addColorStop(0, "#31205f");
+    grd.addColorStop(0.55, "#17142b");
+    grd.addColorStop(1, "#0c0918");
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, 0, this.width, this.height);
+
+    ctx.save();
+    ctx.globalAlpha = 0.18;
+    ctx.fillStyle = "#8fe8ff";
+
+    for (let i = 0; i < 14; i++) {
+      const x = (i * 79 + 37) % this.width;
+      const y = (i * 131 + 52) % this.height;
       ctx.beginPath();
-      ctx.arc(x, y, 2 + (i % 3), 0, Math.PI * 2);
-      ctx.fillStyle = "#9cecff";
+      ctx.arc(x, y, 3 + (i % 3), 0, Math.PI * 2);
       ctx.fill();
     }
 
     ctx.restore();
   },
 
-  drawConveyor(state) {
+  drawTrack() {
     const ctx = this.ctx;
-    const w = Math.min(this.width * .62, 300);
-    const x = (this.width - w) / 2;
-    const y = 80;
-    const h = this.height - 160;
+    const rect = this.getTrackRect();
+    const img = this.getImage("./assets/environment/track/track_merge_main_01.webp");
 
     ctx.save();
 
-    ctx.shadowColor = "rgba(0,0,0,.45)";
-    ctx.shadowBlur = 28;
-    ctx.fillStyle = "rgba(0,0,0,.35)";
-    ctx.beginPath();
-    ctx.roundRect(x - 24, y + 8, w + 48, h, 34);
+    ctx.shadowColor = "rgba(0,0,0,.46)";
+    ctx.shadowBlur = 32;
+    ctx.fillStyle = "rgba(0,0,0,.30)";
+    this.roundRect(ctx, rect.left - 18, rect.top + 12, rect.width + 36, rect.height, 38);
     ctx.fill();
-
-    const baseGrad = ctx.createLinearGradient(x, y, x + w, y);
-    baseGrad.addColorStop(0, "#372767");
-    baseGrad.addColorStop(.5, "#51418f");
-    baseGrad.addColorStop(1, "#2b2159");
 
     ctx.shadowBlur = 0;
-    ctx.fillStyle = baseGrad;
-    ctx.beginPath();
-    ctx.roundRect(x, y, w, h, 28);
-    ctx.fill();
 
-    ctx.save();
-    ctx.beginPath();
-    ctx.roundRect(x + 18, y + 16, w - 36, h - 32, 24);
-    ctx.clip();
+    if (img) {
+      ctx.drawImage(img, rect.left, rect.top, rect.width, rect.height);
+    } else {
+      const grd = ctx.createLinearGradient(rect.left, rect.top, rect.right, rect.bottom);
+      grd.addColorStop(0, "#33265f");
+      grd.addColorStop(0.5, "#5d4aa0");
+      grd.addColorStop(1, "#20183d");
 
-    this.beltOffset = (this.beltOffset + state.delta * state.speed * .22) % 80;
+      ctx.fillStyle = grd;
+      this.roundRect(ctx, rect.left, rect.top, rect.width, rect.height, 36);
+      ctx.fill();
 
-    for (let yy = y - 80 + this.beltOffset; yy < y + h + 80; yy += 80) {
-      const tileGrad = ctx.createLinearGradient(x + 18, yy, x + w - 18, yy + 70);
-      tileGrad.addColorStop(0, "#2f264f");
-      tileGrad.addColorStop(.5, "#5d4a9a");
-      tileGrad.addColorStop(1, "#241d3f");
-      ctx.fillStyle = tileGrad;
-      ctx.fillRect(x + 18, yy, w - 36, 54);
+      ctx.strokeStyle = "rgba(160,240,255,.26)";
+      ctx.lineWidth = 3;
+      this.roundRect(ctx, rect.left + 5, rect.top + 5, rect.width - 10, rect.height - 10, 32);
+      ctx.stroke();
 
-      ctx.fillStyle = "rgba(255,255,255,.07)";
-      ctx.fillRect(x + 28, yy + 8, w - 56, 5);
+      ctx.globalAlpha = 0.12;
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 2;
+
+      for (let y = rect.top + 70; y < rect.bottom - 40; y += 70) {
+        ctx.beginPath();
+        ctx.moveTo(rect.left + 28, y);
+        ctx.lineTo(rect.right - 28, y);
+        ctx.stroke();
+      }
     }
-
-    ctx.restore();
-
-    ctx.strokeStyle = "rgba(154, 237, 255, .22)";
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.roundRect(x + 4, y + 4, w - 8, h - 8, 26);
-    ctx.stroke();
 
     ctx.restore();
   },
 
-  drawPortals(state) {
+  drawDangerLine(state) {
     const ctx = this.ctx;
-    const portalY = this.height - 104;
-    const laneXs = this.getLaneXs();
+    const rect = this.getTrackRect();
+    const y = this.getDangerY();
+    const img = this.getImage("./assets/environment/track/danger_line_01.webp");
 
-    state.portals.forEach((portal, index) => {
-      const x = laneXs[index];
-      const color = portal.color;
+    ctx.save();
 
-      ctx.save();
-      ctx.translate(x, portalY);
+    const alpha = 0.45 + (state.dangerRatio || 0) * 0.55;
+    ctx.globalAlpha = alpha;
 
-      ctx.shadowColor = color;
-      ctx.shadowBlur = 22;
-      ctx.fillStyle = color;
-      ctx.globalAlpha = .28;
-      ctx.beginPath();
-      ctx.ellipse(0, 0, 42, 18, 0, 0, Math.PI * 2);
+    if (img) {
+      ctx.drawImage(img, rect.left + 12, y - 10, rect.width - 24, 20);
+    } else {
+      ctx.shadowColor = "#ff4d35";
+      ctx.shadowBlur = 18;
+      ctx.fillStyle = "#ff5b3f";
+      this.roundRect(ctx, rect.left + 16, y - 5, rect.width - 32, 10, 8);
       ctx.fill();
+    }
 
-      ctx.globalAlpha = 1;
-      ctx.shadowBlur = 0;
+    ctx.restore();
+  },
+
+  drawSpawnZone() {
+    const ctx = this.ctx;
+    const spawn = this.getSpawnPoint();
+    const img = this.getImage("./assets/environment/track/track_spawn_zone_01.webp");
+
+    ctx.save();
+
+    if (img) {
+      ctx.drawImage(img, spawn.x - 86, spawn.y - 42, 172, 84);
+    } else {
+      ctx.shadowColor = "rgba(0,0,0,.35)";
+      ctx.shadowBlur = 18;
       ctx.fillStyle = "rgba(255,255,255,.12)";
-      ctx.beginPath();
-      ctx.roundRect(-38, -46, 76, 62, 24);
+      this.roundRect(ctx, spawn.x - 92, spawn.y - 38, 184, 76, 30);
       ctx.fill();
 
-      ctx.fillStyle = color;
-      ctx.beginPath();
-      ctx.arc(0, -16, 24, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = "rgba(255,255,255,.18)";
+      ctx.lineWidth = 2;
+      this.roundRect(ctx, spawn.x - 92, spawn.y - 38, 184, 76, 30);
+      ctx.stroke();
+    }
 
-      ctx.fillStyle = "#fff";
-      ctx.font = "900 12px Arial";
-      ctx.textAlign = "center";
-      ctx.fillText(portal.label, 0, 30);
-
-      ctx.restore();
-    });
+    ctx.restore();
   },
 
   drawMonsters(state) {
+    for (const monster of state.monsters) {
+      this.drawMonster(monster);
+    }
+  },
+
+  drawCurrentMonster() {
+    if (!window.VMSGame || !VMSGame.currentMonster) return;
+    this.drawMonster(VMSGame.currentMonster, true);
+  },
+
+  drawMonster(monster, isCurrent = false) {
     const ctx = this.ctx;
-    const laneXs = this.getLaneXs();
+    const meta = VMSLevels.getMonsterByLevel(monster.level);
+    const img = this.getImage(monster.asset || meta.asset);
+    const size = monster.radius * 2.35;
 
-    state.monsters.forEach((monster) => {
-      const x = laneXs[monster.lane];
-      const y = monster.y;
-      const scale = .75 + (y / this.height) * .45;
-      const r = monster.radius * scale;
+    ctx.save();
+    ctx.translate(monster.x, monster.y);
 
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.scale(scale, scale);
+    ctx.globalAlpha = 0.22;
+    ctx.fillStyle = "#000";
+    ctx.beginPath();
+    ctx.ellipse(0, monster.radius * 0.86, monster.radius * 0.86, monster.radius * 0.25, 0, 0, Math.PI * 2);
+    ctx.fill();
 
-      ctx.shadowColor = monster.color;
-      ctx.shadowBlur = 20;
-      ctx.fillStyle = monster.color;
-      ctx.beginPath();
-      ctx.arc(0, 0, monster.radius, 0, Math.PI * 2);
-      ctx.fill();
+    ctx.globalAlpha = 1;
 
-      ctx.shadowBlur = 0;
-      ctx.fillStyle = "rgba(255,255,255,.92)";
-      ctx.beginPath();
-      ctx.arc(-8, -6, 5, 0, Math.PI * 2);
-      ctx.arc(8, -6, 5, 0, Math.PI * 2);
-      ctx.fill();
+    if (isCurrent) {
+      ctx.shadowColor = monster.color || meta.color;
+      ctx.shadowBlur = 22;
+    }
 
-      ctx.fillStyle = "#17122a";
-      ctx.beginPath();
-      ctx.arc(-7, -5, 2, 0, Math.PI * 2);
-      ctx.arc(9, -5, 2, 0, Math.PI * 2);
-      ctx.fill();
+    if (img) {
+      ctx.drawImage(img, -size / 2, -size / 2, size, size);
+    } else {
+      this.drawFallbackMonster(monster, meta);
+    }
 
-      ctx.restore();
+    ctx.restore();
+  },
 
-      ctx.save();
-      ctx.globalAlpha = .2;
-      ctx.fillStyle = "#000";
-      ctx.beginPath();
-      ctx.ellipse(x, y + r + 10, r * .85, r * .22, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-    });
+  drawFallbackMonster(monster, meta) {
+    const ctx = this.ctx;
+    const color = monster.color || meta.color || "#8fe8ff";
+    const r = monster.radius;
+
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 18;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(0, 0, r, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.shadowBlur = 0;
+
+    ctx.fillStyle = "rgba(255,255,255,.95)";
+    ctx.beginPath();
+    ctx.arc(-r * 0.32, -r * 0.18, r * 0.18, 0, Math.PI * 2);
+    ctx.arc(r * 0.32, -r * 0.18, r * 0.18, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = "#17122a";
+    ctx.beginPath();
+    ctx.arc(-r * 0.28, -r * 0.15, r * 0.08, 0, Math.PI * 2);
+    ctx.arc(r * 0.36, -r * 0.15, r * 0.08, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = "rgba(255,255,255,.9)";
+    ctx.font = `900 ${Math.max(11, r * 0.42)}px Arial`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(String(monster.level), 0, r * 0.38);
+  },
+
+  drawAim(state) {
+    const aim = state.aim;
+    const monster = window.VMSGame?.currentMonster;
+
+    if (!aim.active || !monster) return;
+
+    const ctx = this.ctx;
+    const endX = monster.x + aim.vx * 0.18;
+    const endY = monster.y + aim.vy * 0.18;
+
+    ctx.save();
+
+    ctx.strokeStyle = "rgba(143,232,255,.9)";
+    ctx.lineWidth = 6;
+    ctx.lineCap = "round";
+    ctx.shadowColor = "#8fe8ff";
+    ctx.shadowBlur = 16;
+
+    ctx.beginPath();
+    ctx.moveTo(monster.x, monster.y);
+    ctx.lineTo(endX, endY);
+    ctx.stroke();
+
+    const angle = Math.atan2(endY - monster.y, endX - monster.x);
+
+    ctx.translate(endX, endY);
+    ctx.rotate(angle);
+
+    ctx.fillStyle = "#8fe8ff";
+    ctx.beginPath();
+    ctx.moveTo(18, 0);
+    ctx.lineTo(-12, -10);
+    ctx.lineTo(-6, 0);
+    ctx.lineTo(-12, 10);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.restore();
   },
 
   drawParticles(state) {
     const ctx = this.ctx;
 
-    state.particles.forEach((p) => {
+    for (const p of state.particles) {
       ctx.save();
       ctx.globalAlpha = p.life;
       ctx.fillStyle = p.color;
+      ctx.shadowColor = p.color;
+      ctx.shadowBlur = 10;
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
-    });
+    }
   },
 
-  getLaneXs() {
-    const w = Math.min(this.width * .62, 300);
-    const x = (this.width - w) / 2;
-    return [
-      x + w * .2,
-      x + w * .5,
-      x + w * .8
-    ];
+  drawDangerWarning(state) {
+    if (!state.dangerRatio) return;
+
+    const ctx = this.ctx;
+
+    ctx.save();
+    ctx.globalAlpha = state.dangerRatio * 0.28;
+    ctx.fillStyle = "#ff3f32";
+    ctx.fillRect(0, 0, this.width, this.height);
+    ctx.restore();
+  },
+
+  getTrackRect() {
+    const ratio = window.VMSGame?.state?.level?.trackWidthRatio || 0.72;
+    const width = Math.min(this.width * ratio, 430);
+    const left = (this.width - width) / 2;
+    const top = 92;
+    const bottom = this.height - 104;
+    const height = bottom - top;
+
+    return {
+      left,
+      right: left + width,
+      top,
+      bottom,
+      width,
+      height
+    };
+  },
+
+  getSpawnPoint() {
+    return {
+      x: this.width / 2,
+      y: this.height - 66
+    };
+  },
+
+  getDangerY() {
+    return this.height - 214;
+  },
+
+  getImage(src) {
+    if (!src) return null;
+
+    if (this.imageCache[src] === false) return null;
+
+    if (this.imageCache[src]) {
+      const img = this.imageCache[src];
+      return img.complete && img.naturalWidth > 0 ? img : null;
+    }
+
+    const img = new Image();
+
+    img.onload = () => {
+      this.imageCache[src] = img;
+    };
+
+    img.onerror = () => {
+      this.imageCache[src] = false;
+    };
+
+    img.src = src;
+    this.imageCache[src] = img;
+
+    return null;
+  },
+
+  roundRect(ctx, x, y, w, h, r) {
+    if (ctx.roundRect) {
+      ctx.beginPath();
+      ctx.roundRect(x, y, w, h, r);
+      return;
+    }
+
+    const radius = Math.min(r, w / 2, h / 2);
+
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + w - radius, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+    ctx.lineTo(x + w, y + h - radius);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+    ctx.lineTo(x + radius, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
   }
 };

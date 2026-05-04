@@ -1,46 +1,47 @@
-﻿window.VMSInput = {
+window.VMSInput = {
   pointerDown: false,
-  startX: 0,
-  startY: 0,
-  currentX: 0,
-  currentY: 0,
-  swipeLock: false,
+  pointerId: null,
 
   init(canvas) {
+    this.canvas = canvas;
+
     canvas.addEventListener("pointerdown", (event) => {
+      if (!window.VMSGame || !VMSGame.running) return;
+
       this.pointerDown = true;
-      this.startX = event.clientX;
-      this.startY = event.clientY;
-      this.currentX = event.clientX;
-      this.currentY = event.clientY;
-      this.swipeLock = false;
+      this.pointerId = event.pointerId;
+
+      try {
+        canvas.setPointerCapture(event.pointerId);
+      } catch (error) {}
+
+      VMSGame.startAim(event.clientX, event.clientY);
     });
 
     canvas.addEventListener("pointermove", (event) => {
-      if (!this.pointerDown) return;
-      this.currentX = event.clientX;
-      this.currentY = event.clientY;
+      if (!this.pointerDown || event.pointerId !== this.pointerId) return;
+      VMSGame.updateAim(event.clientX, event.clientY);
     });
 
     canvas.addEventListener("pointerup", (event) => {
-      if (!this.pointerDown || this.swipeLock) {
-        this.pointerDown = false;
-        return;
-      }
-
-      const dx = event.clientX - this.startX;
-      const dy = event.clientY - this.startY;
-
-      if (Math.abs(dx) > 26 || Math.abs(dy) > 26) {
-        VMSGame.handleSwipe(dx, dy);
-      }
+      if (!this.pointerDown || event.pointerId !== this.pointerId) return;
 
       this.pointerDown = false;
-      this.swipeLock = true;
+      this.pointerId = null;
+
+      VMSGame.releaseAim(event.clientX, event.clientY);
+
+      try {
+        canvas.releasePointerCapture(event.pointerId);
+      } catch (error) {}
     });
 
-    canvas.addEventListener("pointercancel", () => {
+    canvas.addEventListener("pointercancel", (event) => {
+      if (event.pointerId !== this.pointerId) return;
+
       this.pointerDown = false;
+      this.pointerId = null;
+      VMSGame.cancelAim();
     });
   }
 };
