@@ -424,3 +424,5 @@ window.VMSRenderer = {
     ctx.quadraticCurveTo(x, y, x + radius, y);
   }
 };
+
+
