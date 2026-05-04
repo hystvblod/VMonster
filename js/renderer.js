@@ -71,41 +71,12 @@ labMap: {
     this.bgDraw.imgW = imgW;
     this.bgDraw.imgH = imgH;
 
-    if (this.backgroundMode === "fit-width") {
-      const scale = this.width / imgW;
-
-      this.bgDraw.w = this.width;
-      this.bgDraw.h = imgH * scale;
-      this.bgDraw.x = 0;
-      this.bgDraw.y = (this.height - this.bgDraw.h) / 2;
-      return;
-    }
-
-    if (this.backgroundMode === "contain") {
-      const scale = Math.min(this.width / imgW, this.height / imgH);
-
-      this.bgDraw.w = imgW * scale;
-      this.bgDraw.h = imgH * scale;
-      this.bgDraw.x = (this.width - this.bgDraw.w) / 2;
-      this.bgDraw.y = (this.height - this.bgDraw.h) / 2;
-      return;
-    }
-
-    if (this.backgroundMode === "stretch") {
-      this.bgDraw.x = 0;
-      this.bgDraw.y = 0;
-      this.bgDraw.w = this.width;
-      this.bgDraw.h = this.height;
-      return;
-    }
-
-    // cover = comportement d’avant
-    const scale = Math.max(this.width / imgW, this.height / imgH);
-
-    this.bgDraw.w = imgW * scale;
-    this.bgDraw.h = imgH * scale;
-    this.bgDraw.x = (this.width - this.bgDraw.w) / 2;
-    this.bgDraw.y = (this.height - this.bgDraw.h) / 2;
+    // STRETCH : l'image prend toujours tout l'écran.
+    // Pas de vide, pas de découpe.
+    this.bgDraw.x = 0;
+    this.bgDraw.y = 0;
+    this.bgDraw.w = this.width;
+    this.bgDraw.h = this.height;
   },
 
   render(state) {
