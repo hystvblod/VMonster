@@ -94,8 +94,10 @@ labMap: {
       this.drawDebugZones();
     }
 
+    this.drawWorldHeader(state);
     this.drawDangerLine(state);
     this.drawSpawnZone(state);
+    this.drawOrders(state);
     this.drawMonsters(state);
     this.drawCurrentMonster();
     this.drawAim(state);
@@ -311,7 +313,12 @@ drawOrders(state) {
     ctx.fillStyle = grd; ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.fill();
     ctx.shadowBlur = 0; ctx.lineWidth = Math.max(2, r * 0.08); ctx.strokeStyle = completed ? "rgba(130,255,180,.95)" : "rgba(160,230,255,.62)"; ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.stroke();
     if (img) { const size = r * 1.55; ctx.globalAlpha = 0.18; this.drawTrimmedImage(ctx, img, -size / 2, -size / 2, size, size); ctx.save(); ctx.beginPath(); ctx.rect(-size / 2, size / 2 - size * fillRatio, size, size * fillRatio); ctx.clip(); ctx.globalAlpha = completed ? 1 : 0.74; this.drawTrimmedImage(ctx, img, -size / 2, -size / 2, size, size); ctx.restore(); } else { ctx.globalAlpha = completed ? 1 : 0.42; ctx.fillStyle = meta.color || "#8fe8ff"; ctx.beginPath(); ctx.arc(0, 0, r * 0.48, 0, Math.PI * 2); ctx.fill(); }
-    ctx.globalAlpha = alpha; ctx.fillStyle = completed ? "#baffd1" : "#ffffff"; ctx.font = `900 ${Math.max(11, r * 0.35)}px Arial`; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(progressText, 0, r + Math.max(10, r * 0.42));
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = completed ? "#baffd1" : "#ffffff";
+    ctx.font = `900 ${Math.max(11, r * 0.35)}px Arial`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(progressText, 0, r + Math.max(10, r * 0.42));
     ctx.restore();
   }
   ctx.restore();
