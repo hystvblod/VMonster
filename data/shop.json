@@ -1,38 +1,13 @@
-﻿{
+{
   "items": [
-    {
-      "id": "coins_small",
-      "titleKey": "shop_coins_small_title",
-      "descKey": "shop_coins_small_desc",
-      "priceType": "real",
-      "iapId": "vmonster_coins_small",
-      "reward": {
-        "coins": 1200
-      }
-    },
-    {
-      "id": "coins_big",
-      "titleKey": "shop_coins_big_title",
-      "descKey": "shop_coins_big_desc",
-      "priceType": "real",
-      "iapId": "vmonster_coins_big",
-      "reward": {
-        "coins": 6000
-      }
-    },
-    {
-      "id": "no_ads",
-      "titleKey": "shop_no_ads_title",
-      "descKey": "shop_no_ads_desc",
-      "priceType": "real",
-      "iapId": "vmonster_no_ads"
-    },
-    {
-      "id": "starter",
-      "titleKey": "shop_starter_title",
-      "descKey": "shop_starter_desc",
-      "priceType": "real",
-      "iapId": "vmonster_starter"
-    }
+    {"id":"vcoins_3000","titleKey":"shop_vcoins_3000_title","descKey":"shop_vcoins_3000_desc","priceType":"real","iapId":"vmonster_vcoins_3000","reward":{"coins":3000}},
+    {"id":"vcoins_10000","titleKey":"shop_vcoins_10000_title","descKey":"shop_vcoins_10000_desc","priceType":"real","iapId":"vmonster_vcoins_10000","reward":{"coins":10000}},
+    {"id":"jetons_12","titleKey":"shop_jetons_12_title","descKey":"shop_jetons_12_desc","priceType":"real","iapId":"vmonster_jetons_12","reward":{"tokens":12}},
+    {"id":"jetons_30","titleKey":"shop_jetons_30_title","descKey":"shop_jetons_30_desc","priceType":"real","iapId":"vmonster_jetons_30","reward":{"tokens":30}},
+    {"id":"no_ads","titleKey":"shop_no_ads_title","descKey":"shop_no_ads_desc","priceType":"real","iapId":"vmonster_no_ads"},
+    {"id":"world_ocean","titleKey":"shop_world_ocean_title","descKey":"shop_world_ocean_desc","priceType":"real","iapId":"vmonster_world_ocean","reward":{"world":"ocean"}},
+    {"id":"world_volcano","titleKey":"shop_world_volcano_title","descKey":"shop_world_volcano_desc","priceType":"real","iapId":"vmonster_world_volcano","reward":{"world":"volcano"}},
+    {"id":"world_nuclear","titleKey":"shop_world_nuclear_title","descKey":"shop_world_nuclear_desc","priceType":"real","iapId":"vmonster_world_nuclear","reward":{"world":"nuclear"}},
+    {"id":"world_secret","titleKey":"shop_world_secret_title","descKey":"shop_world_secret_desc","priceType":"real","iapId":"vmonster_world_secret","reward":{"world":"secret"}}
   ]
 }

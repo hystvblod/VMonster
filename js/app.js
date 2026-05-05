@@ -6,6 +6,10 @@
     VMSEconomy.init();
     VMSModals.init();
 
+    if (window.VMSUserData) {
+      VMSUserData.init();
+    }
+
     await Promise.all([
       VMSAssets.init(),
       VMSLevels.init(),
@@ -14,6 +18,7 @@
     ]);
 
     VMSPurchases.init();
+    VMSAds.init?.();
     VMSSettings.init();
 
     const canvas = document.getElementById("gameCanvas");

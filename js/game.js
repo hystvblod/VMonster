@@ -500,6 +500,7 @@ completeLevel() {
   if (this.levelIndex > 100) this.levelIndex = 100;
 
   VMSStorage.set("currentLevel", this.levelIndex);
+    VMSUserData?.saveProgress?.();
 
   const nextText = isWorldComplete
     ? VMSI18n.t("btn_next_world")
@@ -606,6 +607,8 @@ updateParticles(delta) {
 
     const coins = Math.max(5, Math.floor(this.score / 120));
     VMSEconomy.addCoins(coins);
+    VMSUserData?.saveProgress?.();
+    VMSAds?.maybeShowInterstitial?.("game_over");
 
     if (this.score > this.bestScore) {
       this.bestScore = this.score;
