@@ -40,5 +40,75 @@
 
   function maybeShowInterstitial(reason = "auto") { if (VMSEconomy?.noAds) return; interFailCount += 1; if (interFailCount < 3) return; interFailCount = 0; showInterstitial(reason); }
 
-  window.VMSAds = { init, showRewarded, showInterstitial, maybeShowInterstitial, prepareRewarded, prepareInterstitial };
+  let _umpConsentInfo = null;
+
+function emptyConsentInfo() {
+  return {
+    status: "UNKNOWN",
+    isConsentFormAvailable: false,
+    canRequestAds: false,
+    privacyOptionsRequirementStatus: "UNKNOWN"
+  };
+}
+
+async function refreshGoogleConsentInfo(opts = {}) {
+  try {
+    if (!AdMob || !isNative()) {
+      _umpConsentInfo = {
+        status: "NOT_REQUIRED",
+        isConsentFormAvailable: false,
+        canRequestAds: true,
+        privacyOptionsRequirementStatus: "NOT_REQUIRED"
+      };
+      return _umpConsentInfo;
+    }
+
+    if (typeof AdMob.requestConsentInfo !== "function") {
+      _umpConsentInfo = emptyConsentInfo();
+      return _umpConsentInfo;
+    }
+
+    _umpConsentInfo = await AdMob.requestConsentInfo(opts);
+    return _umpConsentInfo || emptyConsentInfo();
+  } catch (_) {
+    return _umpConsentInfo || emptyConsentInfo();
+  }
+}
+
+function getGoogleConsentInfo() {
+  return _umpConsentInfo || emptyConsentInfo();
+}
+
+async function openGooglePrivacyOptionsForm() {
+  try {
+    if (!AdMob || !isNative()) return false;
+    if (typeof AdMob.requestConsentInfo !== "function") return false;
+    if (typeof AdMob.showPrivacyOptionsForm !== "function") return false;
+
+    const info = await refreshGoogleConsentInfo();
+
+    if (info.privacyOptionsRequirementStatus !== "REQUIRED") {
+      return false;
+    }
+
+    await AdMob.showPrivacyOptionsForm();
+    await refreshGoogleConsentInfo();
+
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
+window.VMSAds = {
+  init,
+  showRewarded,
+  showInterstitial,
+  maybeShowInterstitial,
+  prepareRewarded,
+  prepareInterstitial,
+  refreshGoogleConsentInfo,
+  getGoogleConsentInfo,
+  openGooglePrivacyOptionsForm
+};
 })();

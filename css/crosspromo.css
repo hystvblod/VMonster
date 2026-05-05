@@ -1,0 +1,185 @@
+.vm-crosspromo-page {
+  position: absolute;
+  inset: 112px 14px 18px;
+  overflow: auto;
+  padding-bottom: 22px;
+}
+
+.vm-crosspromo-reward-pill {
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto 16px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(255,255,255,.12);
+  box-shadow: 0 12px 28px rgba(0,0,0,.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #fff;
+  font-weight: 950;
+}
+
+.vm-crosspromo-reward-pill img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.vm-crosspromo-grid {
+  width: min(100%, 620px);
+  margin: 0 auto;
+  display: grid;
+  gap: 16px;
+}
+
+.vm-crosspromo-card {
+  overflow: hidden;
+  border-radius: 24px;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(10,16,32,.42);
+  box-shadow: 0 18px 42px rgba(0,0,0,.28);
+  backdrop-filter: blur(8px);
+}
+
+.vm-crosspromo-hero {
+  height: 172px;
+  background: rgba(255,255,255,.08);
+}
+
+.vm-crosspromo-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.vm-crosspromo-content {
+  padding: 14px;
+  color: #fff;
+}
+
+.vm-crosspromo-reward {
+  width: fit-content;
+  margin: 0 auto 12px;
+  padding: 9px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.16);
+  background: rgba(255,255,255,.10);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 950;
+  animation: rewardPulse 2.2s ease-in-out infinite;
+}
+
+.vm-crosspromo-reward img {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+}
+
+.vm-crosspromo-desc {
+  margin: 0 0 12px;
+  color: rgba(255,255,255,.9);
+  font-size: 14px;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.vm-crosspromo-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.vm-crosspromo-shot {
+  height: 92px;
+  padding: 0;
+  border: 1px solid rgba(255,255,255,.13);
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(255,255,255,.08);
+}
+
+.vm-crosspromo-shot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.vm-crosspromo-btn {
+  width: 100%;
+  min-height: 52px;
+  border-radius: 17px;
+  border: 1px solid rgba(122,167,255,.38);
+  background: rgba(122,167,255,.24);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 950;
+}
+
+.vm-crosspromo-btn[disabled] {
+  opacity: .55;
+  filter: grayscale(.35);
+}
+
+.vm-shot-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 200000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: rgba(0,0,0,.72);
+  backdrop-filter: blur(6px);
+}
+
+.vm-shot-viewer.is-open {
+  display: flex;
+}
+
+.vm-shot-viewer img {
+  max-width: min(92vw, 430px);
+  max-height: 82vh;
+  border-radius: 22px;
+  object-fit: contain;
+  box-shadow: 0 18px 50px rgba(0,0,0,.45);
+}
+
+.vm-shot-viewer button {
+  position: fixed;
+  top: calc(16px + env(safe-area-inset-top));
+  right: 16px;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(255,255,255,.12);
+  color: #fff;
+  font-size: 28px;
+  font-weight: 900;
+}
+
+@keyframes rewardPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.035); }
+}
+
+.vm-crosspromo-referral-card {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 214, 102, .22), transparent 46%),
+    rgba(10,16,32,.48);
+}
+
+.vm-crosspromo-referral-card .vm-crosspromo-content {
+  text-align: center;
+}
+
+.vm-crosspromo-referral-card .vm-crosspromo-btn.primary {
+  background: linear-gradient(135deg, #70b7ff, #4a80ff);
+  box-shadow: 0 12px 26px rgba(74,128,255,.28);
+}
