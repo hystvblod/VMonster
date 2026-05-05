@@ -87,56 +87,85 @@ window.VMSUserData = {
     try {
       const result = await window.sb.rpc(name, args);
       if (result?.error) throw result.error;
+
       if (result?.data) {
+        this.online = true;
         this.applyRemoteProfile(result.data);
+        VMSEconomy.refreshHud?.();
         return result.data;
       }
     } catch (error) {
       console.warn(`[VMSUserData] RPC failed: ${name}`, error);
+      this.online = false;
     }
 
     return null;
   },
 
+  async refreshRemote() {
+    const remote = await this.rpc("vmonster_get_me");
+    return !!remote;
+  },
+
   async creditVCoins(amount) {
     const value = Math.max(0, Number(amount || 0));
+    if (value <= 0) return false;
+
+    if (this.ready && window.sb) {
+      const remote = await this.rpc("vmonster_credit_vcoins", { amount: value });
+      return !!remote;
+    }
+
     VMSEconomy.coins += value;
     this.saveLocal();
     VMSEconomy.refreshHud?.();
-
-    await this.rpc("vmonster_credit_vcoins", { amount: value });
+    return true;
   },
 
   async spendVCoins(amount) {
     const value = Math.max(0, Number(amount || 0));
+    if (value <= 0) return false;
     if (VMSEconomy.coins < value) return false;
+
+    if (this.ready && window.sb) {
+      const remote = await this.rpc("vmonster_spend_vcoins", { amount: value });
+      return !!remote;
+    }
 
     VMSEconomy.coins -= value;
     this.saveLocal();
     VMSEconomy.refreshHud?.();
-
-    const remote = await this.rpc("vmonster_spend_vcoins", { amount: value });
     return true;
   },
 
   async creditJetons(amount) {
     const value = Math.max(0, Number(amount || 0));
+    if (value <= 0) return false;
+
+    if (this.ready && window.sb) {
+      const remote = await this.rpc("vmonster_credit_jetons", { amount: value });
+      return !!remote;
+    }
+
     VMSEconomy.tokens += value;
     this.saveLocal();
     VMSEconomy.refreshHud?.();
-
-    await this.rpc("vmonster_credit_jetons", { amount: value });
+    return true;
   },
 
   async spendJetons(amount) {
     const value = Math.max(0, Number(amount || 0));
+    if (value <= 0) return false;
     if (VMSEconomy.tokens < value) return false;
+
+    if (this.ready && window.sb) {
+      const remote = await this.rpc("vmonster_spend_jetons", { amount: value });
+      return !!remote;
+    }
 
     VMSEconomy.tokens -= value;
     this.saveLocal();
     VMSEconomy.refreshHud?.();
-
-    await this.rpc("vmonster_spend_jetons", { amount: value });
     return true;
   },
 

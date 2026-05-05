@@ -16,27 +16,27 @@ window.VMSEconomy = {
     this.refreshHud();
   },
 
-  addCoins(amount) {
+  async addCoins(amount) {
     const value = Math.max(0, Number(amount || 0));
+    if (value <= 0) return false;
 
     if (window.VMSUserData?.ready) {
-      VMSUserData.creditVCoins(value);
-      return;
+      return await VMSUserData.creditVCoins(value);
     }
 
     this.coins += value;
     VMSStorage.set("coins", this.coins);
     this.refreshHud();
+    return true;
   },
 
-  spendCoins(amount) {
+  async spendCoins(amount) {
     const value = Math.max(0, Number(amount || 0));
-
+    if (value <= 0) return false;
     if (this.coins < value) return false;
 
     if (window.VMSUserData?.ready) {
-      VMSUserData.spendVCoins(value);
-      return true;
+      return await VMSUserData.spendVCoins(value);
     }
 
     this.coins -= value;
@@ -45,26 +45,26 @@ window.VMSEconomy = {
     return true;
   },
 
-  addTokens(amount) {
+  async addTokens(amount) {
     const value = Math.max(0, Number(amount || 0));
+    if (value <= 0) return false;
 
     if (window.VMSUserData?.ready) {
-      VMSUserData.creditJetons(value);
-      return;
+      return await VMSUserData.creditJetons(value);
     }
 
     this.tokens += value;
     VMSStorage.set("tokens", this.tokens);
     this.refreshHud();
+    return true;
   },
 
-  spendToken(amount = 1) {
+  async spendToken(amount = 1) {
     const value = Math.max(1, Number(amount || 1));
     if (this.tokens < value) return false;
 
     if (window.VMSUserData?.ready) {
-      VMSUserData.spendJetons(value);
-      return true;
+      return await VMSUserData.spendJetons(value);
     }
 
     this.tokens -= value;
