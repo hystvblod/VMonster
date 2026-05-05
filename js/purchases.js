@@ -17,7 +17,27 @@
     vmonster_world_ocean: { kind: "world", worldId: "ocean" },
     vmonster_world_volcano: { kind: "world", worldId: "volcano" },
     vmonster_world_nuclear: { kind: "world", worldId: "nuclear" },
-    vmonster_world_secret: { kind: "world", worldId: "secret" }
+    vmonster_world_secret: { kind: "world", worldId: "secret" },
+
+    vmonster_skinpack_lab_girly: { kind: "skinpack", worldId: "lab", styleId: "girly" },
+    vmonster_skinpack_lab_nature: { kind: "skinpack", worldId: "lab", styleId: "nature" },
+    vmonster_skinpack_lab_adventure: { kind: "skinpack", worldId: "lab", styleId: "adventure" },
+
+    vmonster_skinpack_ocean_girly: { kind: "skinpack", worldId: "ocean", styleId: "girly" },
+    vmonster_skinpack_ocean_nature: { kind: "skinpack", worldId: "ocean", styleId: "nature" },
+    vmonster_skinpack_ocean_adventure: { kind: "skinpack", worldId: "ocean", styleId: "adventure" },
+
+    vmonster_skinpack_volcano_girly: { kind: "skinpack", worldId: "volcano", styleId: "girly" },
+    vmonster_skinpack_volcano_nature: { kind: "skinpack", worldId: "volcano", styleId: "nature" },
+    vmonster_skinpack_volcano_adventure: { kind: "skinpack", worldId: "volcano", styleId: "adventure" },
+
+    vmonster_skinpack_nuclear_girly: { kind: "skinpack", worldId: "nuclear", styleId: "girly" },
+    vmonster_skinpack_nuclear_nature: { kind: "skinpack", worldId: "nuclear", styleId: "nature" },
+    vmonster_skinpack_nuclear_adventure: { kind: "skinpack", worldId: "nuclear", styleId: "adventure" },
+
+    vmonster_skinpack_secret_girly: { kind: "skinpack", worldId: "secret", styleId: "girly" },
+    vmonster_skinpack_secret_nature: { kind: "skinpack", worldId: "secret", styleId: "nature" },
+    vmonster_skinpack_secret_adventure: { kind: "skinpack", worldId: "secret", styleId: "adventure" }
   };
 
   const prices = {};
@@ -60,7 +80,7 @@
 
       productIds.forEach((id) => {
         try {
-          const type = id === "vmonster_no_ads" || id.startsWith("vmonster_world_")
+          const type = id === "vmonster_no_ads" || id.startsWith("vmonster_world_") || id.startsWith("vmonster_skinpack_")
             ? store.NON_CONSUMABLE || "non consumable"
             : store.CONSUMABLE || "consumable";
 
@@ -139,6 +159,10 @@
     if (sku.kind === "tokens") VMSEconomy.addTokens(sku.tokens);
     if (sku.kind === "noads") VMSEconomy.activateNoAds();
     if (sku.kind === "world") VMSEconomy.unlockInfiniteWorld(sku.worldId);
+
+    if (sku.kind === "skinpack") {
+      VMSShop?.unlockSkinPack?.(sku.worldId, sku.styleId);
+    }
 
     VMSUserData?.saveLocal?.();
 
