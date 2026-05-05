@@ -7,9 +7,7 @@
   designWidth: 390,
   designHeight: 844,
   assetPaths: {
-    conveyorTile: "./assets/environment/conveyor/conveyor_belt_tile.webp",
-    conveyorBase: "./assets/environment/conveyor/conveyor_base.webp",
-    portalGlow: "./assets/portals/portal_glow.webp",
+
     coin: "./assets/ui/coin.webp"
   }
 };
