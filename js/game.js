@@ -47,7 +47,9 @@ window.VMSGame = {
     });
   },
 
-  start(options = {}) {
+  async start(options = {}) {
+    await VMSUserData?.refreshRemote?.();
+
     this.mode = options.mode || "campaign";
     this.infiniteWorldId = options.worldId || null;
 
@@ -608,15 +610,16 @@ updateParticles(delta) {
     const coins = Math.max(5, Math.floor(this.score / 120));
     VMSEconomy.addCoins(coins);
 
-VMSReferral?.registerCompletedRun?.();
-VMSReferral?.maybeQueueIndexSharePrompt?.();
-    VMSUserData?.saveProgress?.();
-    VMSAds?.maybeShowInterstitial?.("game_over");
-
     if (this.score > this.bestScore) {
       this.bestScore = this.score;
       VMSStorage.set("bestScore", this.bestScore);
     }
+
+    VMSReferral?.registerCompletedRun?.();
+    VMSReferral?.maybeQueueIndexSharePrompt?.();
+    VMSUserData?.saveProgress?.();
+    VMSUserData?.refreshRemote?.();
+    VMSAds?.maybeShowInterstitial?.("game_over");
 
     VMSModals.show({
       title: VMSI18n.t("modal_game_over_title"),

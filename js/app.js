@@ -7,7 +7,7 @@
     VMSModals.init();
 
     if (window.VMSUserData) {
-      VMSUserData.init();
+      await VMSUserData.init();
     }
 
     await Promise.all([
