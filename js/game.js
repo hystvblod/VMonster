@@ -381,6 +381,7 @@ window.VMSGame = {
     this.score += meta.score || newLevel * 100;
 
     this.spawnParticles(x, y, meta.color, 26);
+    this.tryCompleteOrderWithMonster(merged);
     VMSSettings.vibrate(24);
     this.refreshHud();
   },
