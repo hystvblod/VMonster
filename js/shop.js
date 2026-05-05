@@ -32,7 +32,9 @@
     { id: "adventure", titleKey: "shop_skin_style_adventure", fallback: "Aventure" }
   ];
 
-  const MONSTERS = Array.from({ length: 12 }, (_, index) => {
+  const MONSTER_COUNT = 12;
+
+  const MONSTERS = Array.from({ length: MONSTER_COUNT }, (_, index) => {
     const number = index + 1;
     const padded = String(number).padStart(2, "0");
     return {
@@ -176,6 +178,14 @@
     return `${skinBasePath(worldId, styleId)}/monster_${monster.padded}.webp`;
   }
 
+  function getMonsterNameKey(worldId, monster) {
+    return `${worldId}_monster_${monster.padded}`;
+  }
+
+  function getMonsterDisplayName(worldId, monster) {
+    return tt(getMonsterNameKey(worldId, monster), tt("monster_generic_name", { n: monster.number }));
+  }
+
   function bgAsset(worldId, styleId, number) {
     return `${skinBasePath(worldId, styleId)}/bg_${String(number).padStart(2, "0")}.webp`;
   }
@@ -221,13 +231,16 @@
     }
 
     MONSTERS.forEach((monster) => {
+      const monsterName = getMonsterDisplayName(world.id, monster);
+      const styleName = tt(style.titleKey, style.fallback);
+
       items.push({
         type: "monster_skin",
         id: `${world.id}_${style.id}_monster_${monster.padded}`,
         worldId: world.id,
         styleId: style.id,
         monsterNumber: monster.number,
-        title: tt("shop_monster_skin_title", { n: monster.number }),
+        title: tt("shop_monster_skin_named_title", { monster: monsterName, style: styleName }),
         img: premiumMonsterAsset(world.id, style.id, monster)
       });
     });
@@ -245,7 +258,7 @@
         worldId: world.id,
         monsterNumber: monster.number,
         visible,
-        title: tt(monster.titleKey, monster.fallback),
+        title: getMonsterDisplayName(world.id, monster),
         img: classicMonsterAsset(world.id, monster)
       };
     });
