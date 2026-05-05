@@ -88,7 +88,7 @@ window.VMSLevels = {
         drawRadius: 21,
         score: 10,
         color: "#7ce7ff",
-        asset: "./assets/monsters/monster_01_blob.webp"
+        asset: "./assets/monsters/monster_01.webp"
       };
     }
 
