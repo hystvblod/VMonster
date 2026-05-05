@@ -74,7 +74,7 @@ window.VMSInfinite = {
   },
 
   showUnlockPopup(world) {
-    const storePrice = VMSPurchases.getPrice?.(world.productId) || "Prix store";
+    const storePrice = VMSPurchases.getPrice?.(world.productId) || VMSI18n.t("store_not_connected_short");
 
     VMSModals.show({
       title: VMSI18n.t("infinite_unlock_title"),
