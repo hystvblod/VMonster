@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="./css/shop.css" />
   <link rel="stylesheet" href="./css/skins.css" />
   <link rel="stylesheet" href="./css/settings.css" />
+<link rel="stylesheet" href="./css/crosspromo.css" />
   <link rel="stylesheet" href="./css/rules.css" />
   <link rel="stylesheet" href="./css/modals.css" />
   <link rel="stylesheet" href="./css/animations.css" />
@@ -124,54 +125,99 @@
       </section>
 
       <section id="screen-settings" class="screen">
-        <header class="screen-header">
-          <button class="back-btn" type="button" data-action="back-home">‹</button>
+  <div class="home-bg"></div>
+
+  <header class="screen-header vm-settings-header">
+    <button class="back-btn" type="button" data-action="back-home">‹</button>
+    <div>
+      <h2 data-i18n="settings_title"></h2>
+      <p data-i18n="settings_subtitle"></p>
+    </div>
+  </header>
+
+  <main class="vm-settings-page">
+    <p class="vm-settings-intro" data-i18n="settings_lang_desc"></p>
+
+    <section class="vm-settings-card">
+      <div id="settingsLangGrid" class="vm-lang-grid"></div>
+
+      <div class="vm-settings-section">
+        <div class="vm-toggle-row">
           <div>
-            <h2 data-i18n="settings_title"></h2>
-            <p data-i18n="settings_subtitle"></p>
+            <p class="vm-toggle-label" data-i18n="settings_privacy_options_label"></p>
+            <p class="vm-toggle-desc" data-i18n="settings_privacy_options_desc"></p>
           </div>
-        </header>
 
-        <main class="settings-list">
-          <button class="setting-row" type="button" data-action="toggle-music">
-            <span data-i18n="settings_music"></span>
-            <strong id="musicState">ON</strong>
-          </button>
+          <button class="vm-privacy-btn" type="button" data-action="open-privacy-options" data-i18n="settings_privacy_options_button"></button>
+        </div>
 
-          <button class="setting-row" type="button" data-action="toggle-sfx">
-            <span data-i18n="settings_sfx"></span>
-            <strong id="sfxState">ON</strong>
-          </button>
+        <div class="vm-toggle-row">
+          <div>
+            <p class="vm-toggle-label" data-i18n="settings_music_label"></p>
+            <p class="vm-toggle-desc" data-i18n="settings_music_desc"></p>
+          </div>
 
-          <button class="setting-row" type="button" data-action="toggle-vibration">
-            <span data-i18n="settings_vibration"></span>
-            <strong id="vibrationState">ON</strong>
-          </button>
-
-          <label class="setting-row">
-            <span data-i18n="settings_language"></span>
-            <select id="languageSelect">
-              <option value="fr">FR</option>
-              <option value="en-US">EN</option>
-              <option value="es-ES">ES</option>
-              <option value="es-419">LATAM</option>
-              <option value="de-DE">DE</option>
-              <option value="it-IT">IT</option>
-              <option value="pt-BR">PT-BR</option>
-              <option value="pt-PT">PT</option>
-              <option value="ja-JP">JA</option>
-              <option value="ko-KR">KO</option>
-              <option value="id">ID</option>
-              <option value="ar">AR</option>
-            </select>
+          <label class="vm-switch">
+            <input id="musicEnabled" type="checkbox" />
+            <span></span>
           </label>
+        </div>
 
-          <button class="setting-row" type="button" data-action="restore-purchases">
-            <span data-i18n="settings_restore"></span>
-            <strong>↻</strong>
-          </button>
-        </main>
-      </section>
+        <div class="vm-toggle-row">
+          <div>
+            <p class="vm-toggle-label" data-i18n="settings_sfx_label"></p>
+            <p class="vm-toggle-desc" data-i18n="settings_sfx_desc"></p>
+          </div>
+
+          <label class="vm-switch">
+            <input id="sfxEnabled" type="checkbox" />
+            <span></span>
+          </label>
+        </div>
+
+        <div class="vm-toggle-row">
+          <div>
+            <p class="vm-toggle-label" data-i18n="settings_vibration_label"></p>
+            <p class="vm-toggle-desc" data-i18n="settings_vibration_desc"></p>
+          </div>
+
+          <label class="vm-switch">
+            <input id="vibrationEnabled" type="checkbox" />
+            <span></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="vm-settings-section">
+        <button class="vm-nav-row" type="button" data-action="open-rules">
+          <div>
+            <p class="vm-nav-label" data-i18n="settings_faq_label"></p>
+            <p class="vm-nav-desc" data-i18n="settings_faq_desc"></p>
+          </div>
+          <span>›</span>
+        </button>
+
+        <button class="vm-nav-row" type="button" data-action="restore-purchases">
+          <div>
+            <p class="vm-nav-label" data-i18n="settings_restore"></p>
+            <p class="vm-nav-desc" data-i18n="settings_restore_desc"></p>
+          </div>
+          <span>↻</span>
+        </button>
+      </div>
+
+      <div class="vm-settings-section">
+        <p class="vm-settings-section-title" data-i18n="settings_help_title"></p>
+        <div class="vm-help-line">
+          <span data-i18n="settings_help_email_label"></span>
+          <a id="settingsHelpEmail" href=""></a>
+        </div>
+      </div>
+
+      <div id="settingsMsg" class="vm-settings-msg" role="status" aria-live="polite"></div>
+    </section>
+  </main>
+</section>
 
       <section id="screen-rules" class="screen">
         <header class="screen-header">
