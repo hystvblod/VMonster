@@ -1,8 +1,8 @@
 (function () {
   "use strict";
 
-  const SUPABASE_URL = "COLLE_ICI_LA_MEME_URL_QUE_VUNIVERSE";
-  const SUPABASE_ANON_KEY = "COLLE_ICI_LA_MEME_ANON_KEY_QUE_VUNIVERSE";
+ const SUPABASE_URL = "https://fbkbqfkgdjkjdfijmggd.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZia2JxZmtnZGpramRmaWptZ2dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5MTIyOTgsImV4cCI6MjA4MTQ4ODI5OH0.ylBfBeXBWliR13GumJrFazRjP57RyBR3mzaebF7Iy24";
 
   let _bootstrapPromise = null;
 
