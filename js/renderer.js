@@ -22,14 +22,14 @@ window.VMSRenderer = {
   // Réglage précis pour TON image.
   // La piste est en trapèze, donc on ne fait plus un simple rectangle.
 labMap: {
-  trackTopY: 0.205,
-  trackBottomY: 0.898,
+  trackTopY: 0.198,
+  trackBottomY: 0.905,
 
-  trackTopLeftX: 0.315,
-  trackTopRightX: 0.685,
+  trackTopLeftX: 0.290,
+  trackTopRightX: 0.710,
 
-  trackBottomLeftX: 0.045,
-  trackBottomRightX: 0.955,
+  trackBottomLeftX: 0.020,
+  trackBottomRightX: 0.980,
 
   dangerY: 0.815,
 
