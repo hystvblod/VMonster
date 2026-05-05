@@ -1,48 +1,120 @@
 window.VMSLevels = {
   levels: [],
   monsters: [],
+  worlds: [],
+  currentWorld: null,
 
   async init() {
-    const [levelsRes, monstersRes] = await Promise.all([
-      fetch("./data/levels.json"),
+    const [campaignRes, worldsRes, monstersRes] = await Promise.all([
+      fetch("./data/campaign_levels.json"),
+      fetch("./data/worlds.json"),
       fetch("./data/monsters.json")
     ]);
 
-    this.levels = (await levelsRes.json()).levels || [];
-    this.monsters = (await monstersRes.json()).monsters || [];
+    const campaignData = await campaignRes.json();
+    const worldsData = await worldsRes.json();
+    const monstersData = await monstersRes.json();
+
+    this.levels = this.normalizeLevels(campaignData.levels || []);
+    this.worlds = worldsData.worlds || [];
+    this.monsters = monstersData.monsters || [];
+  },
+
+  normalizeLevels(rawLevels) {
+    return rawLevels.map((row) => {
+      if (!Array.isArray(row)) return row;
+
+      return {
+        id: row[0],
+        worldId: row[1],
+        wave: row[2],
+        wavesPerWorld: 20,
+        rewardVCoins: row[3],
+        spawnPoolMaxLevel: row[4],
+        dangerGraceMs: row[5],
+        friction: row[6],
+        wallBounce: row[7],
+        monsterBounce: row[8],
+        orders: (row[9] || []).map((order) => ({
+          monsterLevel: order[0],
+          amount: order[1]
+        }))
+      };
+    });
   },
 
   getLevel(index) {
-    if (!this.levels.length) {
-      return {
-        id: 1,
-        theme: "lab_classic",
-        trackWidthRatio: 0.72,
-        spawnPoolMaxLevel: 3,
-        dangerGraceMs: 1200,
-        friction: 0.992,
-        wallBounce: 0.55,
-        monsterBounce: 0.35
-      };
-    }
+    const safeIndex = Math.max(1, Math.min(Number(index || 1), 100));
+    const level = this.levels.find((item) => item.id === safeIndex) || this.levels[0];
 
-    return this.levels[(index - 1) % this.levels.length];
+    const world = this.getWorldById(level.worldId);
+    this.currentWorld = world;
+
+    return {
+      ...level,
+      theme: world.id,
+      nameKey: world.nameKey,
+      background: world.background,
+      themeColor: world.themeColor,
+      worldId: world.id,
+      worldNumber: this.worlds.findIndex((item) => item.id === world.id) + 1
+    };
+  },
+
+  getWorldById(worldId) {
+    return this.worlds.find((world) => world.id === worldId) || this.worlds[0] || {
+      id: "lab",
+      nameKey: "world_lab_name",
+      background: "./assets/environment/backgrounds/bg_lab_main_01.webp",
+      themeColor: "#7ce7ff",
+      monstersFolder: "lab"
+    };
+  },
+
+  getCurrentWorld() {
+    return this.currentWorld || this.worlds[0] || this.getWorldById("lab");
   },
 
   getMonsterByLevel(level) {
-    return this.monsters.find((monster) => monster.level === level) || this.monsters[0];
+    const world = this.getCurrentWorld();
+    const base = this.monsters.find((monster) => monster.level === level) || this.monsters[0];
+
+    if (!base) {
+      return {
+        id: "monster_fallback",
+        level: 1,
+        nameKey: "monster_fallback",
+        radius: 20,
+        drawRadius: 21,
+        score: 10,
+        color: "#7ce7ff",
+        asset: "./assets/monsters/monster_01_blob.webp"
+      };
+    }
+
+    const fileName = `monster_${String(base.level).padStart(2, "0")}.webp`;
+
+    return {
+      ...base,
+      id: `${world.id}_monster_${String(base.level).padStart(2, "0")}`,
+      nameKey: `${world.id}_monster_${String(base.level).padStart(2, "0")}`,
+      asset: `./assets/monsters/${world.monstersFolder}/${fileName}`
+    };
   },
 
   getMaxMonsterLevel() {
-    return this.monsters.reduce((max, monster) => Math.max(max, monster.level), 1);
+    return 12;
   },
 
   getRandomSpawnLevel(maxLevel = 3) {
-    const cappedMax = Math.max(1, Math.min(maxLevel, 3));
+    const cappedMax = Math.max(1, Math.min(Number(maxLevel || 3), 5));
     const roll = Math.random();
 
+    if (cappedMax >= 5 && roll > 0.985) return 5;
+    if (cappedMax >= 4 && roll > 0.965) return 4;
     if (cappedMax >= 3 && roll > 0.93) return 3;
     if (cappedMax >= 2 && roll > 0.70) return 2;
+
     return 1;
   }
 };

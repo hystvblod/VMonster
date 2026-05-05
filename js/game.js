@@ -19,6 +19,7 @@ window.VMSGame = {
     delta: 16,
     monsters: [],
     particles: [],
+    orders: [],
     aim: {
       active: false,
       startX: 0,
@@ -35,6 +36,10 @@ window.VMSGame = {
   },
 
   start() {
+    if (!this.levelIndex || this.levelIndex < 1) {
+      this.levelIndex = VMSStorage.get("currentLevel", 1);
+    }
+
     this.running = true;
     this.gameOver = false;
     this.score = 0;
@@ -44,10 +49,16 @@ window.VMSGame = {
 
     this.state.monsters = [];
     this.state.particles = [];
+    this.state.orders = [];
     this.state.aim.active = false;
 
     this.state.level = VMSLevels.getLevel(this.levelIndex);
+    this.state.orders = this.createOrdersForLevel(this.state.level);
     this.bestScore = VMSStorage.get("bestScore", 0);
+
+    if (this.state.level.background) {
+      VMSRenderer.setBackground(this.state.level.background);
+    }
 
     this.nextMonsterLevel = VMSLevels.getRandomSpawnLevel(this.state.level.spawnPoolMaxLevel || 3);
     this.spawnCurrentMonster();
@@ -57,6 +68,19 @@ window.VMSGame = {
     this.lastTime = performance.now();
     cancelAnimationFrame(this.raf);
     this.raf = requestAnimationFrame((time) => this.loop(time));
+  },
+
+  createOrdersForLevel(level) {
+    const rawOrders = Array.isArray(level.orders) ? level.orders : [];
+
+    return rawOrders.map((order, index) => {
+      return {
+        id: `order_${level.id}_${index}`,
+        monsterLevel: Number(order.monsterLevel || 1),
+        amount: Math.max(1, Number(order.amount || 1)),
+        done: 0
+      };
+    });
   },
 
   stop() {
@@ -80,6 +104,7 @@ window.VMSGame = {
   update(delta) {
     this.updateSpawnCooldown(delta);
     this.updatePhysics(delta);
+    this.updateCollectedMonsters(delta);
     this.updateParticles(delta);
     this.updateDanger(delta);
   },
@@ -259,7 +284,7 @@ window.VMSGame = {
       const a = monsters[i];
       const b = monsters[j];
 
-      if (!a || !b || a.merging || b.merging) continue;
+      if (!a || !b || a.merging || b.merging || a.collecting || b.collecting) continue;
 
       const dx = b.x - a.x;
       const dy = b.y - a.y;
@@ -360,7 +385,152 @@ window.VMSGame = {
     this.refreshHud();
   },
 
-  updateParticles(delta) {
+  tryCompleteOrderWithMonster(monster) {
+  if (!monster || !Array.isArray(this.state.orders)) return false;
+
+  const order = this.state.orders.find((item) => {
+    return item.monsterLevel === monster.level && item.done < item.amount;
+  });
+
+  if (!order) return false;
+
+  order.done += 1;
+
+  const slot = VMSRenderer.getOrderSlotPosition(this.state, order.id);
+  const meta = VMSLevels.getMonsterByLevel(monster.level);
+
+  monster.collecting = true;
+  monster.collectTimer = 0;
+  monster.collectDuration = 560;
+  monster.collectAlpha = 1;
+  monster.collectFromX = monster.x;
+  monster.collectFromY = monster.y;
+  monster.collectToX = slot ? slot.x : monster.x;
+  monster.collectToY = slot ? slot.y : monster.y;
+  monster.vx = 0;
+  monster.vy = 0;
+
+  this.spawnParticles(monster.x, monster.y, meta.color || "#9cecff", 22);
+
+  if (slot) {
+    this.spawnParticles(slot.x, slot.y, meta.color || "#9cecff", 20);
+  }
+
+  this.score += 100 * monster.level;
+
+  if (this.areAllOrdersCompleted()) {
+    setTimeout(() => {
+      if (!this.gameOver) this.completeLevel();
+    }, 650);
+  }
+
+  return true;
+},
+
+updateCollectedMonsters(delta) {
+  for (const monster of this.state.monsters) {
+    if (!monster.collecting) continue;
+
+    monster.collectTimer += delta;
+
+    const t = VMSUtils.clamp(monster.collectTimer / monster.collectDuration, 0, 1);
+    const eased = 1 - Math.pow(1 - t, 3);
+
+    monster.x = monster.collectFromX + (monster.collectToX - monster.collectFromX) * eased;
+    monster.y = monster.collectFromY + (monster.collectToY - monster.collectFromY) * eased;
+    monster.collectAlpha = 1 - eased;
+    monster.radius *= 0.992;
+    monster.drawRadius *= 0.992;
+  }
+
+  this.state.monsters = this.state.monsters.filter((monster) => {
+    return !monster.collecting || monster.collectTimer < monster.collectDuration;
+  });
+},
+
+areAllOrdersCompleted() {
+  if (!Array.isArray(this.state.orders) || !this.state.orders.length) return false;
+
+  return this.state.orders.every((order) => {
+    return order.done >= order.amount;
+  });
+},
+
+completeLevel() {
+  if (this.gameOver) return;
+
+  this.gameOver = true;
+  this.stop();
+
+  const rewardVCoins = Math.max(20, Number(this.state.level.rewardVCoins || 80));
+  VMSEconomy.addCoins(rewardVCoins);
+
+  if (this.score > this.bestScore) {
+    this.bestScore = this.score;
+    VMSStorage.set("bestScore", this.bestScore);
+  }
+
+  const completedWave = this.state.level.wave || 1;
+  const completedWorld = this.state.level.worldNumber || 1;
+  const isWorldComplete = completedWave >= 20;
+
+  this.levelIndex += 1;
+  if (this.levelIndex > 100) this.levelIndex = 100;
+
+  VMSStorage.set("currentLevel", this.levelIndex);
+
+  const nextText = isWorldComplete
+    ? VMSI18n.t("btn_next_world")
+    : VMSI18n.t("btn_next_wave");
+
+  VMSModals.show({
+    title: isWorldComplete
+      ? VMSI18n.t("modal_world_complete_title")
+      : VMSI18n.t("modal_order_complete_title"),
+    text: isWorldComplete
+      ? VMSI18n.t("modal_world_complete_text", {
+          world: completedWorld,
+          coins: rewardVCoins
+        })
+      : VMSI18n.t("modal_order_complete_text", {
+          wave: completedWave,
+          coins: rewardVCoins
+        }),
+    rewardAmount: rewardVCoins,
+    rewardIcon: "./assets/ui/icon_vcoins.webp",
+    primaryText: VMSI18n.t("btn_double_reward"),
+    secondaryText: nextText,
+    tertiaryText: VMSI18n.t("btn_home"),
+    onPrimary: async () => {
+      const watched = await VMSAds.showRewarded("double_reward");
+
+      if (watched) {
+        VMSEconomy.addCoins(rewardVCoins);
+
+        VMSModals.show({
+          title: VMSI18n.t("modal_reward_doubled_title"),
+          text: VMSI18n.t("modal_reward_doubled_text", {
+            coins: rewardVCoins * 2
+          }),
+          rewardAmount: rewardVCoins * 2,
+          rewardIcon: "./assets/ui/icon_vcoins.webp",
+          primaryText: nextText,
+          secondaryText: VMSI18n.t("btn_home"),
+          onPrimary: () => this.start(),
+          onSecondary: () => VMSRouter.home()
+        });
+
+        return;
+      }
+
+      this.start();
+    },
+    onSecondary: () => this.start(),
+    onTertiary: () => VMSRouter.home()
+  });
+},
+
+updateParticles(delta) {
     for (const p of this.state.particles) {
       p.x += p.vx * delta;
       p.y += p.vy * delta;
@@ -475,7 +645,14 @@ window.VMSGame = {
     const bestNode = document.getElementById("hudBest");
     const nextNode = document.getElementById("hudNext");
 
-    if (levelNode) levelNode.textContent = String(this.levelIndex);
+    if (levelNode) {
+  const level = this.state.level;
+  if (level) {
+    levelNode.textContent = `${level.worldNumber}.${level.wave}`;
+  } else {
+    levelNode.textContent = String(this.levelIndex);
+  }
+}
     if (scoreNode) scoreNode.textContent = String(this.score);
     if (bestNode) bestNode.textContent = String(this.bestScore || 0);
     if (nextNode) nextNode.textContent = String(this.nextMonsterLevel || 1);

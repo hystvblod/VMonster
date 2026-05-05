@@ -72,5 +72,21 @@
   "monster_09_cronok": "Cronok",
   "monster_10_zarboom": "Zarboom",
   "monster_11_ultrazog": "Ultrazog",
-  "monster_12_megaboss": "Megaboss"
+  "monster_12_megaboss": "Megaboss",
+  "world_lab_name": "Laboratoire",
+  "world_ocean_name": "Laboratoire océanique",
+  "world_volcano_name": "Laboratoire volcanique",
+  "world_nuclear_name": "Laboratoire nucléaire",
+  "world_secret_name": "Laboratoire secret",
+  "hud_wave_progress": "Vague {wave}/{total}",
+  "hud_order_progress": "Commande {done}/{total}",
+  "modal_order_complete_title": "Commande terminée",
+  "modal_order_complete_text": "Bravo, vous avez terminé la vague {wave}. Vous gagnez {coins} VCoins.",
+  "modal_world_complete_title": "Monde terminé",
+  "modal_world_complete_text": "Bravo, vous avez terminé le monde {world}. Vous gagnez {coins} VCoins.",
+  "modal_reward_doubled_title": "Récompense doublée",
+  "modal_reward_doubled_text": "Bravo, vous avez gagné {coins} VCoins.",
+  "btn_double_reward": "Doubler avec une vidéo",
+  "btn_next_wave": "Vague suivante",
+  "btn_next_world": "Monde suivant"
 }
