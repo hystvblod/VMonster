@@ -44,10 +44,15 @@
     };
   });
 
-  function tt(key, fallback, vars) {
-    const value = window.VMSI18n?.t?.(key, vars || {});
-    if (!value || value === key) return fallback || key;
-    return value;
+  function tt(key, fallbackOrVars, maybeVars) {
+    const vars = maybeVars || (
+      fallbackOrVars && typeof fallbackOrVars === "object" && !Array.isArray(fallbackOrVars)
+        ? fallbackOrVars
+        : {}
+    );
+
+    const value = window.VMSI18n?.t?.(key, vars);
+    return value || key;
   }
 
   function esc(value) {
@@ -144,7 +149,7 @@
 
   function priceLabel(productId) {
     const price = window.VMSPurchases?.getPrice?.(productId) || "";
-    return price || tt("store_not_connected_short", "Store non branché");
+    return price || tt("store_not_connected_short");
   }
 
   function imageTag(src, className) {
@@ -199,7 +204,7 @@
       worldId: world.id,
       styleId: style.id,
       productId: `vmonster_skinpack_${world.id}_${style.id}`,
-      title: tt("shop_skin_pack_complete", "Pack complet"),
+      title: tt("shop_skin_pack_complete"),
       img: packAsset(world.id, style.id)
     });
 
@@ -210,7 +215,7 @@
         id: `${world.id}_${style.id}_bg_${padded}`,
         worldId: world.id,
         styleId: style.id,
-        title: tt("shop_bg_title", `Background ${i}`, { n: i }),
+        title: tt("shop_bg_title", { n: i }),
         img: bgAsset(world.id, style.id, i)
       });
     }
@@ -222,7 +227,7 @@
         worldId: world.id,
         styleId: style.id,
         monsterNumber: monster.number,
-        title: tt("shop_monster_skin_title", `Skin monstre ${monster.number}`, { n: monster.number }),
+        title: tt("shop_monster_skin_title", { n: monster.number }),
         img: premiumMonsterAsset(world.id, style.id, monster)
       });
     });
@@ -247,16 +252,77 @@
   }
 
   function buildTopProducts() {
-    return [
-      { id: "reward_vcoins_300", kind: "reward", icon: UI.vcoins, title: "+300 VCoins", rewardIcon: UI.reward, action: "reward_vcoins", amount: 300 },
-      { id: "vcoins_3000", kind: "iap", icon: UI.vcoins, title: "3 000 VCoins", productId: "vmonster_vcoins_3000" },
-      { id: "vcoins_10000", kind: "iap", icon: UI.vcoins, title: "10 000 VCoins", productId: "vmonster_vcoins_10000" },
-      { id: "reward_jeton_1", kind: "reward", icon: UI.jeton, title: "+1 Jeton", rewardIcon: UI.reward, action: "reward_jeton", amount: 1 },
-      { id: "jetons_12", kind: "iap", icon: UI.jeton, title: "12 Jetons", productId: "vmonster_jetons_12" },
-      { id: "jetons_30", kind: "iap", icon: UI.jeton, title: "30 Jetons", productId: "vmonster_jetons_30" },
-      { id: "no_ads", kind: "iap", icon: UI.noads, title: tt("shop_no_ads_title", "No Ads"), productId: "vmonster_no_ads", wide: true },
-      { id: "ultimate", kind: "iap", icon: UI.noads, title: tt("shop_ultimate_title", "Pack ultime"), productId: "vmonster_ultimate_pack", wide: true, ultimate: true }
-    ];
+    return {
+      vcoins: [
+        {
+          id: "reward_vcoins_300",
+          kind: "reward",
+          icon: UI.vcoins,
+          title: tt("shop_reward_vcoins_300_title"),
+          rewardIcon: UI.reward,
+          action: "reward_vcoins",
+          amount: 300
+        },
+        {
+          id: "vcoins_3000",
+          kind: "iap",
+          icon: UI.vcoins,
+          title: tt("shop_vcoins_3000_title"),
+          productId: "vmonster_vcoins_3000"
+        },
+        {
+          id: "vcoins_10000",
+          kind: "iap",
+          icon: UI.vcoins,
+          title: tt("shop_vcoins_10000_title"),
+          productId: "vmonster_vcoins_10000"
+        }
+      ],
+
+      jetons: [
+        {
+          id: "reward_jeton_1",
+          kind: "reward",
+          icon: UI.jeton,
+          title: tt("shop_reward_jeton_1_title"),
+          rewardIcon: UI.reward,
+          action: "reward_jeton",
+          amount: 1
+        },
+        {
+          id: "jetons_12",
+          kind: "iap",
+          icon: UI.jeton,
+          title: tt("shop_jetons_12_title"),
+          productId: "vmonster_jetons_12"
+        },
+        {
+          id: "jetons_30",
+          kind: "iap",
+          icon: UI.jeton,
+          title: tt("shop_jetons_30_title"),
+          productId: "vmonster_jetons_30"
+        }
+      ],
+
+      premium: [
+        {
+          id: "no_ads",
+          kind: "iap",
+          icon: UI.noads,
+          title: tt("shop_no_ads_title"),
+          productId: "vmonster_no_ads"
+        },
+        {
+          id: "ultimate",
+          kind: "iap",
+          icon: UI.noads,
+          title: tt("shop_ultimate_title"),
+          productId: "vmonster_ultimate_pack",
+          ultimate: true
+        }
+      ]
+    };
   }
 
   function renderTopProduct(item) {
@@ -273,10 +339,23 @@
     `;
   }
 
+
+  function renderTopSection(titleKey, items, type) {
+    return `
+      <section class="shop-product-section shop-product-section-${esc(type)}">
+        <div class="shop-mini-separator"></div>
+        <h3 class="shop-product-section-title">${esc(tt(titleKey))}</h3>
+        <div class="shop-product-grid shop-product-grid-${esc(type)}">
+          ${items.map(renderTopProduct).join("")}
+        </div>
+      </section>
+    `;
+  }
+
   function renderActionButton(item) {
     if (item.type === "pack") {
       if (isOwned(item.id)) {
-        return `<button class="shop-skin-action is-owned" type="button" disabled>${esc(tt("shop_pack_unlocked", "Pack débloqué"))}</button>`;
+        return `<button class="shop-skin-action is-owned" type="button" disabled>${esc(tt("shop_pack_unlocked"))}</button>`;
       }
       return `<button class="shop-skin-action is-buy" type="button" data-skin-action="buy-pack" data-product-id="${esc(item.productId)}">${esc(priceLabel(item.productId))}</button>`;
     }
@@ -284,7 +363,7 @@
     if (item.type === "background") {
       if (isOwned(item.id)) {
         const active = getActiveBackground() === item.id;
-        return `<button class="shop-skin-action ${active ? "is-active" : "is-owned"}" type="button" ${active ? "disabled" : ""} data-skin-action="activate-bg" data-item-id="${esc(item.id)}">${esc(active ? tt("shop_active", "Activé") : tt("shop_activate", "Activer"))}</button>`;
+        return `<button class="shop-skin-action ${active ? "is-active" : "is-owned"}" type="button" ${active ? "disabled" : ""} data-skin-action="activate-bg" data-item-id="${esc(item.id)}">${esc(active ? tt("shop_active") : tt("shop_activate"))}</button>`;
       }
 
       const count = getRewardCount(item.id);
@@ -294,7 +373,7 @@
     if (item.type === "monster_skin") {
       if (isOwned(item.id)) {
         const active = getActiveMonsterSkin() === item.id;
-        return `<button class="shop-skin-action ${active ? "is-active" : "is-owned"}" type="button" ${active ? "disabled" : ""} data-skin-action="activate-monster" data-item-id="${esc(item.id)}">${esc(active ? tt("shop_active", "Activé") : tt("shop_activate", "Activer"))}</button>`;
+        return `<button class="shop-skin-action ${active ? "is-active" : "is-owned"}" type="button" ${active ? "disabled" : ""} data-skin-action="activate-monster" data-item-id="${esc(item.id)}">${esc(active ? tt("shop_active") : tt("shop_activate"))}</button>`;
       }
 
       return `<button class="shop-skin-action is-buy" type="button" data-skin-action="buy-monster" data-item-id="${esc(item.id)}">${vcoinsText(MONSTER_SKIN_PRICE)}</button>`;
@@ -302,11 +381,11 @@
 
     if (item.type === "classic") {
       if (!item.visible) {
-        return `<button class="shop-skin-action is-reveal" type="button" data-skin-action="reveal-classic" data-item-id="${esc(item.id)}">${rewardIconText(tt("shop_reveal", "Révéler"))}</button>`;
+        return `<button class="shop-skin-action is-reveal" type="button" data-skin-action="reveal-classic" data-item-id="${esc(item.id)}">${rewardIconText(tt("shop_reveal"))}</button>`;
       }
 
       const active = getActiveMonsterSkin() === item.id;
-      return `<button class="shop-skin-action ${active ? "is-active" : "is-owned"}" type="button" ${active ? "disabled" : ""} data-skin-action="activate-monster" data-item-id="${esc(item.id)}">${esc(active ? tt("shop_active", "Activé") : tt("shop_activate", "Activer"))}</button>`;
+      return `<button class="shop-skin-action ${active ? "is-active" : "is-owned"}" type="button" ${active ? "disabled" : ""} data-skin-action="activate-monster" data-item-id="${esc(item.id)}">${esc(active ? tt("shop_active") : tt("shop_activate"))}</button>`;
     }
 
     return "";
@@ -354,7 +433,7 @@
     return `
       <section class="shop-world-block" data-world="${esc(world.id)}">
         <h3 class="shop-world-title">${esc(tt(world.titleKey, world.fallback))}</h3>
-        ${renderCarouselRow(tt("shop_classic_style", "Classique"), getClassicItems(world), "shop-classic-row")}
+        ${renderCarouselRow(tt("shop_classic_style"), getClassicItems(world), "shop-classic-row")}
         ${STYLES.map((style) => renderCarouselRow(tt(style.titleKey, style.fallback), getStyleItems(world, style), "")).join("")}
       </section>
     `;
@@ -403,32 +482,32 @@
 
   async function rewardVCoins(amount) {
     const ok = await window.VMSAds?.showRewarded?.("shop_vcoins_300");
-    if (!ok) return showMessage(tt("shop_reward_error_title", "Pub indisponible"), tt("shop_reward_error_text", "La vidéo n’a pas été validée."));
+    if (!ok) return showMessage(tt("shop_reward_error_title"), tt("shop_reward_error_text"));
     await window.VMSEconomy?.addCoins?.(amount);
-    showMessage(tt("shop_reward_success_title", "Récompense reçue"), tt("shop_reward_vcoins_text", "+{amount} VCoins ajoutés.", { amount }));
+    showMessage(tt("shop_reward_success_title"), tt("shop_reward_vcoins_text", { amount }));
   }
 
   async function rewardJeton(amount) {
     const ok = await window.VMSAds?.showRewarded?.("shop_jeton_1");
-    if (!ok) return showMessage(tt("shop_reward_error_title", "Pub indisponible"), tt("shop_reward_error_text", "La vidéo n’a pas été validée."));
+    if (!ok) return showMessage(tt("shop_reward_error_title"), tt("shop_reward_error_text"));
     await window.VMSEconomy?.addTokens?.(amount);
-    showMessage(tt("shop_reward_success_title", "Récompense reçue"), tt("shop_reward_jeton_text", "+{amount} jeton ajouté.", { amount }));
+    showMessage(tt("shop_reward_success_title"), tt("shop_reward_jeton_text", { amount }));
   }
 
   async function rewardBackground(itemId) {
     if (!itemId || isOwned(itemId)) return;
 
     const ok = await window.VMSAds?.showRewarded?.("shop_bg_unlock");
-    if (!ok) return showMessage(tt("shop_reward_error_title", "Pub indisponible"), tt("shop_reward_error_text", "La vidéo n’a pas été validée."));
+    if (!ok) return showMessage(tt("shop_reward_error_title"), tt("shop_reward_error_text"));
 
     const next = getRewardCount(itemId) + 1;
     setRewardCount(itemId, next);
 
     if (next >= BG_REWARD_REQUIRED) {
       markOwned(itemId);
-      showMessage(tt("shop_bg_unlocked_title", "Background débloqué"), tt("shop_bg_unlocked_text", "Ce background est maintenant disponible."));
+      showMessage(tt("shop_bg_unlocked_title"), tt("shop_bg_unlocked_text"));
     } else {
-      showMessage(tt("shop_reward_success_title", "Récompense reçue"), tt("shop_skin_progress_text", "Progression : {count}/3", { count: next }));
+      showMessage(tt("shop_reward_success_title"), tt("shop_skin_progress_text", { count: next }));
     }
 
     window.VMSShop?.render?.();
@@ -438,10 +517,10 @@
     if (!itemId || isClassicRevealed(itemId)) return;
 
     const ok = await window.VMSAds?.showRewarded?.("shop_classic_reveal");
-    if (!ok) return showMessage(tt("shop_reward_error_title", "Pub indisponible"), tt("shop_reward_error_text", "La vidéo n’a pas été validée."));
+    if (!ok) return showMessage(tt("shop_reward_error_title"), tt("shop_reward_error_text"));
 
     markClassicRevealed(itemId);
-    showMessage(tt("shop_classic_revealed_title", "Monstre révélé"), tt("shop_classic_revealed_text", "Ce monstre est maintenant visible dans la boutique."));
+    showMessage(tt("shop_classic_revealed_title"), tt("shop_classic_revealed_text"));
     window.VMSShop?.render?.();
   }
 
@@ -449,10 +528,10 @@
     if (!itemId || isOwned(itemId)) return;
 
     const ok = await window.VMSEconomy?.spendCoins?.(MONSTER_SKIN_PRICE);
-    if (!ok) return showMessage(tt("shop_not_enough_vcoins_title", "Pas assez de VCoins"), tt("shop_not_enough_vcoins_text", "Il vous manque des VCoins pour acheter ce skin."));
+    if (!ok) return showMessage(tt("shop_not_enough_vcoins_title"), tt("shop_not_enough_vcoins_text"));
 
     markOwned(itemId);
-    showMessage(tt("shop_skin_unlocked_title", "Skin débloqué"), tt("shop_skin_unlocked_text", "Ce skin est maintenant disponible."));
+    showMessage(tt("shop_skin_unlocked_title"), tt("shop_skin_unlocked_text"));
     window.VMSShop?.render?.();
   }
 
@@ -481,8 +560,8 @@
     window.VMSModals?.show?.({
       title,
       text,
-      primaryText: tt("btn_ok", "OK"),
-      secondaryText: tt("btn_close", "Fermer"),
+      primaryText: tt("btn_ok"),
+      secondaryText: tt("btn_close"),
       onPrimary: () => {},
       onSecondary: () => {}
     });
@@ -497,15 +576,17 @@
       const list = document.getElementById("shopList");
       if (!list) return;
 
+      const topProducts = buildTopProducts();
+
       list.innerHTML = `
         <section class="shop-buy-zone">
-          <div class="shop-product-grid">
-            ${buildTopProducts().map(renderTopProduct).join("")}
-          </div>
+          ${renderTopSection("shop_section_vcoins", topProducts.vcoins, "three")}
+          ${renderTopSection("shop_section_jetons", topProducts.jetons, "three")}
+          ${renderTopSection("shop_section_premium", topProducts.premium, "premium")}
         </section>
 
         <div class="shop-separator"></div>
-        <h2 class="shop-custom-title">${esc(tt("shop_customization_title", "Skins et personnalisation"))}</h2>
+        <h2 class="shop-custom-title">${esc(tt("shop_customization_title"))}</h2>
 
         <section class="shop-skins-zone">
           ${WORLDS.map(renderWorldBlock).join("")}
