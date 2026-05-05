@@ -276,7 +276,7 @@ window.VMSGame = {
 
   updatePhysics(delta) {
     const dt = delta / 1000;
-    const level = this.state.level;
+    const level = this.state.level || {};
     const track = VMSRenderer.getTrackRect();
 
     for (const monster of this.state.monsters) {
@@ -310,7 +310,7 @@ window.VMSGame = {
     this.resolveMonsterCollisions(level.monsterBounce || 0.35);
   },
 
-  resolveWall(monster, track, bounce) {
+  resolveWall(monster, track, bounce = 0.55) {
     const rect = VMSRenderer.getTrackRect();
     const footprint = this.getMonsterFootprint(monster);
 
@@ -329,7 +329,7 @@ window.VMSGame = {
     if (footprint.y - footprint.ry < rect.top) {
       monster.y = rect.top + footprint.ry - footprint.offsetY;
 
-      // Collision en haut basée sur la base au sol, pas sur la tête du sprite.
+      // Collision en haut basée sur la base au sol, pas sur le haut du sprite.
       monster.vy = Math.max(0, monster.vy) * 0.08;
       monster.vx *= 0.82;
     }
@@ -615,7 +615,7 @@ updateParticles(delta) {
     const dangerY = VMSRenderer.getDangerY();
 
     // Minimum 2800ms pour éviter le game over instant.
-    const grace = Math.max(2800, this.state.level.dangerGraceMs || 2800);
+    const grace = Math.max(2800, this.state.level?.dangerGraceMs || 2800);
 
     this.state.dangerY = dangerY;
 
@@ -632,7 +632,7 @@ updateParticles(delta) {
 
       const footprint = this.getMonsterFootprint(monster);
 
-      // Danger basé sur la base au sol, pas sur le haut du sprite.
+      // Game over basé sur la base au sol, pas sur le haut du sprite.
       return footprint.y + footprint.ry > dangerY;
     });
 
