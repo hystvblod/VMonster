@@ -607,6 +607,9 @@ updateParticles(delta) {
 
     const coins = Math.max(5, Math.floor(this.score / 120));
     VMSEconomy.addCoins(coins);
+
+VMSReferral?.registerCompletedRun?.();
+VMSReferral?.maybeQueueIndexSharePrompt?.();
     VMSUserData?.saveProgress?.();
     VMSAds?.maybeShowInterstitial?.("game_over");
 

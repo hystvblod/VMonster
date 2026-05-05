@@ -31,6 +31,8 @@
     VMSShop.render();
     VMSSkins.render();
     VMSInfinite.render?.();
+VMSCrossPromo.render?.();
+VMSReferral?.bootReferral?.();
   },
 
   bindActions() {
@@ -61,7 +63,11 @@
         VMSPurchases.buyNoAds?.();
       }
 
-      if (action === "open-crosspromo") {
+      if (action === "open-privacy-options") {
+  VMSSettings.openPrivacyOptions?.();
+}
+
+if (action === "open-crosspromo") {
         VMSCrossPromo?.showManual?.();
       }
 

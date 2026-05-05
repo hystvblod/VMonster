@@ -1,28 +1,219 @@
-﻿.settings-list {
-  top: 104px;
-  display: grid;
-  gap: 12px;
+.vm-settings-header {
+  z-index: 5;
 }
 
-.setting-row {
+.vm-settings-page {
+  position: absolute;
+  inset: 104px 14px 18px;
+  overflow: auto;
+  padding-bottom: 20px;
+}
+
+.vm-settings-intro {
+  max-width: 38ch;
+  margin: 0 auto 14px;
+  color: rgba(255,255,255,.9);
+  font-size: 14px;
+  line-height: 1.4;
+  text-align: center;
+  text-shadow: 0 2px 8px rgba(0,0,0,.3);
+}
+
+.vm-settings-card {
+  width: min(100%, 520px);
+  margin: 0 auto;
+  padding: 14px;
+  border-radius: 26px;
+  background: rgba(10, 16, 36, .52);
+  border: 1px solid rgba(255,255,255,.13);
+  box-shadow: 0 20px 46px rgba(0,0,0,.28);
+  backdrop-filter: blur(10px);
+}
+
+.vm-lang-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.vm-lang-btn {
+  min-height: 62px;
+  padding: 8px 10px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.08);
+  color: #fff;
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  font-weight: 900;
+}
+
+.vm-lang-btn.is-active {
+  background: rgba(255, 207, 103, .22);
+  border-color: rgba(255, 226, 140, .75);
+  box-shadow: 0 0 0 2px rgba(255, 226, 140, .16) inset;
+}
+
+.vm-flag-box {
+  width: 38px;
+  height: 26px;
+  border-radius: 8px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,.25);
+  background: rgba(255,255,255,.12);
+}
+
+.vm-flag-box svg {
   width: 100%;
-  min-height: 58px;
-  padding: 0 16px;
+  height: 100%;
+  display: block;
+}
+
+.vm-settings-section {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255,255,255,.11);
+}
+
+.vm-toggle-row,
+.vm-nav-row {
+  width: 100%;
+  min-height: 68px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-radius: 20px;
-  background: rgba(255,255,255,.12);
+  gap: 14px;
+  padding: 12px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.07);
   color: #fff;
-  border: 1px solid rgba(255,255,255,.12);
+  text-align: left;
 }
 
-.setting-row select {
-  min-width: 100px;
-  min-height: 36px;
-  border: 0;
-  border-radius: 12px;
-  background: rgba(0,0,0,.25);
+.vm-toggle-row + .vm-toggle-row,
+.vm-nav-row + .vm-nav-row {
+  margin-top: 10px;
+}
+
+.vm-toggle-label,
+.vm-nav-label {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 950;
+}
+
+.vm-toggle-desc,
+.vm-nav-desc {
+  margin: 4px 0 0;
+  color: rgba(255,255,255,.72);
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.vm-privacy-btn {
+  min-width: 112px;
+  min-height: 42px;
+  padding: 8px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(122, 207, 255, .38);
+  background: rgba(122, 207, 255, .16);
   color: #fff;
-  padding: 0 10px;
+  font-weight: 950;
+}
+
+.vm-switch {
+  position: relative;
+  flex: 0 0 auto;
+  width: 58px;
+  height: 34px;
+}
+
+.vm-switch input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.vm-switch span {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: rgba(255,255,255,.18);
+  border: 1px solid rgba(255,255,255,.16);
+}
+
+.vm-switch span::after {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 4px 10px rgba(0,0,0,.25);
+  transition: transform .18s ease;
+}
+
+.vm-switch input:checked + span {
+  background: linear-gradient(180deg, #ffcf67, #ff8c30);
+}
+
+.vm-switch input:checked + span::after {
+  transform: translateX(24px);
+}
+
+.vm-nav-row {
+  cursor: pointer;
+}
+
+.vm-nav-row span {
+  font-size: 26px;
+  font-weight: 900;
+  color: rgba(255,255,255,.88);
+}
+
+.vm-settings-section-title {
+  margin: 0 0 10px;
+  color: rgba(255,255,255,.88);
+  font-size: 13px;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.vm-help-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: rgba(255,255,255,.78);
+  font-size: 13px;
+}
+
+.vm-help-line a {
+  color: #ffe27a;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.vm-settings-msg {
+  min-height: 20px;
+  margin-top: 12px;
+  color: #baffd1;
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
+}
+
+@media (min-width: 520px) {
+  .vm-lang-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
