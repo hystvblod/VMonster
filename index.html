@@ -219,6 +219,56 @@
   </main>
 </section>
 
+      <section id="screen-crosspromo" class="screen">
+        <div class="home-bg"></div>
+
+        <header class="screen-header vm-crosspromo-header">
+          <button class="back-btn" type="button" data-action="back-home">‹</button>
+          <div>
+            <h2 data-i18n="crosspromo_page_title">Découvrir nos autres jeux</h2>
+            <p data-i18n="crosspromo_page_subtitle">Essayez un autre jeu VBold Studio et récupérez une récompense.</p>
+          </div>
+        </header>
+
+        <main class="vm-crosspromo-page">
+          <section class="vm-crosspromo-card vm-crosspromo-referral-card">
+            <div class="vm-crosspromo-content">
+              <div class="vm-crosspromo-reward-pill">
+                <span data-i18n="referral.invite_and_earn_title">Inviter et gagner</span>
+                <img src="./assets/ui/icon_vcoins.webp" alt="" />
+                <strong>+ 300</strong>
+              </div>
+
+              <p class="vm-crosspromo-desc" data-i18n="referral.crosspromo_desc">
+                Partage VMonster avec tes proches et gagne des VCoins quand une invitation est validée.
+              </p>
+
+              <button
+                id="cp_invite_btn"
+                class="vm-crosspromo-btn primary"
+                type="button"
+                data-i18n="referral.invite_and_earn_btn"
+              >
+                Inviter
+              </button>
+            </div>
+          </section>
+
+          <div class="vm-crosspromo-reward-pill">
+            <span data-i18n="crosspromo_reward_prefix">Récompense</span>
+            <img src="./assets/ui/icon_vcoins.webp" alt="" />
+            <strong id="crosspromoRewardAmount">1000</strong>
+          </div>
+
+          <div id="crosspromoGrid" class="vm-crosspromo-grid"></div>
+        </main>
+
+        <div id="crosspromoShotViewer" class="vm-shot-viewer" aria-hidden="true">
+          <button id="crosspromoShotClose" type="button" aria-label="Fermer">×</button>
+          <img id="crosspromoShotImage" src="" alt="" />
+        </div>
+      </section>
+
       <section id="screen-rules" class="screen">
         <header class="screen-header">
           <button class="back-btn" type="button" data-action="back-home">‹</button>
@@ -288,6 +338,7 @@
   <script src="./js/infinite.js"></script>
   <script src="./js/ads.js"></script>
   <script src="./js/crosspromo.js"></script>
+  <script src="./js/referral.js"></script>
   <script src="./js/purchases.js"></script>
   <script src="./js/input.js"></script>
   <script src="./js/levels.js"></script>

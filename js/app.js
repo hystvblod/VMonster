@@ -30,9 +30,9 @@
     VMSI18n.apply();
     VMSShop.render();
     VMSSkins.render();
-    VMSInfinite.render?.();
-VMSCrossPromo.render?.();
-VMSReferral?.bootReferral?.();
+    window.VMSInfinite?.render?.();
+    window.VMSCrossPromo?.render?.();
+    window.VMSReferral?.bootReferral?.();
   },
 
   bindActions() {
