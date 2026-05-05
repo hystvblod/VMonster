@@ -119,6 +119,27 @@ window.VMSUserData = {
     return true;
   },
 
+  async creditJetons(amount) {
+    const value = Math.max(0, Number(amount || 0));
+    VMSEconomy.tokens += value;
+    this.saveLocal();
+    VMSEconomy.refreshHud?.();
+
+    await this.rpc("vmonster_credit_jetons", { amount: value });
+  },
+
+  async spendJetons(amount) {
+    const value = Math.max(0, Number(amount || 0));
+    if (VMSEconomy.tokens < value) return false;
+
+    VMSEconomy.tokens -= value;
+    this.saveLocal();
+    VMSEconomy.refreshHud?.();
+
+    await this.rpc("vmonster_spend_jetons", { amount: value });
+    return true;
+  },
+
   async unlockInfiniteWorld(worldId) {
     VMSEconomy.unlockInfiniteWorldLocal(worldId);
     this.saveLocal();
