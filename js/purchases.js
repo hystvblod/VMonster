@@ -13,6 +13,7 @@
     vmonster_jetons_30: { kind: "tokens", tokens: 30 },
 
     vmonster_no_ads: { kind: "noads" },
+    vmonster_ultimate_pack: { kind: "ultimate" },
 
     vmonster_world_ocean: { kind: "world", worldId: "ocean" },
     vmonster_world_volcano: { kind: "world", worldId: "volcano" },
@@ -162,6 +163,10 @@
 
     if (sku.kind === "skinpack") {
       VMSShop?.unlockSkinPack?.(sku.worldId, sku.styleId);
+    }
+
+    if (sku.kind === "ultimate") {
+      VMSShop?.unlockUltimatePack?.();
     }
 
     VMSUserData?.saveLocal?.();
