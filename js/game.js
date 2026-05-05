@@ -38,6 +38,50 @@ window.VMSGame = {
     level: null
   },
 
+  getMonsterFootprint(monster) {
+    const meta = VMSLevels.getMonsterByLevel(Number(monster.level || 1)) || {};
+    const level = Number(monster.level || 1);
+    const radius = Number(monster.radius || meta.radius || 40);
+    const visualRadius = Number(monster.drawRadius || meta.drawRadius || radius);
+
+    let rxFactor;
+    let ryFactor;
+    let offsetFactor;
+
+    if (level <= 3) {
+      rxFactor = 0.72;
+      ryFactor = 0.24;
+      offsetFactor = 0.52;
+    } else if (level <= 7) {
+      rxFactor = 0.75;
+      ryFactor = 0.23;
+      offsetFactor = 0.58;
+    } else if (level <= 11) {
+      rxFactor = 0.78;
+      ryFactor = 0.22;
+      offsetFactor = 0.64;
+    } else {
+      rxFactor = 0.80;
+      ryFactor = 0.21;
+      offsetFactor = 0.70;
+    }
+
+    const rx = Math.round(visualRadius * rxFactor);
+    const ry = Math.round(visualRadius * ryFactor);
+    const offsetY = Math.round(visualRadius * offsetFactor);
+
+    return {
+      x: monster.x,
+      y: monster.y + offsetY,
+      rx,
+      ry,
+      offsetY,
+      radius,
+      visualRadius,
+      level
+    };
+  },
+
   startInfinite(worldId) {
     this.mode = "infinite";
     this.infiniteWorldId = worldId || "lab";
@@ -251,8 +295,9 @@ window.VMSGame = {
       }
 
       const dangerY = VMSRenderer.getDangerY();
+      const footprint = this.getMonsterFootprint(monster);
 
-      if (monster.age > 700 && monster.y + monster.radius > dangerY - 8 && monster.vy > 0) {
+      if (monster.age > 700 && footprint.y + footprint.ry > dangerY - 8 && monster.vy > 0) {
         monster.vy *= 0.35;
       }
 
@@ -266,37 +311,37 @@ window.VMSGame = {
   },
 
   resolveWall(monster, track, bounce) {
-  const rect = VMSRenderer.getTrackRect();
-  const bounds = VMSRenderer.getTrackBoundsAt(monster.y, monster.radius);
+    const rect = VMSRenderer.getTrackRect();
+    const footprint = this.getMonsterFootprint(monster);
 
-  if (monster.x - monster.radius < bounds.left) {
-    monster.x = bounds.left + monster.radius;
-    monster.vx = Math.abs(monster.vx) * bounce;
-  }
+    const bounds = VMSRenderer.getTrackBoundsAt(footprint.y, 0);
 
-  if (monster.x + monster.radius > bounds.right) {
-    monster.x = bounds.right - monster.radius;
-    monster.vx = -Math.abs(monster.vx) * bounce;
-  }
+    if (footprint.x - footprint.rx < bounds.left) {
+      monster.x = bounds.left + footprint.rx;
+      monster.vx = Math.abs(monster.vx) * bounce;
+    }
 
-  if (monster.y - monster.radius < rect.top) {
-    monster.y = rect.top + monster.radius;
+    if (footprint.x + footprint.rx > bounds.right) {
+      monster.x = bounds.right - footprint.rx;
+      monster.vx = -Math.abs(monster.vx) * bounce;
+    }
 
-    // Important : on ne veut pas un gros rebond vers le bas.
-    // Le monstre tape le haut, puis il ralentit.
-    monster.vy = Math.max(0, monster.vy) * 0.08;
-    monster.vx *= 0.82;
-  }
+    if (footprint.y - footprint.ry < rect.top) {
+      monster.y = rect.top + footprint.ry - footprint.offsetY;
 
-  if (monster.y + monster.radius > rect.bottom) {
-    monster.y = rect.bottom - monster.radius;
+      // Collision en haut basée sur la base au sol, pas sur la tête du sprite.
+      monster.vy = Math.max(0, monster.vy) * 0.08;
+      monster.vx *= 0.82;
+    }
 
-    // Pas de rebond violent vers la zone joueur.
-    // On le renvoie doucement vers le haut.
-    monster.vy = -Math.abs(monster.vy) * 0.18;
-    monster.vx *= 0.82;
-  }
-},
+    if (footprint.y + footprint.ry > rect.bottom) {
+      monster.y = rect.bottom - footprint.ry - footprint.offsetY;
+
+      // Collision en bas basée sur la base au sol.
+      monster.vy = -Math.abs(monster.vy) * 0.18;
+      monster.vx *= 0.82;
+    }
+  },
 
   resolveMonsterCollisions(bounce) {
   const monsters = this.state.monsters;
@@ -567,39 +612,42 @@ updateParticles(delta) {
   },
 
   updateDanger(delta) {
-  const dangerY = VMSRenderer.getDangerY();
+    const dangerY = VMSRenderer.getDangerY();
 
-  // Minimum 2800ms pour éviter le game over instant.
-  const grace = Math.max(2800, this.state.level.dangerGraceMs || 2800);
+    // Minimum 2800ms pour éviter le game over instant.
+    const grace = Math.max(2800, this.state.level.dangerGraceMs || 2800);
 
-  this.state.dangerY = dangerY;
+    this.state.dangerY = dangerY;
 
-  const danger = this.state.monsters.some((monster) => {
-    if (!monster.launched) return false;
+    const danger = this.state.monsters.some((monster) => {
+      if (!monster.launched) return false;
 
-    // Le monstre qui vient d’être lancé ne compte pas.
-    if (monster.age < 2500) return false;
+      // Le monstre qui vient d’être lancé ne compte pas.
+      if (monster.age < 2500) return false;
 
-    const speed = Math.sqrt(monster.vx * monster.vx + monster.vy * monster.vy);
+      const speed = Math.sqrt(monster.vx * monster.vx + monster.vy * monster.vy);
 
-    // Tant qu’il bouge encore vraiment, on ne déclenche pas la mort.
-    if (speed > 95) return false;
+      // Tant qu’il bouge encore vraiment, on ne déclenche pas la mort.
+      if (speed > 95) return false;
 
-    return monster.y + monster.radius > dangerY;
-  });
+      const footprint = this.getMonsterFootprint(monster);
 
-  if (danger) {
-    this.dangerTimer += delta;
-  } else {
-    this.dangerTimer = Math.max(0, this.dangerTimer - delta * 1.4);
-  }
+      // Danger basé sur la base au sol, pas sur le haut du sprite.
+      return footprint.y + footprint.ry > dangerY;
+    });
 
-  this.state.dangerRatio = VMSUtils.clamp(this.dangerTimer / grace, 0, 1);
+    if (danger) {
+      this.dangerTimer += delta;
+    } else {
+      this.dangerTimer = Math.max(0, this.dangerTimer - delta * 1.4);
+    }
 
-  if (this.dangerTimer >= grace) {
-    this.endGame();
-  }
-},
+    this.state.dangerRatio = VMSUtils.clamp(this.dangerTimer / grace, 0, 1);
+
+    if (this.dangerTimer >= grace) {
+      this.endGame();
+    }
+  },
 
   endGame() {
     if (this.gameOver) return;
