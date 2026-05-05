@@ -180,5 +180,22 @@
   "referral.share_popup_body": "Partage le jeu avec tes proches et gagne des VCoins quand une invitation est validée.",
   "referral.reward_title": "Parrainage validé",
   "referral.reward_text": "La récompense de parrainage a été validée.",
-  "referral.android_only_popup.text": "La récompense automatique fonctionne surtout avec Android via le lien d’invitation."
+  "referral.android_only_popup.text": "La récompense automatique fonctionne surtout avec Android via le lien d’invitation.",
+  "shop_customization_title": "Skins et personnalisation",
+  "shop_skin_style_girly": "Girly",
+  "shop_skin_style_nature": "Nature",
+  "shop_skin_style_adventure": "Aventure",
+  "shop_skin_pack_complete": "Pack complet",
+  "shop_skin_bg_title": "Skin {n}",
+  "shop_skin_unlocked": "Débloqué",
+  "shop_carousel_prev": "Précédent",
+  "shop_carousel_next": "Suivant",
+  "shop_reward_success_title": "Récompense reçue",
+  "shop_reward_error_title": "Pub indisponible",
+  "shop_reward_error_text": "La vidéo n’a pas été validée.",
+  "shop_reward_vcoins_text": "+{amount} VCoins ajoutés.",
+  "shop_reward_jeton_text": "+{amount} jeton ajouté.",
+  "shop_skin_unlocked_title": "Skin débloqué",
+  "shop_skin_unlocked_text": "Ce skin est maintenant disponible.",
+  "shop_skin_progress_text": "Progression : {count}/3"
 }
