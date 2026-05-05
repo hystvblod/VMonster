@@ -47,6 +47,12 @@ window.VMSEconomy = {
 
   addTokens(amount) {
     const value = Math.max(0, Number(amount || 0));
+
+    if (window.VMSUserData?.ready) {
+      VMSUserData.creditJetons(value);
+      return;
+    }
+
     this.tokens += value;
     VMSStorage.set("tokens", this.tokens);
     this.refreshHud();
@@ -55,6 +61,11 @@ window.VMSEconomy = {
   spendToken(amount = 1) {
     const value = Math.max(1, Number(amount || 1));
     if (this.tokens < value) return false;
+
+    if (window.VMSUserData?.ready) {
+      VMSUserData.spendJetons(value);
+      return true;
+    }
 
     this.tokens -= value;
     VMSStorage.set("tokens", this.tokens);
