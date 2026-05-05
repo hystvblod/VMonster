@@ -68,7 +68,7 @@
 }
 
 if (action === "open-crosspromo") {
-        VMSCrossPromo?.showManual?.();
+        window.VMSCrossPromo?.showManual?.();
       }
 
       if (action === "open-skins") VMSRouter.show("screen-skins");
