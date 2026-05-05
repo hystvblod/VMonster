@@ -1,24 +1,58 @@
-﻿#gameCanvas {
+#gameCanvas {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
 }
 
-.game-hud {
-  top: 14px;
-  justify-content: space-between;
-  pointer-events: auto;
-}
-
-.hud-center {
+.game-hud.game-hud-minimal {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: auto;
+  z-index: 30;
   display: flex;
   align-items: center;
-  gap: 8px;
+  pointer-events: none;
 }
 
-.combo-chip {
-  min-width: 54px;
+.hud-back-btn {
+  width: 46px;
+  height: 46px;
+  border: 0;
+  border-radius: 15px;
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-  color: #ffdc73;
+  pointer-events: auto;
+  background: linear-gradient(180deg, rgba(17, 24, 57, .92), rgba(11, 14, 35, .88));
+  border: 1px solid rgba(153, 236, 255, .35);
+  box-shadow:
+    0 8px 18px rgba(0, 0, 0, .28),
+    inset 0 0 0 1px rgba(255,255,255,.04);
+  backdrop-filter: blur(10px);
+}
+
+.hud-back-btn svg {
+  width: 22px;
+  height: 22px;
+  fill: #eafcff;
+}
+
+@media (max-width: 420px) {
+  .game-hud.game-hud-minimal {
+    top: 10px;
+    left: 10px;
+  }
+
+  .hud-back-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+  }
+
+  .hud-back-btn svg {
+    width: 20px;
+    height: 20px;
+  }
 }
