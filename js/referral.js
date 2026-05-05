@@ -21,21 +21,7 @@
     } catch (_) {}
 
     if (!out || out === key) {
-      const fallback = {
-        "referral.share_title": "Inviter un ami",
-        "referral.share_text": "Télécharge VMonster ici : {url}",
-        "referral.link_copied": "Lien copié",
-        "referral.share_popup_title": "Tu aimes VMonster ?",
-        "referral.share_popup_body": "Partage le jeu avec tes proches et gagne 600 VCoins quand une invitation est validée.",
-        "referral.invite_btn": "Inviter",
-        "referral.later_btn": "Plus tard",
-        "referral.reward_title": "Parrainage validé",
-        "referral.reward_text": "La récompense de parrainage a été validée.",
-        "referral.android_only_popup.text": "La récompense automatique fonctionne surtout avec Android via le lien d’invitation.",
-        "btn_ok": "OK"
-      };
-
-      out = fallback[key] || key;
+      out = "";
     }
 
     Object.keys(vars || {}).forEach((name) => {
