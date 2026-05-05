@@ -88,5 +88,33 @@
   "modal_reward_doubled_text": "Great job, you earned {coins} VCoins.",
   "btn_double_reward": "Double with a video",
   "btn_next_wave": "Next wave",
-  "btn_next_world": "Next world"
+  "btn_next_world": "Next world",
+
+"home_mode_campaign": "Campaign",
+"home_mode_infinite": "Infinite",
+
+"infinite_title": "Infinite mode",
+"infinite_subtitle": "Choose a laboratory and play until you fail.",
+"infinite_unlock_title": "Locked laboratory",
+"infinite_unlock_text": "Unlock {world} with a purchase or with {coins} VCoins + one video.",
+"btn_unlock_store": "Unlock {price}",
+"btn_unlock_vcoins_rewarded": "3000 VCoins + video",
+"modal_not_enough_vcoins_title": "Not enough VCoins",
+"modal_not_enough_vcoins_text": "You need {coins} VCoins to unlock this laboratory.",
+"hud_infinite_mode": "Infinite mode",
+
+"noads_title": "No Ads",
+"noads_text": "Remove interstitial ads. Rewarded videos remain available when you choose to watch them.",
+"btn_buy_store": "Buy {price}",
+
+"store_purchase_pending_title": "Purchase coming soon",
+"store_purchase_pending_text": "The button is ready, but the real store is not connected yet.",
+
+"crosspromo_title": "Discover our other games",
+"crosspromo_text": "Discover another VBold Studio game and receive {coins} VCoins.",
+"crosspromo_open": "View game",
+"crosspromo_wait_title": "Reward already claimed",
+"crosspromo_wait_text": "The cross-promo reward will be available again later.",
+"crosspromo_reward_title": "Reward received",
+"crosspromo_reward_text": "You received {coins} VCoins."
 }

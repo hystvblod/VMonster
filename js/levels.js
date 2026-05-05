@@ -102,7 +102,31 @@ window.VMSLevels = {
     };
   },
 
-  getMaxMonsterLevel() {
+  getInfiniteLevel(worldId) {
+  const world = this.getWorldById(worldId);
+  this.currentWorld = world;
+
+  return {
+    id: `infinite_${world.id}`,
+    worldId: world.id,
+    worldNumber: this.worlds.findIndex((item) => item.id === world.id) + 1,
+    wave: null,
+    wavesPerWorld: null,
+    nameKey: world.nameKey,
+    background: world.background,
+    themeColor: world.themeColor,
+    spawnPoolMaxLevel: world.id === "lab" ? 3 : world.id === "ocean" ? 3 : world.id === "volcano" ? 4 : 5,
+    dangerGraceMs: world.id === "secret" ? 3300 : 3900,
+    friction: 0.989,
+    wallBounce: 0.34,
+    monsterBounce: 0.18,
+    rewardVCoins: 0,
+    orders: [],
+    isInfinite: true
+  };
+},
+
+getMaxMonsterLevel() {
     return 12;
   },
 

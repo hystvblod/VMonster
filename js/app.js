@@ -25,6 +25,7 @@
     VMSI18n.apply();
     VMSShop.render();
     VMSSkins.render();
+    VMSInfinite.render?.();
   },
 
   bindActions() {
@@ -34,12 +35,31 @@
 
       const action = target.getAttribute("data-action");
 
-      if (action === "play") {
+      if (action === "play" || action === "play-campaign") {
+        VMSGame.mode = "campaign";
         VMSRouter.show("screen-game");
         VMSGame.start();
       }
 
+      if (action === "open-infinite") {
+        VMSInfinite.render();
+        VMSRouter.show("screen-infinite");
+      }
+
+      if (action === "select-infinite-world") {
+        VMSInfinite.selectWorld(target.getAttribute("data-world-id"));
+      }
+
       if (action === "open-shop") VMSRouter.show("screen-shop");
+
+      if (action === "open-noads") {
+        VMSPurchases.buyNoAds?.();
+      }
+
+      if (action === "open-crosspromo") {
+        VMSCrossPromo?.showManual?.();
+      }
+
       if (action === "open-skins") VMSRouter.show("screen-skins");
       if (action === "open-settings") VMSRouter.show("screen-settings");
       if (action === "open-rules") VMSRouter.show("screen-rules");

@@ -25,34 +25,63 @@
     <div class="safe-area">
 
       <section id="screen-home" class="screen active">
-        <div class="home-bg"></div>
+  <div class="home-bg"></div>
 
-        <header class="topbar">
-          <div class="currency-pill">
-            <span class="coin-dot"></span>
-            <span id="hudCoins">0</span>
-          </div>
+  <header class="vm-home-top">
+    <button class="vm-home-icon vm-home-icon-left" type="button" data-action="open-shop" aria-label="Boutique">
+      <img src="./assets/ui/icon_shop.webp" alt="" />
+    </button>
 
-          <button class="icon-btn" type="button" data-action="open-settings" aria-label="settings">
-            ⚙
-          </button>
-        </header>
+    <div class="vm-home-top-right">
+      <button class="vm-home-icon" type="button" data-action="open-noads" aria-label="No Ads">
+        <img src="./assets/ui/icon_noads.webp" alt="" />
+      </button>
 
-        <main class="home-content">
-          <div class="logo-card">
-            <div class="logo-orb"></div>
-            <h1 data-i18n="app_title"></h1>
-            <p data-i18n="home_subtitle"></p>
-          </div>
+      <button class="vm-home-icon" type="button" data-action="open-crosspromo" aria-label="Cross promotion">
+        <img src="./assets/ui/icon_crosspromo.webp" alt="" />
+      </button>
 
-          <div class="home-actions">
-            <button class="primary-btn big-btn" type="button" data-action="play" data-i18n="btn_play"></button>
-            <button class="secondary-btn" type="button" data-action="open-skins" data-i18n="btn_skins"></button>
-            <button class="secondary-btn" type="button" data-action="open-shop" data-i18n="btn_shop"></button>
-            <button class="ghost-btn" type="button" data-action="open-rules" data-i18n="btn_rules"></button>
-          </div>
-        </main>
-      </section>
+      <button class="vm-home-icon" type="button" data-action="open-settings" aria-label="Paramètres">
+        <img src="./assets/ui/icon_settings.webp" alt="" />
+      </button>
+    </div>
+  </header>
+
+  <main class="vm-home-content">
+    <img class="vm-home-logo" src="./assets/ui/logo_vmonster.webp" alt="" />
+
+    <div class="vm-home-modes">
+      <button class="vm-mode-card vm-mode-card-campaign" type="button" data-action="play-campaign">
+        <img src="./assets/ui/icon_campaign.webp" alt="" />
+        <span data-i18n="home_mode_campaign">Campagne</span>
+      </button>
+
+      <button class="vm-mode-card vm-mode-card-infinite" type="button" data-action="open-infinite">
+        <img src="./assets/ui/icon_infinite.webp" alt="" />
+        <span data-i18n="home_mode_infinite">Infini</span>
+      </button>
+
+      <button class="vm-mode-card vm-mode-card-shop" type="button" data-action="open-shop">
+        <img src="./assets/ui/icon_shop.webp" alt="" />
+        <span data-i18n="btn_shop">Boutique</span>
+      </button>
+    </div>
+  </main>
+</section>
+<section id="screen-infinite" class="screen">
+  <div class="home-bg"></div>
+
+  <header class="screen-header vm-infinite-header">
+    <button class="back-btn" type="button" data-action="back-home">‹</button>
+    <div>
+      <h2 data-i18n="infinite_title">Mode infini</h2>
+      <p data-i18n="infinite_subtitle">Choisissez un laboratoire et jouez jusqu’à l’échec.</p>
+    </div>
+  </header>
+
+  <main class="vm-world-grid" id="infiniteWorldGrid"></main>
+</section>
+
 
       <section id="screen-game" class="screen">
         <canvas id="gameCanvas"></canvas>
@@ -207,7 +236,9 @@
   <script src="./js/shop.js"></script>
   <script src="./js/skins.js"></script>
   <script src="./js/rewards.js"></script>
+  <script src="./js/infinite.js"></script>
   <script src="./js/ads.js"></script>
+  <script src="./js/crosspromo.js"></script>
   <script src="./js/purchases.js"></script>
   <script src="./js/input.js"></script>
   <script src="./js/levels.js"></script>

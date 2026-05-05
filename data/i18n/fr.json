@@ -88,5 +88,33 @@
   "modal_reward_doubled_text": "Bravo, vous avez gagné {coins} VCoins.",
   "btn_double_reward": "Doubler avec une vidéo",
   "btn_next_wave": "Vague suivante",
-  "btn_next_world": "Monde suivant"
+  "btn_next_world": "Monde suivant",
+
+"home_mode_campaign": "Campagne",
+"home_mode_infinite": "Infini",
+
+"infinite_title": "Mode infini",
+"infinite_subtitle": "Choisissez un laboratoire et jouez jusqu’à l’échec.",
+"infinite_unlock_title": "Laboratoire verrouillé",
+"infinite_unlock_text": "Débloquez {world} avec un achat ou avec {coins} VCoins + une vidéo.",
+"btn_unlock_store": "Débloquer {price}",
+"btn_unlock_vcoins_rewarded": "3000 VCoins + vidéo",
+"modal_not_enough_vcoins_title": "VCoins insuffisants",
+"modal_not_enough_vcoins_text": "Il faut {coins} VCoins pour débloquer ce laboratoire.",
+"hud_infinite_mode": "Mode infini",
+
+"noads_title": "No Ads",
+"noads_text": "Supprimez les publicités interstitielles. Les vidéos récompensées restent disponibles si vous choisissez de les regarder.",
+"btn_buy_store": "Acheter {price}",
+
+"store_purchase_pending_title": "Achat bientôt disponible",
+"store_purchase_pending_text": "Le bouton est prêt, mais le vrai store n’est pas encore branché.",
+
+"crosspromo_title": "Découvrir nos autres jeux",
+"crosspromo_text": "Découvrez un autre jeu VBold Studio et recevez {coins} VCoins.",
+"crosspromo_open": "Voir le jeu",
+"crosspromo_wait_title": "Récompense déjà récupérée",
+"crosspromo_wait_text": "La récompense cross-promo sera de nouveau disponible plus tard.",
+"crosspromo_reward_title": "Récompense reçue",
+"crosspromo_reward_text": "Vous avez reçu {coins} VCoins."
 }

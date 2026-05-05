@@ -248,10 +248,12 @@ labMap: {
 
   const ctx = this.ctx;
   const title = VMSI18n.t(level.nameKey || "world_lab_name");
-  const waveText = VMSI18n.t("hud_wave_progress", {
-    wave: level.wave || 1,
-    total: level.wavesPerWorld || 20
-  });
+  const waveText = level.isInfinite
+    ? VMSI18n.t("hud_infinite_mode")
+    : VMSI18n.t("hud_wave_progress", {
+        wave: level.wave || 1,
+        total: level.wavesPerWorld || 20
+      });
 
   const boxW = Math.min(this.width * 0.68, 270);
   const boxH = 50;
