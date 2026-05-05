@@ -1,0 +1,39 @@
+{
+  "worlds": [
+    {
+      "id": "lab",
+      "nameKey": "world_lab_name",
+      "background": "./assets/environment/backgrounds/bg_lab_main_01.webp",
+      "themeColor": "#7ce7ff",
+      "monstersFolder": "lab"
+    },
+    {
+      "id": "ocean",
+      "nameKey": "world_ocean_name",
+      "background": "./assets/environment/backgrounds/bg_lab_ocean_01.webp",
+      "themeColor": "#38bdf8",
+      "monstersFolder": "ocean"
+    },
+    {
+      "id": "volcano",
+      "nameKey": "world_volcano_name",
+      "background": "./assets/environment/backgrounds/bg_lab_volcano_01.webp",
+      "themeColor": "#fb923c",
+      "monstersFolder": "volcano"
+    },
+    {
+      "id": "nuclear",
+      "nameKey": "world_nuclear_name",
+      "background": "./assets/environment/backgrounds/bg_lab_nuclear_01.webp",
+      "themeColor": "#a3e635",
+      "monstersFolder": "nuclear"
+    },
+    {
+      "id": "secret",
+      "nameKey": "world_secret_name",
+      "background": "./assets/environment/backgrounds/bg_lab_secret_01.webp",
+      "themeColor": "#c084fc",
+      "monstersFolder": "secret"
+    }
+  ]
+}
