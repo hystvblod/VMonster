@@ -26,7 +26,7 @@
         "referral.share_text": "Télécharge VMonster ici : {url}",
         "referral.link_copied": "Lien copié",
         "referral.share_popup_title": "Tu aimes VMonster ?",
-        "referral.share_popup_body": "Partage le jeu avec tes proches et gagne des VCoins quand une invitation est validée.",
+        "referral.share_popup_body": "Partage le jeu avec tes proches et gagne 600 VCoins quand une invitation est validée.",
         "referral.invite_btn": "Inviter",
         "referral.later_btn": "Plus tard",
         "referral.reward_title": "Parrainage validé",

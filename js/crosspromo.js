@@ -2,20 +2,20 @@ window.VMSCrossPromo = {
   rewardAmount: 1000,
 
   apps: {
-    vblocks: {
-      id: "vblocks",
-      packageName: "com.vboldstudio.VBlocks",
-      iosScheme: "vblocks://",
-      storeUrlAndroid: "https://play.google.com/store/apps/details?id=com.vboldstudio.VBlocks",
-      storeUrlIOS: "https://apps.apple.com/app/idXXXXXXXXXX",
-      cover: "./assets/crosspromo/vblocks_cover.webp",
+    vuniverse: {
+      id: "vuniverse",
+      packageName: "com.vboldstudio.vuniverse",
+      iosScheme: "vuniverse://",
+      storeUrlAndroid: "https://play.google.com/store/apps/details?id=com.vboldstudio.vuniverse",
+      storeUrlIOS: "https://apps.apple.com/app/idZZZZZZZZZZ",
+      cover: "./assets/crosspromo/vuniverse_cover.webp",
       shots: [
-        "./assets/crosspromo/vblocks_01.webp",
-        "./assets/crosspromo/vblocks_02.webp",
-        "./assets/crosspromo/vblocks_03.webp"
+        "./assets/crosspromo/vuniverse_01.webp",
+        "./assets/crosspromo/vuniverse_02.webp",
+        "./assets/crosspromo/vuniverse_03.webp"
       ],
-      titleKey: "crosspromo_apps_vblocks_name",
-      descKey: "crosspromo_apps_vblocks_desc"
+      titleKey: "crosspromo_apps_vuniverse_name",
+      descKey: "crosspromo_apps_vuniverse_desc"
     },
 
     vchronicles: {
@@ -32,8 +32,25 @@ window.VMSCrossPromo = {
       ],
       titleKey: "crosspromo_apps_vchronicles_name",
       descKey: "crosspromo_apps_vchronicles_desc"
+    },
+
+    vblocks: {
+      id: "vblocks",
+      packageName: "com.vboldstudio.VBlocks",
+      iosScheme: "vblocks://",
+      storeUrlAndroid: "https://play.google.com/store/apps/details?id=com.vboldstudio.VBlocks",
+      storeUrlIOS: "https://apps.apple.com/app/idXXXXXXXXXX",
+      cover: "./assets/crosspromo/vblocks_cover.webp",
+      shots: [
+        "./assets/crosspromo/vblocks_01.webp",
+        "./assets/crosspromo/vblocks_02.webp",
+        "./assets/crosspromo/vblocks_03.webp"
+      ],
+      titleKey: "crosspromo_apps_vblocks_name",
+      descKey: "crosspromo_apps_vblocks_desc"
     }
   },
+
 
   showManual() {
     this.render();
@@ -49,7 +66,7 @@ window.VMSCrossPromo = {
 
     grid.innerHTML = "";
 
-    ["vchronicles", "vblocks"].forEach((id) => {
+    ["vuniverse", "vchronicles", "vblocks"].forEach((id) => {
       const app = this.apps[id];
       const card = document.createElement("article");
       card.className = "vm-crosspromo-card";
