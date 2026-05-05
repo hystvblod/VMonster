@@ -12,6 +12,9 @@ window.VMSGame = {
   dangerTimer: 0,
   gameOver: false,
 
+  mode: "campaign",
+  infiniteWorldId: null,
+
   currentMonster: null,
   nextMonsterLevel: 1,
 
@@ -35,8 +38,20 @@ window.VMSGame = {
     level: null
   },
 
-  start() {
-    if (!this.levelIndex || this.levelIndex < 1) {
+  startInfinite(worldId) {
+    this.mode = "infinite";
+    this.infiniteWorldId = worldId || "lab";
+    this.start({
+      mode: "infinite",
+      worldId: this.infiniteWorldId
+    });
+  },
+
+  start(options = {}) {
+    this.mode = options.mode || "campaign";
+    this.infiniteWorldId = options.worldId || null;
+
+    if (this.mode !== "infinite" && (!this.levelIndex || this.levelIndex < 1)) {
       this.levelIndex = VMSStorage.get("currentLevel", 1);
     }
 
@@ -52,8 +67,13 @@ window.VMSGame = {
     this.state.orders = [];
     this.state.aim.active = false;
 
-    this.state.level = VMSLevels.getLevel(this.levelIndex);
-    this.state.orders = this.createOrdersForLevel(this.state.level);
+    this.state.level = this.mode === "infinite"
+      ? VMSLevels.getInfiniteLevel(this.infiniteWorldId || "lab")
+      : VMSLevels.getLevel(this.levelIndex);
+
+    this.state.orders = this.mode === "infinite"
+      ? []
+      : this.createOrdersForLevel(this.state.level);
     this.bestScore = VMSStorage.get("bestScore", 0);
 
     if (this.state.level.background) {
@@ -458,6 +478,7 @@ areAllOrdersCompleted() {
 },
 
 completeLevel() {
+  if (this.mode === "infinite") return;
   if (this.gameOver) return;
 
   this.gameOver = true;
@@ -479,6 +500,7 @@ completeLevel() {
   if (this.levelIndex > 100) this.levelIndex = 100;
 
   VMSStorage.set("currentLevel", this.levelIndex);
+    VMSUserData?.saveProgress?.();
 
   const nextText = isWorldComplete
     ? VMSI18n.t("btn_next_world")
@@ -585,6 +607,8 @@ updateParticles(delta) {
 
     const coins = Math.max(5, Math.floor(this.score / 120));
     VMSEconomy.addCoins(coins);
+    VMSUserData?.saveProgress?.();
+    VMSAds?.maybeShowInterstitial?.("game_over");
 
     if (this.score > this.bestScore) {
       this.bestScore = this.score;

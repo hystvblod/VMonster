@@ -41,3 +41,8 @@
   color: #2e1700;
   font-weight: 900;
 }
+
+.shop-buy-disabled {
+  opacity: .72;
+  filter: grayscale(.25);
+}
