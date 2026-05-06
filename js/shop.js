@@ -194,6 +194,29 @@
     return `${skinBasePath(worldId, styleId)}/pack.webp`;
   }
 
+function getWorldBackgroundItems(world) {
+    const items = [];
+
+    STYLES.forEach((style) => {
+      for (let i = 1; i <= 3; i += 1) {
+        const padded = String(i).padStart(2, "0");
+        items.push({
+          type: "background",
+          id: `${world.id}_${style.id}_bg_${padded}`,
+          worldId: world.id,
+          styleId: style.id,
+          title: tt("shop_bg_named_title", {
+            style: tt(style.titleKey),
+            n: i
+          }),
+          img: bgAsset(world.id, style.id, i)
+        });
+      }
+    });
+
+    return items;
+  }
+
   function isWorldNormallyAccessible(worldId) {
     if (worldId === "lab") return true;
     return !!window.VMSEconomy?.isInfiniteWorldUnlocked?.(worldId);
@@ -218,17 +241,6 @@
       img: packAsset(world.id, style.id)
     });
 
-    for (let i = 1; i <= 3; i += 1) {
-      const padded = String(i).padStart(2, "0");
-      items.push({
-        type: "background",
-        id: `${world.id}_${style.id}_bg_${padded}`,
-        worldId: world.id,
-        styleId: style.id,
-        title: tt("shop_bg_title", { n: i }),
-        img: bgAsset(world.id, style.id, i)
-      });
-    }
 
     MONSTERS.forEach((monster) => {
       const monsterName = getMonsterDisplayName(world.id, monster);
@@ -445,9 +457,14 @@
   function renderWorldBlock(world) {
     return `
       <section class="shop-world-block" data-world="${esc(world.id)}">
-        <h3 class="shop-world-title">${esc(tt(world.titleKey, world.fallback))}</h3>
+        <h3 class="shop-world-title">${esc(tt(world.titleKey))}</h3>
+
+        <div class="shop-world-subtitle">${esc(tt("shop_decor_section_title", { world: tt(world.titleKey) }))}</div>
+        ${renderCarouselRow(tt("shop_decor_row_title"), getWorldBackgroundItems(world), "shop-world-decor-row")}
+
+        <div class="shop-world-subtitle shop-world-subtitle-monsters">${esc(tt("shop_monsters_section_title"))}</div>
         ${renderCarouselRow(tt("shop_classic_style"), getClassicItems(world), "shop-classic-row")}
-        ${STYLES.map((style) => renderCarouselRow(tt(style.titleKey, style.fallback), getStyleItems(world, style), "")).join("")}
+        ${STYLES.map((style) => renderCarouselRow(tt(style.titleKey), getStyleItems(world, style), "shop-monster-style-row")).join("")}
       </section>
     `;
   }
