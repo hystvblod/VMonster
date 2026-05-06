@@ -427,3 +427,37 @@
     linear-gradient(180deg, rgba(255,216,112,.22), rgba(255,255,255,.06));
   border-color: rgba(255,216,112,.35);
 }
+
+
+.shop-world-subtitle {
+  margin: 6px 0 0;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 1000;
+  color: rgba(255,255,255,.92);
+  text-shadow: 0 10px 22px rgba(0,0,0,.38);
+}
+
+.shop-world-subtitle::after {
+  content: "";
+  display: block;
+  height: 1px;
+  margin: 8px 20px 2px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.24), transparent);
+}
+
+.shop-world-subtitle-monsters {
+  margin-top: 14px;
+}
+
+.shop-world-decor-row .shop-skin-card {
+  border-color: rgba(124, 231, 255, .22);
+}
+
+.shop-world-decor-row .shop-skin-row-title {
+  color: rgba(124, 231, 255, .95);
+}
+
+.shop-monster-style-row .shop-skin-row-title {
+  color: rgba(255,255,255,.86);
+}
