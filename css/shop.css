@@ -461,3 +461,43 @@
 .shop-monster-style-row .shop-skin-row-title {
   color: rgba(255,255,255,.86);
 }
+
+
+.shop-skin-card.has-title-top .shop-skin-title-top {
+  position: absolute;
+  z-index: 3;
+  top: 9px;
+  left: 10px;
+  right: 10px;
+  min-height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(0,0,0,.34);
+  border: 1px solid rgba(255,255,255,.14);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 1000;
+  line-height: 1.05;
+  text-align: center;
+  text-shadow: 0 8px 18px rgba(0,0,0,.55);
+  pointer-events: none;
+}
+
+.shop-skin-card.has-title-top .shop-skin-img-contain {
+  padding-top: 36px;
+  padding-bottom: 44px;
+}
+
+.shop-skin-card.has-title-top .shop-skin-overlay {
+  grid-template-columns: auto;
+  padding-top: 28px;
+}
+
+.shop-skin-card.has-title-top .shop-skin-count {
+  position: absolute;
+  right: 10px;
+  bottom: 52px;
+}
