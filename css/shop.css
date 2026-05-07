@@ -83,7 +83,7 @@
 }
 
 .shop-product-price {
-  min-height: 34px;
+  min-height: clamp(46px, 5.4vw, 60px);
   width: 100%;
   border-radius: 14px;
   background: rgba(0,0,0,.22);
@@ -91,15 +91,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 6px 8px;
+  padding: 5px 8px;
   font-weight: 950;
   font-size: 12px;
   color: rgba(255,255,255,.96);
 }
 
 .shop-price-icon {
-  width: 26px;
-  height: 26px;
+  width: clamp(42px, 5vw, 56px);
+  height: clamp(42px, 5vw, 56px);
   object-fit: contain;
   filter: drop-shadow(0 5px 10px rgba(0,0,0,.36));
 }
@@ -263,8 +263,8 @@
 }
 
 .shop-reward-small {
-  width: 20px;
-  height: 20px;
+  width: clamp(30px, 4vw, 42px);
+  height: clamp(30px, 4vw, 42px);
   object-fit: contain;
   filter: drop-shadow(0 5px 10px rgba(0,0,0,.36));
 }
