@@ -37,8 +37,8 @@
 
 .shop-product-card {
   min-width: 0;
-  min-height: 132px;
-  padding: 12px 8px 10px;
+  min-height: clamp(132px, 17vw, 178px);
+  padding: clamp(12px, 1.6vw, 18px) clamp(8px, 1.2vw, 14px) clamp(10px, 1.4vw, 16px);
   border: 1px solid rgba(255,255,255,.14);
   border-radius: 22px;
   background:
@@ -67,8 +67,8 @@
 }
 
 .shop-product-img {
-  width: 54px;
-  height: 54px;
+  width: clamp(54px, 6vw, 82px);
+  height: clamp(54px, 6vw, 82px);
   object-fit: contain;
   filter: drop-shadow(0 10px 18px rgba(0,0,0,.42));
   pointer-events: none;
@@ -76,14 +76,14 @@
 }
 
 .shop-product-card strong {
-  font-size: 13px;
+  font-size: clamp(13px, 1.35vw, 16px);
   line-height: 1.12;
   font-weight: 1000;
   text-shadow: 0 8px 18px rgba(0,0,0,.35);
 }
 
 .shop-product-price {
-  min-height: clamp(46px, 5.4vw, 60px);
+  min-height: clamp(42px, 5vw, 58px);
   width: 100%;
   border-radius: 14px;
   background: rgba(0,0,0,.22);
@@ -151,19 +151,19 @@
 
 .shop-skin-carousel {
   display: grid;
-  grid-template-columns: 34px minmax(0, 1fr) 34px;
+  grid-template-columns: clamp(34px, 4.2vw, 48px) minmax(0, 1fr) clamp(34px, 4.2vw, 48px);
   align-items: center;
   gap: 6px;
 }
 
 .shop-skin-arrow {
-  width: 34px;
-  height: 96px;
+  width: clamp(34px, 4.2vw, 48px);
+  height: clamp(96px, 12vw, 140px);
   border: 0;
   border-radius: 16px;
   background: rgba(0,0,0,.22);
   color: rgba(255,255,255,.96);
-  font-size: 30px;
+  font-size: clamp(30px, 4vw, 44px);
   font-weight: 1000;
   line-height: 1;
   box-shadow: 0 12px 24px rgba(0,0,0,.20);
@@ -189,7 +189,7 @@
 .shop-skin-card {
   position: relative;
   overflow: hidden;
-  height: 138px;
+  height: clamp(138px, 18vw, 196px);
   border-radius: 22px;
   background:
     radial-gradient(circle at 50% 20%, rgba(255,255,255,.14), transparent 40%),
@@ -237,7 +237,7 @@
 
 .shop-skin-action {
   grid-column: 1 / -1;
-  min-height: 36px;
+  min-height: clamp(36px, 4.6vw, 48px);
   border: 1px solid rgba(255,255,255,.14);
   border-radius: 14px;
   background: rgba(0,0,0,.30);
@@ -412,7 +412,7 @@
 
 .shop-product-grid-premium {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  max-width: 196px;
+  max-width: clamp(220px, 42vw, 340px);
   width: 100%;
   margin: 0 auto;
 }
@@ -527,4 +527,20 @@
 .shop-skin-card.has-title-top .shop-skin-img-contain {
   padding-top: 28px;
   padding-bottom: 44px;
+}
+
+
+@media (min-width: 700px) {
+  #screen-shop .scroll-content {
+    width: min(760px, calc(100% - 32px));
+  }
+
+  .shop-grid {
+    gap: 22px;
+  }
+
+  .shop-buy-zone,
+  .shop-skins-zone {
+    gap: 20px;
+  }
 }
