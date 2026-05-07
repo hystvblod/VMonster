@@ -26,11 +26,24 @@
     { id: "secret", titleKey: "world_secret_name", fallback: "Laboratoire secret" }
   ];
 
-  const STYLES = [
-    { id: "girly", titleKey: "shop_skin_style_girly", fallback: "Girly" },
-    { id: "nature", titleKey: "shop_skin_style_nature", fallback: "Nature" },
-    { id: "adventure", titleKey: "shop_skin_style_adventure", fallback: "Aventure" }
+  const DEFAULT_STYLES = [
+    { id: "girly", titleKey: "shop_skin_style_girly" },
+    { id: "nature", titleKey: "shop_skin_style_nature" },
+    { id: "adventure", titleKey: "shop_skin_style_adventure" }
   ];
+
+  const WORLD_STYLES = {
+    lab: [
+      { id: "girly", titleKey: "shop_skin_style_girly" },
+      { id: "candy", titleKey: "shop_skin_style_candy" },
+      { id: "nature", titleKey: "shop_skin_style_nature" },
+      { id: "neon", titleKey: "shop_skin_style_neon" }
+    ]
+  };
+
+  function getStylesForWorld(worldId) {
+    return WORLD_STYLES[worldId] || DEFAULT_STYLES;
+  }
 
   const MONSTER_COUNT = 12;
 
@@ -197,7 +210,7 @@
 function getWorldBackgroundItems(world) {
     const items = [];
 
-    STYLES.forEach((style) => {
+    getStylesForWorld(world.id).forEach((style) => {
       for (let i = 1; i <= 3; i += 1) {
         const padded = String(i).padStart(2, "0");
         items.push({
@@ -465,7 +478,7 @@ function getWorldBackgroundItems(world) {
 
         <div class="shop-world-subtitle shop-world-subtitle-monsters">${esc(tt("shop_monsters_section_title"))}</div>
         ${renderCarouselRow(tt("shop_classic_style"), getClassicItems(world), "shop-classic-row")}
-        ${STYLES.map((style) => renderCarouselRow(tt(style.titleKey), getStyleItems(world, style), "shop-monster-style-row")).join("")}
+        ${getStylesForWorld(world.id).map((style) => renderCarouselRow(tt(style.titleKey), getStyleItems(world, style), "shop-monster-style-row")).join("")}
       </section>
     `;
   }
@@ -654,7 +667,7 @@ function getWorldBackgroundItems(world) {
 
     unlockSkinPack(worldId, styleId) {
       const world = WORLDS.find((w) => w.id === worldId);
-      const style = STYLES.find((s) => s.id === styleId);
+      const style = getStylesForWorld(worldId).find((s) => s.id === styleId);
       if (!world || !style) return false;
 
       getStyleItems(world, style).forEach((item) => {
@@ -668,7 +681,7 @@ function getWorldBackgroundItems(world) {
 
     unlockUltimatePack() {
       WORLDS.forEach((world) => {
-        STYLES.forEach((style) => this.unlockSkinPack(world.id, style.id));
+        getStylesForWorld(world.id).forEach((style) => this.unlockSkinPack(world.id, style.id));
       });
       window.VMSEconomy?.activateNoAds?.();
       this.render();
