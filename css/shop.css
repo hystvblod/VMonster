@@ -501,3 +501,30 @@
   right: 10px;
   bottom: 52px;
 }
+
+
+/* Nom monstre au-dessus, sans encadré */
+.shop-skin-card.has-title-top .shop-skin-title-top {
+  position: absolute;
+  z-index: 3;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  min-height: auto;
+  padding: 0;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 1000;
+  line-height: 1.05;
+  text-align: center;
+  text-shadow: 0 3px 8px rgba(0,0,0,.85);
+  pointer-events: none;
+}
+
+.shop-skin-card.has-title-top .shop-skin-img-contain {
+  padding-top: 28px;
+  padding-bottom: 44px;
+}
