@@ -244,7 +244,6 @@ function getWorldBackgroundItems(world) {
 
     MONSTERS.forEach((monster) => {
       const monsterName = getMonsterDisplayName(world.id, monster);
-      const styleName = tt(style.titleKey, style.fallback);
 
       items.push({
         type: "monster_skin",
@@ -252,7 +251,7 @@ function getWorldBackgroundItems(world) {
         worldId: world.id,
         styleId: style.id,
         monsterNumber: monster.number,
-        title: tt("shop_monster_skin_named_title", { monster: monsterName, style: styleName }),
+        title: monsterName,
         img: premiumMonsterAsset(world.id, style.id, monster)
       });
     });
@@ -419,13 +418,15 @@ function getWorldBackgroundItems(world) {
   function renderCosmeticItem(item, index, total) {
     const locked = item.type === "classic" && !item.visible;
     const imageClass = item.type === "background" || item.type === "pack" ? "shop-skin-img" : "shop-skin-img shop-skin-img-contain";
+    const titleOnTop = item.type === "monster_skin" || item.type === "classic";
 
     return `
       <div class="shop-skin-slide" data-index="${index}">
-        <article class="shop-skin-card ${locked ? "is-locked" : ""} is-${esc(item.type)}">
+        <article class="shop-skin-card ${locked ? "is-locked" : ""} ${titleOnTop ? "has-title-top" : ""} is-${esc(item.type)}">
+          ${titleOnTop ? `<div class="shop-skin-title-top">${esc(item.title)}</div>` : ""}
           ${locked ? `<div class="shop-skin-question">?</div>` : imageTag(item.img, imageClass)}
           <div class="shop-skin-overlay">
-            <div class="shop-skin-title">${esc(item.title)}</div>
+            ${titleOnTop ? "" : `<div class="shop-skin-title">${esc(item.title)}</div>`}
             <div class="shop-skin-count">${index + 1}/${total}</div>
             ${renderActionButton(item)}
           </div>
