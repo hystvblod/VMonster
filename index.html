@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="./css/game.css" />
   <link rel="stylesheet" href="./css/shop.css" />
   <link rel="stylesheet" href="./css/skins.css" />
+  <link rel="stylesheet" href="./css/bestiary.css" />
   <link rel="stylesheet" href="./css/settings.css" />
 <link rel="stylesheet" href="./css/crosspromo.css" />
   <link rel="stylesheet" href="./css/rules.css" />
@@ -66,6 +67,11 @@
         <img src="./assets/ui/icon_shop.webp" alt="" />
         <span data-i18n="btn_shop">Boutique</span>
       </button>
+
+      <button class="vm-mode-card vm-mode-card-bestiary" type="button" data-action="open-bestiary">
+        <img src="./assets/ui/icon_shop.webp" alt="" />
+        <span data-i18n="bestiary_home_button">Livre des bêtes</span>
+      </button>
     </div>
   </main>
 </section>
@@ -94,6 +100,33 @@
             </svg>
           </button>
         </div>
+      </section>
+
+      <section id="screen-bestiary" class="screen">
+        <div class="home-bg"></div>
+
+        <header class="screen-header">
+          <button class="back-btn" type="button" data-action="back-home">‹</button>
+          <div>
+            <h2 data-i18n="bestiary_title">Livre des bêtes</h2>
+            <p data-i18n="bestiary_subtitle">Toutes les créatures découvertes dans tes laboratoires.</p>
+          </div>
+        </header>
+
+        <main class="bestiary-page">
+          <section class="bestiary-hero">
+            <h3 data-i18n="bestiary_hero_title">Collection de monstres</h3>
+            <p data-i18n="bestiary_hero_text">Fusionne des monstres pour révéler leurs cartes définitives. Les trois premiers niveaux restent simples, les vraies cartes commencent au niveau 4.</p>
+
+            <div id="bestiaryProgress" class="bestiary-progress-pill"></div>
+
+            <button id="bestiaryRevealAllBtn" class="bestiary-reveal-all" type="button" data-bestiary-action="reveal-all">
+              Tout révéler
+            </button>
+          </section>
+
+          <div id="bestiaryGrid"></div>
+        </main>
       </section>
 
       <section id="screen-shop" class="screen">
@@ -334,6 +367,7 @@
   <script src="./js/crosspromo.js"></script>
   <script src="./js/referral.js"></script>
   <script src="./js/purchases.js"></script>
+  <script src="./js/bestiary.js"></script>
   <script src="./js/input.js"></script>
   <script src="./js/levels.js"></script>
   <script src="./js/renderer.js"></script>

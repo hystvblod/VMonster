@@ -445,6 +445,10 @@ window.VMSGame = {
     this.state.monsters.push(merged);
 
     this.maxMonsterReached = Math.max(this.maxMonsterReached, newLevel);
+
+    const bestiaryWorldId = this.state?.level?.worldId || VMSLevels.getCurrentWorld?.()?.id || "lab";
+    VMSBestiary?.discover?.(bestiaryWorldId, newLevel, { popup: true });
+
     this.score += meta.score || newLevel * 100;
 
     this.spawnParticles(x, y, meta.color, 26);
