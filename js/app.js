@@ -14,7 +14,8 @@
       VMSAssets.init(),
       VMSLevels.init(),
       VMSShop.init(),
-      VMSSkins.init()
+      VMSSkins.init(),
+      VMSBestiary.init()
     ]);
 
     VMSPurchases.init();
@@ -30,6 +31,7 @@
     VMSI18n.apply();
     VMSShop.render();
     VMSSkins.render();
+    VMSBestiary.render();
     window.VMSInfinite?.render?.();
     window.VMSCrossPromo?.render?.();
     window.VMSReferral?.bootReferral?.();
@@ -58,6 +60,11 @@
       }
 
       if (action === "open-shop") VMSRouter.show("screen-shop");
+
+      if (action === "open-bestiary") {
+        VMSBestiary.render();
+        VMSRouter.show("screen-bestiary");
+      }
 
       if (action === "open-noads") {
         VMSPurchases.buyNoAds?.();
