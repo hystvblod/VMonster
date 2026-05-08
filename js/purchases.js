@@ -14,6 +14,7 @@
 
     vmonster_no_ads: { kind: "noads" },
     vmonster_ultimate_pack: { kind: "ultimate" },
+    vmonster_bestiary_reveal_all: { kind: "bestiary_reveal_all" },
 
     vmonster_world_ocean: { kind: "world", worldId: "ocean" },
     vmonster_world_volcano: { kind: "world", worldId: "volcano" },
@@ -81,7 +82,7 @@
 
       productIds.forEach((id) => {
         try {
-          const type = id === "vmonster_no_ads" || id.startsWith("vmonster_world_") || id.startsWith("vmonster_skinpack_")
+          const type = id === "vmonster_no_ads" || id === "vmonster_bestiary_reveal_all" || id.startsWith("vmonster_world_") || id.startsWith("vmonster_skinpack_")
             ? store.NON_CONSUMABLE || "non consumable"
             : store.CONSUMABLE || "consumable";
 
@@ -112,6 +113,7 @@
               window.dispatchEvent(new CustomEvent("vms:price_updated", { detail: { productId: id, price: realPrice } }));
               VMSShop?.render?.();
               VMSInfinite?.render?.();
+              VMSBestiary?.render?.();
             }
           } catch (error) {
             warn("productUpdated parse failed", error);
@@ -143,6 +145,7 @@
       log("Store initialisé");
       VMSShop?.render?.();
       VMSInfinite?.render?.();
+      VMSBestiary?.render?.();
     } catch (error) {
       warn("init failed", error);
       window.dispatchEvent(new CustomEvent("vms:store_unavailable"));
@@ -167,6 +170,10 @@
 
     if (sku.kind === "ultimate") {
       VMSShop?.unlockUltimatePack?.();
+    }
+
+    if (sku.kind === "bestiary_reveal_all") {
+      VMSBestiary?.revealAll?.();
     }
 
     VMSUserData?.saveLocal?.();

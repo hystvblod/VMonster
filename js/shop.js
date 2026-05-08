@@ -218,10 +218,7 @@ function getWorldBackgroundItems(world) {
           id: `${world.id}_${style.id}_bg_${padded}`,
           worldId: world.id,
           styleId: style.id,
-          title: tt("shop_bg_named_title", {
-            style: tt(style.titleKey),
-            n: i
-          }),
+          title: tt(style.titleKey),
           img: bgAsset(world.id, style.id, i)
         });
       }
