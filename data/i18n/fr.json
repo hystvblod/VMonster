@@ -299,14 +299,14 @@
   "bestiary_locked_text": "Cette carte n’est pas encore révélée. Découvre ce monstre en fusion, ou révèle la carte avec une vidéo récompensée.",
   "bestiary_reward_reveal": "Révéler avec une pub",
   "bestiary_reveal_all_button": "Tout révéler — {price}",
-  "bestiary_new_discovery": "Nouvelle bête découverte",
+  "bestiary_new_discovery": "Carte révélée",
   "bestiary_habitat_label": "Habitat",
   "bestiary_personality_label": "Personnalité",
   "bestiary_type_label": "Type",
   "bestiary_fusion_role_label": "Rôle dans la fusion",
   "bestiary_close": "Fermer",
   "bestiary_ok": "OK",
-  "bestiary_store_price": "Store",
+  "bestiary_store_price": "Prix du store",
   "bestiary.nuclear.11.name": "Atomax",
   "bestiary.nuclear.11.type": "Catastrophe vivante",
   "bestiary.nuclear.11.habitat": "Cœur du laboratoire nucléaire",
@@ -318,5 +318,7 @@
   "bestiary.nuclear.12.habitat": "Centre du réacteur",
   "bestiary.nuclear.12.personality": "Instable et orgueilleux",
   "bestiary.nuclear.12.description": "Plasmor est une créature massive, verte et noire, avec un noyau d’énergie dans le ventre. Il vit au centre du réacteur et dégage une puissance énorme, comme si tout le laboratoire tournait autour de lui.",
-  "bestiary.nuclear.12.fusionRole": "Boss final de l’univers Nucléaire."
+  "bestiary.nuclear.12.fusionRole": "Boss final de l’univers Nucléaire.",
+  "bestiary_more_info": "Plus d'infos",
+  "bestiary_reveal_chip": "Révéler"
 }

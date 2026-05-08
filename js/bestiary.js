@@ -8,11 +8,12 @@
 
   let data = null;
   let isReady = false;
+  let popupEntryId = null;
+  const railIndexByWorld = {};
 
   function t(key, vars = {}) {
     if (!key) return "";
-    const i18n = window.VMSI18n;
-    let value = i18n?.t ? i18n.t(key, vars) : key;
+    let value = window.VMSI18n?.t ? window.VMSI18n.t(key, vars) : key;
     if (value === key && data?.fallback?.[key]) value = data.fallback[key];
     Object.keys(vars).forEach((name) => {
       value = String(value).replaceAll(`{${name}}`, String(vars[name]));
@@ -36,16 +37,15 @@
       const response = await fetch(DATA_URL, { cache: "no-store" });
       if (!response.ok) throw new Error(`bestiary json ${response.status}`);
       data = await response.json();
-      isReady = true;
-      bindEvents();
-      render();
-      return true;
     } catch (error) {
       console.warn("[VMSBestiary] Impossible de charger le bestiaire", error);
       data = { worlds: [] };
-      isReady = true;
-      return false;
     }
+
+    isReady = true;
+    bindEvents();
+    render();
+    return true;
   }
 
   function bindEvents() {
@@ -53,18 +53,50 @@
     window.__VMS_BESTIARY_EVENTS_BOUND__ = true;
 
     document.body.addEventListener("click", async (event) => {
-      const actionNode = event.target.closest("[data-bestiary-action]");
-      if (!actionNode) return;
+      const node = event.target.closest("[data-bestiary-action]");
+      if (!node) return;
 
-      const action = actionNode.getAttribute("data-bestiary-action");
+      const action = node.getAttribute("data-bestiary-action");
 
       if (action === "reward-reveal") {
-        const entryId = actionNode.getAttribute("data-entry-id");
+        const entryId = node.getAttribute("data-entry-id");
         await revealOneWithReward(entryId);
+        return;
       }
 
       if (action === "reveal-all") {
         await buyRevealAll();
+        return;
+      }
+
+      if (action === "open-info") {
+        const entryId = node.getAttribute("data-entry-id");
+        openPopup(entryId);
+        return;
+      }
+
+      if (action === "close-popup") {
+        closePopup();
+        return;
+      }
+
+      if (action === "popup-prev") {
+        switchPopup(-1);
+        return;
+      }
+
+      if (action === "popup-next") {
+        switchPopup(1);
+        return;
+      }
+
+      if (action === "prev-world") {
+        moveRail(node.getAttribute("data-world-id"), -1);
+        return;
+      }
+
+      if (action === "next-world") {
+        moveRail(node.getAttribute("data-world-id"), 1);
       }
     });
 
@@ -96,6 +128,10 @@
     });
   }
 
+  function getWorldEntries(worldId) {
+    return getEntries().filter((entry) => entry.worldId === worldId);
+  }
+
   function getEntry(entryId) {
     return getEntries().find((entry) => entry.id === entryId) || null;
   }
@@ -119,6 +155,15 @@
     return true;
   }
 
+  function revealAll() {
+    const map = getStorageMap();
+    getEntries().forEach((entry) => {
+      map[entry.id] = map[entry.id] || Date.now();
+    });
+    saveStorageMap(map);
+    render();
+  }
+
   function getProgress() {
     const entries = getEntries();
     const map = getStorageMap();
@@ -131,9 +176,9 @@
   }
 
   function render() {
-    const root = document.getElementById("bestiaryGrid");
     const progress = document.getElementById("bestiaryProgress");
     const revealAllBtn = document.getElementById("bestiaryRevealAllBtn");
+    const root = document.getElementById("bestiaryGrid");
 
     if (progress) {
       const state = getProgress();
@@ -141,43 +186,66 @@
     }
 
     if (revealAllBtn) {
-      revealAllBtn.textContent = t("bestiary_reveal_all_button", { price: getRevealAllPrice() });
+      revealAllBtn.textContent = t("bestiary_reveal_all_button", {
+        price: getRevealAllPrice()
+      });
     }
 
     if (!root) return;
 
     root.innerHTML = getWorlds().map((world) => {
-      const cards = (world.monsters || []).map((entry) => renderCard({
-        ...entry,
-        worldId: world.id,
-        worldNameKey: world.nameKey
-      })).join("");
+      const entries = world.monsters || [];
+      if (railIndexByWorld[world.id] == null) railIndexByWorld[world.id] = 0;
 
       return `
         <section class="bestiary-world-section">
-          <h3>${esc(t(world.nameKey))}</h3>
-          <div class="bestiary-grid-inner">${cards}</div>
+          <div class="bestiary-world-head">
+            <h3>${esc(t(world.nameKey))}</h3>
+
+            <div class="bestiary-world-nav">
+              <button type="button" data-bestiary-action="prev-world" data-world-id="${esc(world.id)}">‹</button>
+              <button type="button" data-bestiary-action="next-world" data-world-id="${esc(world.id)}">›</button>
+            </div>
+          </div>
+
+          <div class="bestiary-world-rail-wrap">
+            <div class="bestiary-world-rail" id="bestiaryRail-${esc(world.id)}">
+              ${entries.map((entry) => renderMiniCard({
+                ...entry,
+                worldId: world.id,
+                worldNameKey: world.nameKey
+              })).join("")}
+            </div>
+          </div>
         </section>
       `;
     }).join("");
+
+    requestAnimationFrame(() => {
+      Object.keys(railIndexByWorld).forEach((worldId) => {
+        scrollToRailIndex(worldId, railIndexByWorld[worldId], false);
+      });
+    });
+
+    if (popupEntryId) {
+      renderPopup();
+    }
   }
 
-  function renderCard(entry, options = {}) {
-    const unlocked = options.forceReveal || isDiscovered(entry.id);
-    const levelText = t("bestiary_level", { level: entry.level });
-    const worldText = t(entry.worldNameKey);
+  function renderMiniCard(entry) {
+    const unlocked = isDiscovered(entry.id);
 
     if (!unlocked) {
       return `
-        <article class="bestiary-card is-locked">
-          <div class="bestiary-locked-image">?</div>
-          <div class="bestiary-card-body">
-            <div class="bestiary-kicker">${esc(worldText)} · ${esc(levelText)}</div>
-            <h3>${esc(t("bestiary_unknown_title"))}</h3>
-            <p>${esc(t("bestiary_locked_text"))}</p>
-            <button class="bestiary-reward-btn" type="button" data-bestiary-action="reward-reveal" data-entry-id="${esc(entry.id)}">
+        <article class="bestiary-mini-card" data-entry-id="${esc(entry.id)}">
+          <div class="bestiary-mini-visual-locked">?</div>
+          <div class="bestiary-mini-name">${esc(t("bestiary_unknown_title"))}</div>
+          <div class="bestiary-mini-level">${esc(t("bestiary_level", { level: entry.level }))}</div>
+
+          <div class="bestiary-mini-actions">
+            <button class="bestiary-mini-reveal-btn" type="button" data-bestiary-action="reward-reveal" data-entry-id="${esc(entry.id)}">
               <img src="./assets/ui/reward.webp" alt="" />
-              <span>${esc(t("bestiary_reward_reveal"))}</span>
+              <span>${esc(t("bestiary_reveal_chip"))}</span>
             </button>
           </div>
         </article>
@@ -185,52 +253,20 @@
     }
 
     return `
-      <article class="bestiary-card ${options.popup ? "is-popup" : ""}">
-        <div class="bestiary-image-wrap">
-          <img class="bestiary-image" src="${esc(entry.asset)}" alt="" draggable="false" />
+      <article class="bestiary-mini-card" data-entry-id="${esc(entry.id)}">
+        <div class="bestiary-mini-visual">
+          <img src="${esc(entry.asset)}" alt="" draggable="false" />
         </div>
-        <div class="bestiary-card-body">
-          <div class="bestiary-kicker">${esc(worldText)} · ${esc(levelText)}</div>
-          <h3>${esc(t(entry.nameKey))}</h3>
-          <div class="bestiary-tags">
-            <span>${esc(t(entry.typeKey))}</span>
-            <span>${esc(t(entry.personalityKey))}</span>
-          </div>
-          <p>${esc(t(entry.descriptionKey))}</p>
-          <dl class="bestiary-facts">
-            <div>
-              <dt>${esc(t("bestiary_habitat_label"))}</dt>
-              <dd>${esc(t(entry.habitatKey))}</dd>
-            </div>
-            <div>
-              <dt>${esc(t("bestiary_fusion_role_label"))}</dt>
-              <dd>${esc(t(entry.fusionRoleKey))}</dd>
-            </div>
-          </dl>
+        <div class="bestiary-mini-name">${esc(t(entry.nameKey))}</div>
+        <div class="bestiary-mini-level">${esc(t("bestiary_level", { level: entry.level }))}</div>
+
+        <div class="bestiary-mini-actions">
+          <button class="bestiary-mini-info-btn" type="button" data-bestiary-action="open-info" data-entry-id="${esc(entry.id)}">
+            ${esc(t("bestiary_more_info"))}
+          </button>
         </div>
       </article>
     `;
-  }
-
-  function showDiscoveryPopup(entry) {
-    if (!entry) return;
-
-    const layer = document.createElement("div");
-    layer.className = "bestiary-popup-layer";
-    layer.innerHTML = `
-      <div class="bestiary-popup-card" role="dialog" aria-modal="true">
-        <button class="bestiary-popup-close" type="button" aria-label="${esc(t("bestiary_close"))}">×</button>
-        <div class="bestiary-popup-kicker">${esc(t("bestiary_new_discovery"))}</div>
-        ${renderCard(entry, { forceReveal: true, popup: true })}
-        <button class="primary-btn bestiary-popup-ok" type="button">${esc(t("bestiary_ok"))}</button>
-      </div>
-    `;
-
-    document.body.appendChild(layer);
-
-    const close = () => layer.remove();
-    layer.querySelector(".bestiary-popup-close")?.addEventListener("click", close);
-    layer.querySelector(".bestiary-popup-ok")?.addEventListener("click", close);
   }
 
   async function revealOneWithReward(entryId) {
@@ -239,6 +275,7 @@
     if (isDiscovered(entry.id)) return;
 
     const ok = await window.VMSAds?.showRewarded?.("bestiary_reveal_card");
+
     if (!ok) {
       window.VMSModals?.show?.({
         title: t("shop_reward_error_title"),
@@ -253,22 +290,13 @@
 
     markDiscovered(entry.id);
     render();
-    showDiscoveryPopup(entry);
+    openPopup(entry.id);
   }
 
   async function buyRevealAll() {
     if (window.VMSPurchases?.buy) {
       await window.VMSPurchases.buy(REVEAL_ALL_PRODUCT_ID);
     }
-  }
-
-  function revealAll() {
-    const map = getStorageMap();
-    getEntries().forEach((entry) => {
-      map[entry.id] = map[entry.id] || Date.now();
-    });
-    saveStorageMap(map);
-    render();
   }
 
   async function discover(worldId, level, options = {}) {
@@ -281,14 +309,146 @@
     if (!entry) return false;
 
     const isNew = markDiscovered(entry.id);
+
     if (isNew) {
       render();
       if (options.popup !== false) {
-        window.setTimeout(() => showDiscoveryPopup(entry), 240);
+        window.setTimeout(() => openPopup(entry.id), 240);
       }
     }
 
     return isNew;
+  }
+
+  function moveRail(worldId, delta) {
+    const entries = getWorldEntries(worldId);
+    if (!entries.length) return;
+
+    const current = Number(railIndexByWorld[worldId] || 0);
+    let next = current + delta;
+
+    if (next < 0) next = entries.length - 1;
+    if (next >= entries.length) next = 0;
+
+    railIndexByWorld[worldId] = next;
+    scrollToRailIndex(worldId, next, true);
+  }
+
+  function scrollToRailIndex(worldId, index, smooth = true) {
+    const rail = document.getElementById(`bestiaryRail-${worldId}`);
+    if (!rail) return;
+
+    const cards = rail.querySelectorAll(".bestiary-mini-card");
+    if (!cards.length) return;
+
+    const safeIndex = Math.max(0, Math.min(index, cards.length - 1));
+    const card = cards[safeIndex];
+
+    card.scrollIntoView({
+      behavior: smooth ? "smooth" : "auto",
+      inline: "start",
+      block: "nearest"
+    });
+  }
+
+  function openPopup(entryId) {
+    popupEntryId = entryId;
+    renderPopup();
+  }
+
+  function closePopup() {
+    popupEntryId = null;
+    document.querySelector(".bestiary-popup-layer")?.remove();
+  }
+
+  function switchPopup(delta) {
+    const current = getEntry(popupEntryId);
+    if (!current) return;
+
+    const entries = getWorldEntries(current.worldId);
+    const index = entries.findIndex((entry) => entry.id === current.id);
+    if (index < 0) return;
+
+    let nextIndex = index + delta;
+    if (nextIndex < 0) nextIndex = entries.length - 1;
+    if (nextIndex >= entries.length) nextIndex = 0;
+
+    popupEntryId = entries[nextIndex].id;
+    renderPopup();
+  }
+
+  function renderPopup() {
+    const entry = getEntry(popupEntryId);
+    if (!entry || !isDiscovered(entry.id)) {
+      closePopup();
+      return;
+    }
+
+    const existing = document.querySelector(".bestiary-popup-layer");
+    if (existing) existing.remove();
+
+    const layer = document.createElement("div");
+    layer.className = "bestiary-popup-layer";
+    layer.innerHTML = buildPopupMarkup(entry);
+
+    layer.addEventListener("click", (event) => {
+      if (event.target === layer) closePopup();
+    });
+
+    document.body.appendChild(layer);
+  }
+
+  function buildPopupMarkup(entry) {
+    return `
+      <div class="bestiary-popup-card" role="dialog" aria-modal="true">
+        <button class="bestiary-popup-close" type="button" data-bestiary-action="close-popup" aria-label="${esc(t("bestiary_close"))}">×</button>
+
+        <div class="bestiary-popup-top">
+          <div class="bestiary-popup-kicker">${esc(t("bestiary_new_discovery"))}</div>
+
+          <div class="bestiary-popup-switch">
+            <button type="button" data-bestiary-action="popup-prev">‹</button>
+            <button type="button" data-bestiary-action="popup-next">›</button>
+          </div>
+        </div>
+
+        <div class="bestiary-popup-body">
+          <div class="bestiary-popup-visual">
+            <img src="${esc(entry.asset)}" alt="" draggable="false" />
+          </div>
+
+          <div class="bestiary-popup-content">
+            <div class="bestiary-popup-sub">
+              ${esc(t(entry.worldNameKey))} · ${esc(t("bestiary_level", { level: entry.level }))}
+            </div>
+
+            <h3>${esc(t(entry.nameKey))}</h3>
+
+            <div class="bestiary-popup-tags">
+              <span>${esc(t(entry.typeKey))}</span>
+              <span>${esc(t(entry.personalityKey))}</span>
+            </div>
+
+            <p>${esc(t(entry.descriptionKey))}</p>
+
+            <dl class="bestiary-popup-facts">
+              <div>
+                <dt>${esc(t("bestiary_habitat_label"))}</dt>
+                <dd>${esc(t(entry.habitatKey))}</dd>
+              </div>
+              <div>
+                <dt>${esc(t("bestiary_fusion_role_label"))}</dt>
+                <dd>${esc(t(entry.fusionRoleKey))}</dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+
+        <button class="primary-btn bestiary-popup-ok" type="button" data-bestiary-action="close-popup">
+          ${esc(t("bestiary_ok"))}
+        </button>
+      </div>
+    `;
   }
 
   window.VMSBestiary = {
