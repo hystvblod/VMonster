@@ -298,7 +298,7 @@
   "bestiary_unknown_title": "Créature inconnue",
   "bestiary_locked_text": "Cette carte n’est pas encore révélée. Découvre ce monstre en fusion, ou révèle la carte avec une vidéo récompensée.",
   "bestiary_reward_reveal": "Révéler avec une pub",
-  "bestiary_reveal_all_button": "Tout révéler — {price}",
+  "bestiary_reveal_all_button": "Tout révéler : {price}",
   "bestiary_new_discovery": "Nouvelle bête découverte",
   "bestiary_habitat_label": "Habitat",
   "bestiary_personality_label": "Personnalité",
@@ -306,7 +306,7 @@
   "bestiary_fusion_role_label": "Rôle dans la fusion",
   "bestiary_close": "Fermer",
   "bestiary_ok": "OK",
-  "bestiary_store_price": "Store",
+  "bestiary_store_price": "Prix du store",
   "bestiary.nuclear.11.name": "Plasmor",
   "bestiary.nuclear.11.type": "Bête plasma",
   "bestiary.nuclear.11.habitat": "Centre du réacteur",
@@ -668,5 +668,6 @@
   "bestiary.secret.12.habitat": "Faille interdite",
   "bestiary.secret.12.personality": "Ancienne et hypnotique",
   "bestiary.secret.12.description": "Oblivionyx est le boss final de l’univers secret, une entité noire et violette couverte d’yeux, de cristaux et d’énergie dimensionnelle.",
-  "bestiary.secret.12.fusionRole": "Boss final le plus mystérieux du jeu."
+  "bestiary.secret.12.fusionRole": "Boss final le plus mystérieux du jeu.",
+  "bestiary_identity_card": "Carte d'identité"
 }
