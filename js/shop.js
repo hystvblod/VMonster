@@ -199,8 +199,8 @@
     return tt(getMonsterNameKey(worldId, monster), tt("monster_generic_name", { n: monster.number }));
   }
 
-  function bgAsset(worldId, styleId, number) {
-    return `${skinBasePath(worldId, styleId)}/bg_${String(number).padStart(2, "0")}.webp`;
+  function bgAsset(worldId, number) {
+    return `./assets/shop/backgrounds/${worldId}/bg_${String(number).padStart(2, "0")}.webp`;
   }
 
   function packAsset(worldId, styleId) {
@@ -208,24 +208,22 @@
   }
 
 function getWorldBackgroundItems(world) {
-    const items = [];
+  const items = [];
 
-    getStylesForWorld(world.id).forEach((style) => {
-      for (let i = 1; i <= 3; i += 1) {
-        const padded = String(i).padStart(2, "0");
-        items.push({
-          type: "background",
-          id: `${world.id}_${style.id}_bg_${padded}`,
-          worldId: world.id,
-          styleId: style.id,
-          title: tt(style.titleKey),
-          img: bgAsset(world.id, style.id, i)
-        });
-      }
+  for (let i = 1; i <= 12; i += 1) {
+    const padded = String(i).padStart(2, "0");
+
+    items.push({
+      type: "background",
+      id: `${world.id}_bg_${padded}`,
+      worldId: world.id,
+      title: `${tt("shop_decor_row_title")} ${padded}`,
+      img: bgAsset(world.id, i)
     });
-
-    return items;
   }
+
+  return items;
+}
 
   function isWorldNormallyAccessible(worldId) {
     if (worldId === "lab") return true;
