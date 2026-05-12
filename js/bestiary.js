@@ -7,8 +7,8 @@
   const AUTO_POPUP_MIN_LEVEL = 4;
 
   const UI = {
-    reward: "./assets/ui/reward.webp",
-    fallback: "./assets/ui/icon_shop.webp"
+    reward: window.VMSAsset("ui", "reward"),
+    fallback: window.VMSAsset("ui", "fallback")
   };
 
   let data = null;

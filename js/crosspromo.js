@@ -79,7 +79,7 @@ window.VMSCrossPromo = {
         <div class="vm-crosspromo-content">
           <div class="vm-crosspromo-reward">
             <span>${VMSI18n.t("crosspromo_reward_prefix")}</span>
-            <img src="./assets/ui/icon_vcoins.webp" alt="" />
+            <img src="${window.VMSAsset("ui", "vcoins")}" alt="" />
             <strong>${this.rewardAmount}</strong>
           </div>
 
@@ -202,7 +202,7 @@ window.VMSCrossPromo = {
       title: VMSI18n.t("crosspromo_after_click_title"),
       text: VMSI18n.t("crosspromo_after_click_text", { coins: this.rewardAmount }),
       rewardAmount: this.rewardAmount,
-      rewardIcon: "./assets/ui/icon_vcoins.webp",
+      rewardIcon: window.VMSAsset("ui", "vcoins"),
       primaryText: VMSI18n.t("crosspromo_claim_reward"),
       secondaryText: VMSI18n.t("btn_close"),
       onPrimary: async () => {
@@ -241,7 +241,7 @@ window.VMSCrossPromo = {
       title: VMSI18n.t("crosspromo_reward_title"),
       text: VMSI18n.t("crosspromo_reward_text", { coins: this.rewardAmount }),
       rewardAmount: this.rewardAmount,
-      rewardIcon: "./assets/ui/icon_vcoins.webp",
+      rewardIcon: window.VMSAsset("ui", "vcoins"),
       primaryText: VMSI18n.t("btn_ok"),
       secondaryText: VMSI18n.t("btn_close"),
       onPrimary: () => {},
