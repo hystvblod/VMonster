@@ -50,20 +50,72 @@
 
 .vm-home-content {
   position: absolute;
-  inset: calc(78px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));
+  inset: calc(82px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 30px;
+  gap: 26px;
 }
 
-.vm-home-logo {
-  width: min(58vw, 220px);
-  max-height: 185px;
-  object-fit: contain;
-  display: block;
-  filter: drop-shadow(0 18px 35px rgba(0,0,0,.32));
+.vm-home-brand {
+  width: min(100%, 340px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.vm-logo-placeholder {
+  width: 152px;
+  height: 152px;
+  border-radius: 42px;
+  display: grid;
+  place-items: center;
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 28% 18%, rgba(255,255,255,.72), transparent 22%),
+    radial-gradient(circle at 78% 30%, rgba(124, 92, 255, .58), transparent 30%),
+    linear-gradient(145deg, #8d68ff 0%, #4e35bd 45%, #24184f 100%);
+  border: 1px solid rgba(255,255,255,.22);
+  box-shadow:
+    0 24px 58px rgba(0,0,0,.34),
+    0 0 42px rgba(116, 83, 255, .34),
+    inset 0 1px 0 rgba(255,255,255,.35),
+    inset 0 -18px 36px rgba(0,0,0,.22);
+}
+
+.vm-logo-placeholder::before {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border-radius: 34px;
+  border: 1px solid rgba(255,255,255,.14);
+}
+
+.vm-logo-placeholder::after {
+  content: "";
+  position: absolute;
+  width: 78px;
+  height: 78px;
+  right: -18px;
+  bottom: -18px;
+  border-radius: 999px;
+  background: rgba(255, 176, 74, .26);
+  filter: blur(2px);
+}
+
+.vm-logo-placeholder span {
+  position: relative;
+  z-index: 2;
+  font-size: 42px;
+  font-weight: 1000;
+  letter-spacing: -.08em;
+  color: #fff;
+  text-shadow:
+    0 4px 16px rgba(0,0,0,.45),
+    0 0 24px rgba(255,255,255,.24);
 }
 
 .vm-home-modes {
@@ -73,39 +125,100 @@
 }
 
 .vm-mode-card {
-  min-height: 76px;
-  border-radius: 24px;
-  padding: 12px 18px;
-  display: grid;
-  grid-template-columns: 48px minmax(0, 1fr);
+  position: relative;
+  min-height: 78px;
+  border-radius: 25px;
+  padding: 0 24px;
+  overflow: hidden;
+  display: flex;
   align-items: center;
-  gap: 14px;
-  border: 1px solid rgba(255,255,255,.14);
-  box-shadow: 0 12px 0 rgba(0,0,0,.25), 0 22px 40px rgba(0,0,0,.22);
+  justify-content: flex-start;
+  border: 1px solid rgba(255,255,255,.18);
+  box-shadow:
+    0 12px 0 rgba(0,0,0,.28),
+    0 24px 44px rgba(0,0,0,.26),
+    inset 0 1px 0 rgba(255,255,255,.30);
   color: #fff;
-  font-weight: 950;
-  font-size: 20px;
+  font-weight: 1000;
+  font-size: 21px;
+  letter-spacing: -.02em;
   text-align: left;
+  transform: translateZ(0);
 }
 
-.vm-mode-card img {
-  width: 48px;
-  height: 48px;
-  object-fit: contain;
-  filter: drop-shadow(0 6px 12px rgba(0,0,0,.35));
+.vm-mode-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(255,255,255,.24), transparent 38%),
+    radial-gradient(circle at 18% 18%, rgba(255,255,255,.28), transparent 24%);
+  opacity: .72;
+  pointer-events: none;
+}
+
+.vm-mode-card::after {
+  content: "";
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 8px;
+  height: 1px;
+  background: rgba(255,255,255,.18);
+  pointer-events: none;
+}
+
+.vm-mode-card:active {
+  transform: translateY(4px) scale(.99);
+  box-shadow:
+    0 8px 0 rgba(0,0,0,.28),
+    0 16px 32px rgba(0,0,0,.24),
+    inset 0 1px 0 rgba(255,255,255,.26);
+}
+
+.vm-mode-title {
+  position: relative;
+  z-index: 2;
+  display: block;
+  text-shadow: 0 3px 12px rgba(0,0,0,.34);
+}
+
+.vm-mode-glow {
+  position: absolute;
+  z-index: 1;
+  width: 96px;
+  height: 96px;
+  right: -28px;
+  top: -30px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.22);
+  filter: blur(1px);
+  pointer-events: none;
 }
 
 .vm-mode-card-campaign {
-  background: linear-gradient(180deg, #ffcf67, #ff8c30);
+  background:
+    linear-gradient(180deg, #ffd978 0%, #ff9b38 52%, #f47726 100%);
   color: #2d1400;
 }
 
+.vm-mode-card-campaign .vm-mode-title {
+  text-shadow: 0 2px 10px rgba(255,255,255,.28);
+}
+
 .vm-mode-card-infinite {
-  background: linear-gradient(180deg, #7557ff, #432ac8);
+  background:
+    linear-gradient(180deg, #7f63ff 0%, #5438df 54%, #321f9f 100%);
 }
 
 .vm-mode-card-shop {
-  background: linear-gradient(180deg, rgba(99, 80, 190, .94), rgba(50, 38, 110, .94));
+  background:
+    linear-gradient(180deg, #35d6ff 0%, #1975e7 52%, #103b9f 100%);
+}
+
+.vm-mode-card-bestiary {
+  background:
+    linear-gradient(180deg, #ff6fb1 0%, #bd3de5 50%, #6824b9 100%);
 }
 
 .vm-world-grid {
@@ -187,9 +300,25 @@
     height: 24px;
   }
 
+  .vm-logo-placeholder {
+    width: 128px;
+    height: 128px;
+    border-radius: 34px;
+  }
+
+  .vm-logo-placeholder span {
+    font-size: 36px;
+  }
+
+  .vm-home-content {
+    gap: 20px;
+  }
+
   .vm-mode-card {
     min-height: 70px;
     font-size: 18px;
+    border-radius: 22px;
+    padding: 0 20px;
   }
 
   .vm-world-grid {
