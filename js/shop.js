@@ -11,11 +11,11 @@
   const SHOP_ACTIVE_MONSTER_KEY = "shopActiveMonsterSkin";
 
   const UI = {
-    vcoins: "./assets/ui/vcoins.webp",
-    jeton: "./assets/ui/jeton.webp",
-    noads: "./assets/ui/noads.webp",
-    reward: "./assets/ui/reward.webp",
-    fallback: "./assets/ui/icon_shop.webp"
+    vcoins: window.VMSAsset("ui", "vcoins"),
+    jeton: window.VMSAsset("ui", "jeton"),
+    noads: window.VMSAsset("ui", "noads"),
+    reward: window.VMSAsset("ui", "reward"),
+    fallback: window.VMSAsset("ui", "fallback")
   };
 
   const WORLDS = [

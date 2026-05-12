@@ -6,31 +6,31 @@ window.VMSInfinite = {
     {
       id: "lab",
       nameKey: "world_lab_name",
-      image: "./assets/ui/world_lab.webp",
+      image: window.VMSAsset("ui", "worldLab"),
       productId: null
     },
     {
       id: "ocean",
       nameKey: "world_ocean_name",
-      image: "./assets/ui/world_ocean.webp",
+      image: window.VMSAsset("ui", "worldOcean"),
       productId: "vmonster_world_ocean"
     },
     {
       id: "volcano",
       nameKey: "world_volcano_name",
-      image: "./assets/ui/world_volcano.webp",
+      image: window.VMSAsset("ui", "worldVolcano"),
       productId: "vmonster_world_volcano"
     },
     {
       id: "nuclear",
       nameKey: "world_nuclear_name",
-      image: "./assets/ui/world_nuclear.webp",
+      image: window.VMSAsset("ui", "worldNuclear"),
       productId: "vmonster_world_nuclear"
     },
     {
       id: "secret",
       nameKey: "world_secret_name",
-      image: "./assets/ui/world_secret.webp",
+      image: window.VMSAsset("ui", "worldSecret"),
       productId: "vmonster_world_secret"
     }
   ],
@@ -83,7 +83,7 @@ window.VMSInfinite = {
         coins: this.priceVCoins
       }),
       rewardAmount: this.priceVCoins,
-      rewardIcon: "./assets/ui/icon_vcoins.webp",
+      rewardIcon: window.VMSAsset("ui", "vcoins"),
       primaryText: VMSI18n.t("btn_unlock_store", { price: storePrice }),
       secondaryText: VMSI18n.t("btn_unlock_vcoins_rewarded", { coins: this.priceVCoins }),
       tertiaryText: VMSI18n.t("btn_close"),
