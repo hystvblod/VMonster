@@ -593,7 +593,7 @@ completeLevel() {
           coins: rewardVCoins
         }),
     rewardAmount: rewardVCoins,
-    rewardIcon: "./assets/ui/icon_vcoins.webp",
+    rewardIcon: window.VMSAsset("ui", "vcoins"),
     primaryText: VMSI18n.t("btn_double_reward"),
     secondaryText: nextText,
     tertiaryText: VMSI18n.t("btn_home"),
@@ -609,7 +609,7 @@ completeLevel() {
             coins: rewardVCoins * 2
           }),
           rewardAmount: rewardVCoins * 2,
-          rewardIcon: "./assets/ui/icon_vcoins.webp",
+          rewardIcon: window.VMSAsset("ui", "vcoins"),
           primaryText: nextText,
           secondaryText: VMSI18n.t("btn_home"),
           onPrimary: () => this.start(),
