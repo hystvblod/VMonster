@@ -1,7 +1,16 @@
-.vm-mode-card-bestiary {
-  background: linear-gradient(135deg, rgba(255,255,255,.96), rgba(231,226,255,.94));
-  border: 1px solid rgba(255,255,255,.74);
-  box-shadow: 0 18px 42px rgba(72, 43, 145, .22);
+#screen-home .vm-mode-card-bestiary {
+  background: linear-gradient(180deg, #c9ff4f 0%, #8ee827 52%, #4aa600 100%);
+  color: #173500;
+  border: 0;
+  box-shadow:
+    0 16px 34px rgba(0,0,0,.30),
+    inset 0 1px 0 rgba(255,255,255,.18),
+    inset 0 -10px 18px rgba(0,0,0,.16);
+}
+
+#screen-home .vm-mode-card-bestiary .vm-mode-title {
+  color: #173500;
+  text-shadow: 0 2px 8px rgba(255,255,255,.35);
 }
 
 #screen-bestiary .screen-header {
@@ -231,36 +240,29 @@
 
 .bestiary-popup-visual {
   position: relative;
-  width: 190px;
-  height: 190px;
+  width: 210px;
+  height: 210px;
   margin: 0 auto;
-  border-radius: 34px;
   display: grid;
   place-items: center;
-  background:
-    radial-gradient(circle at 50% 45%, rgba(255,255,255,.22), transparent 42%),
-    linear-gradient(145deg, rgba(122, 83, 255, .28), rgba(255, 180, 73, .14));
-  box-shadow:
-    0 18px 38px rgba(0,0,0,.32),
-    inset 0 0 0 1px rgba(255,255,255,.14);
+  background: transparent;
+  box-shadow: none;
+  border: 0;
+  border-radius: 0;
 }
 
 .bestiary-popup-visual::after {
-  content: "";
-  position: absolute;
-  inset: 16px;
-  border-radius: 26px;
-  background: radial-gradient(circle, rgba(255,255,255,.08), transparent 66%);
-  pointer-events: none;
+  display: none;
+  content: none;
 }
 
 .bestiary-popup-visual img {
   position: relative;
   z-index: 1;
-  max-width: 96%;
-  max-height: 96%;
+  max-width: 100%;
+  max-height: 100%;
   object-fit: contain;
-  filter: drop-shadow(0 18px 20px rgba(0,0,0,.38));
+  filter: drop-shadow(0 20px 22px rgba(0,0,0,.42));
 }
 
 .bestiary-popup-content {
@@ -369,8 +371,8 @@
   }
 
   .bestiary-popup-visual {
-    width: 178px;
-    height: 178px;
+    width: 210px;
+    height: 210px;
   }
 
   .bestiary-popup-content h3 {
