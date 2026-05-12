@@ -50,27 +50,31 @@
   </header>
 
   <main class="vm-home-content">
-    <img class="vm-home-logo" src="./assets/ui/logo_vmonster.webp" alt="" />
+    <div class="vm-home-brand" aria-hidden="true">
+      <div class="vm-logo-placeholder">
+        <span>VM</span>
+      </div>
+    </div>
 
     <div class="vm-home-modes">
       <button class="vm-mode-card vm-mode-card-campaign" type="button" data-action="play-campaign">
-        <img src="./assets/ui/icon_campaign.webp" alt="" />
-        <span data-i18n="home_mode_campaign">Campagne</span>
+        <span class="vm-mode-glow"></span>
+        <span class="vm-mode-title" data-i18n="home_mode_campaign"></span>
       </button>
 
       <button class="vm-mode-card vm-mode-card-infinite" type="button" data-action="open-infinite">
-        <img src="./assets/ui/icon_infinite.webp" alt="" />
-        <span data-i18n="home_mode_infinite">Infini</span>
+        <span class="vm-mode-glow"></span>
+        <span class="vm-mode-title" data-i18n="home_mode_infinite"></span>
       </button>
 
       <button class="vm-mode-card vm-mode-card-shop" type="button" data-action="open-shop">
-        <img src="./assets/ui/icon_shop.webp" alt="" />
-        <span data-i18n="btn_shop">Boutique</span>
+        <span class="vm-mode-glow"></span>
+        <span class="vm-mode-title" data-i18n="btn_shop"></span>
       </button>
 
       <button class="vm-mode-card vm-mode-card-bestiary" type="button" data-action="open-bestiary">
-        <img src="./assets/ui/icon_shop.webp" alt="" />
-        <span data-i18n="bestiary_home_button">Livre des bêtes</span>
+        <span class="vm-mode-glow"></span>
+        <span class="vm-mode-title" data-i18n="bestiary_home_button"></span>
       </button>
     </div>
   </main>
