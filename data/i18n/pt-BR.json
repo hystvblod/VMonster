@@ -160,5 +160,6 @@
   "referral.share_popup_body": "Partage le jeu avec tes proches et gagne des VCoins quand une invitation est validée.",
   "referral.reward_title": "Parrainage validé",
   "referral.reward_text": "La récompense de parrainage a été validée.",
-  "referral.android_only_popup.text": "La récompense automatique fonctionne surtout avec Android via le lien d’invitation."
+  "referral.android_only_popup.text": "La récompense automatique fonctionne surtout avec Android via le lien d’invitation.",
+  "common_close": "Close"
 }

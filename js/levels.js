@@ -93,12 +93,30 @@ window.VMSLevels = {
     }
 
     const fileName = `monster_${String(base.level).padStart(2, "0")}.webp`;
+    const classicAsset = `./assets/monsters/${world.monstersFolder}/${fileName}`;
+    let asset = classicAsset;
+
+    const activeSkinId = window.VMSShop?.getActiveMonsterSkin?.();
+
+    if (activeSkinId) {
+      const activeMatch = String(activeSkinId).match(/^(.+?)_(.+?)_monster_(\d+)$/);
+
+      if (activeMatch) {
+        const activeWorldId = activeMatch[1];
+        const activeStyleId = activeMatch[2];
+        const activeMonsterNumber = activeMatch[3];
+
+        if (activeWorldId === world.id && activeMonsterNumber === String(base.level).padStart(2, "0")) {
+          asset = `./assets/shop/skins/${world.id}/${activeStyleId}/monster_${activeMonsterNumber}.webp`;
+        }
+      }
+    }
 
     return {
       ...base,
       id: `${world.id}_monster_${String(base.level).padStart(2, "0")}`,
       nameKey: `${world.id}_monster_${String(base.level).padStart(2, "0")}`,
-      asset: `./assets/monsters/${world.monstersFolder}/${fileName}`
+      asset
     };
   },
 

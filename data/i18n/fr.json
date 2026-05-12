@@ -669,5 +669,6 @@
   "bestiary.secret.12.personality": "Ancienne et hypnotique",
   "bestiary.secret.12.description": "Oblivionyx est le boss final de l’univers secret, une entité noire et violette couverte d’yeux, de cristaux et d’énergie dimensionnelle.",
   "bestiary.secret.12.fusionRole": "Boss final le plus mystérieux du jeu.",
-  "bestiary_identity_card": "Carte d'identité"
+  "bestiary_identity_card": "Carte d'identité",
+  "common_close": "Fermer"
 }
