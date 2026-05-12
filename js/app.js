@@ -10,6 +10,8 @@
       await VMSUserData.init();
     }
 
+    window.VMonsterAdminPopups?.check?.();
+
     await Promise.all([
       VMSAssets.init(),
       VMSLevels.init(),
