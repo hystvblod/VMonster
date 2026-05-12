@@ -432,7 +432,13 @@ function getWorldBackgroundItems(world) {
       <div class="shop-skin-slide" data-index="${index}">
         <article class="shop-skin-card ${locked ? "is-locked" : ""} ${titleOnTop ? "has-title-top" : ""} is-${esc(item.type)}">
           ${titleOnTop ? `<div class="shop-skin-title-top">${esc(item.title)}</div>` : ""}
-          ${locked ? `<div class="shop-skin-question">?</div>` : imageTag(item.img, imageClass)}
+          ${
+  locked
+    ? `<div class="shop-skin-question">?</div>`
+    : `<button class="shop-preview-btn" type="button" data-skin-action="preview-image" data-preview-img="${esc(item.img)}" data-preview-title="${esc(item.title)}">
+        ${imageTag(item.img, imageClass)}
+      </button>`
+}
           <div class="shop-skin-overlay">
             ${titleOnTop ? "" : `<div class="shop-skin-title">${esc(item.title)}</div>`}
             <div class="shop-skin-count">${index + 1}/${total}</div>
@@ -595,6 +601,51 @@ function getWorldBackgroundItems(world) {
     window.VMSShop?.render?.();
   }
 
+
+
+  function openShopImagePreview(imgSrc, title) {
+    if (!imgSrc) return;
+
+    const old = document.querySelector(".shop-image-preview-overlay");
+    if (old) old.remove();
+
+    const overlay = document.createElement("div");
+    overlay.className = "shop-image-preview-overlay";
+    overlay.innerHTML = `
+      <div class="shop-image-preview-modal" role="dialog" aria-modal="true">
+        <button class="shop-image-preview-close" type="button" aria-label="${esc(tt("common_close"))}">×</button>
+        <div class="shop-image-preview-title">${esc(title || "")}</div>
+        <div class="shop-image-preview-frame">
+          <img class="shop-image-preview-img" src="${esc(imgSrc)}" alt="${esc(title || "")}">
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    const close = () => {
+      overlay.classList.add("is-closing");
+      setTimeout(() => overlay.remove(), 160);
+    };
+
+    overlay.querySelector(".shop-image-preview-close")?.addEventListener("click", close);
+
+    overlay.addEventListener("click", (event) => {
+      if (event.target === overlay) close();
+    });
+
+    document.addEventListener(
+      "keydown",
+      function onKey(event) {
+        if (event.key === "Escape") {
+          close();
+          document.removeEventListener("keydown", onKey);
+        }
+      },
+      { once: true }
+    );
+  }
+
   function showMessage(title, text) {
     window.VMSModals?.show?.({
       title,
@@ -650,6 +701,10 @@ function getWorldBackgroundItems(world) {
       if (skinBtn) {
         const action = skinBtn.dataset.skinAction;
         const itemId = skinBtn.dataset.itemId;
+
+        if (action === "preview-image") {
+          return openShopImagePreview(skinBtn.dataset.previewImg, skinBtn.dataset.previewTitle);
+        }
 
         if (action === "buy-pack") return window.VMSPurchases?.buy?.(skinBtn.dataset.productId);
         if (action === "reward-bg") return rewardBackground(itemId);
