@@ -82,6 +82,24 @@ window.VMSGame = {
     };
   },
 
+  getActiveShopBackgroundForCurrentWorld() {
+    const worldId = this.state?.level?.worldId;
+    if (!worldId) return null;
+
+    const activeId = window.VMSShop?.getActiveBackground?.();
+    if (!activeId || activeId === "default_background") return null;
+
+    const match = String(activeId).match(/^(.+)_bg_(\d+)$/);
+    if (!match) return null;
+
+    const activeWorldId = match[1];
+    const bgNumber = match[2];
+
+    if (activeWorldId !== worldId) return null;
+
+    return `./assets/shop/backgrounds/${worldId}/bg_${bgNumber}.webp`;
+  },
+
   startInfinite(worldId) {
     this.mode = "infinite";
     this.infiniteWorldId = worldId || "lab";
@@ -122,7 +140,11 @@ window.VMSGame = {
       : this.createOrdersForLevel(this.state.level);
     this.bestScore = VMSStorage.get("bestScore", 0);
 
-    if (this.state.level.background) {
+    const activeBackground = this.getActiveShopBackgroundForCurrentWorld();
+
+    if (activeBackground) {
+      VMSRenderer.setBackground(activeBackground);
+    } else if (this.state.level.background) {
       VMSRenderer.setBackground(this.state.level.background);
     }
 
