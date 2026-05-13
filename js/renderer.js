@@ -86,7 +86,6 @@ labMap: {
   },
 
   render(state) {
-    this.preloadOrderAssets(state);
     this.updateBackgroundCover();
 
     this.drawBackground();
