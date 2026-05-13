@@ -86,6 +86,7 @@ labMap: {
   },
 
   render(state) {
+    this.preloadOrderAssets(state);
     this.updateBackgroundCover();
 
     this.drawBackground();
@@ -294,9 +295,25 @@ labMap: {
 
     const ctx = this.ctx;
     const layout = this.getOrderSlots(state);
+    const panel = layout.panel;
     const slots = layout.items;
 
     ctx.save();
+
+    if (panel) {
+      const grd = ctx.createLinearGradient(panel.x, panel.y, panel.x, panel.y + panel.h);
+      grd.addColorStop(0, "rgba(18, 28, 42, 0.72)");
+      grd.addColorStop(1, "rgba(9, 14, 24, 0.58)");
+
+      ctx.fillStyle = grd;
+      this.roundRect(ctx, panel.x, panel.y, panel.w, panel.h, panel.r);
+      ctx.fill();
+
+      ctx.strokeStyle = "rgba(170, 185, 195, 0.34)";
+      ctx.lineWidth = 1.4;
+      this.roundRect(ctx, panel.x, panel.y, panel.w, panel.h, panel.r);
+      ctx.stroke();
+    }
 
     for (let i = 0; i < orders.length; i++) {
       const order = orders[i];
@@ -313,20 +330,20 @@ labMap: {
 
       const imgSize = slot.size;
 
-      /* Fond gris doux derrière le monstre, sans encadré carré */
       ctx.save();
-      ctx.globalAlpha = 0.72;
-      ctx.fillStyle = "rgba(120, 128, 140, 0.62)";
-      ctx.shadowColor = "rgba(0, 0, 0, 0.45)";
+      ctx.globalAlpha = completed ? 0.88 : 0.76;
+      ctx.fillStyle = completed
+        ? "rgba(74, 118, 90, 0.78)"
+        : "rgba(126, 134, 145, 0.68)";
+      ctx.shadowColor = "rgba(0, 0, 0, 0.48)";
       ctx.shadowBlur = 8;
       ctx.beginPath();
-      ctx.ellipse(0, 2, imgSize * 0.48, imgSize * 0.42, 0, 0, Math.PI * 2);
+      ctx.ellipse(0, 0, imgSize * 0.54, imgSize * 0.47, 0, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
 
-      ctx.globalAlpha = completed ? 1 : 0.36;
-
       if (img) {
+        ctx.globalAlpha = completed ? 1 : 0.34;
         this.drawTrimmedImage(ctx, img, -imgSize / 2, -imgSize / 2, imgSize, imgSize);
 
         if (!completed) {
@@ -345,28 +362,27 @@ labMap: {
           ctx.restore();
         }
       } else {
+        ctx.globalAlpha = 0.95;
         ctx.fillStyle = meta.color || "#8fe8ff";
         ctx.beginPath();
-        ctx.arc(0, 0, imgSize * 0.34, 0, Math.PI * 2);
+        ctx.arc(0, 0, imgSize * 0.28, 0, Math.PI * 2);
         ctx.fill();
       }
 
       ctx.globalAlpha = 1;
-
-      ctx.shadowColor = "rgba(0,0,0,.65)";
+      ctx.shadowColor = "rgba(0,0,0,.75)";
       ctx.shadowBlur = 6;
       ctx.fillStyle = completed ? "#baffd1" : "#ffffff";
-      ctx.font = `900 ${Math.max(11, this.width * 0.027)}px Arial`;
+      ctx.font = `900 ${Math.max(10, this.width * 0.026)}px Arial`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillText(`${order.done}/${order.amount}`, 0, imgSize * 0.47);
+      ctx.fillText(`${order.done}/${order.amount}`, 0, imgSize * 0.58);
 
       ctx.restore();
     }
 
     ctx.restore();
   },
-
   getOrderSlots(state) {
     const orders = state?.orders || [];
     const count = orders.length;
@@ -378,28 +394,41 @@ labMap: {
       };
     }
 
-    const size = Math.max(42, Math.min(54, this.width * 0.13));
     const isVeryNarrow = this.width <= 360;
-    const x = isVeryNarrow
-      ? this.width - Math.max(22, this.width * 0.085)
-      : this.width - Math.max(30, this.width * 0.105);
-    const startY = Math.max(92, this.height * 0.13);
-    const gap = size + 12;
+
+    const size = isVeryNarrow
+      ? Math.max(34, Math.min(40, this.width * 0.112))
+      : Math.max(40, Math.min(50, this.width * 0.126));
+
+    const gap = isVeryNarrow ? size + 10 : size + 14;
+
+    const panelW = isVeryNarrow ? 54 : 62;
+    const panelH = Math.max(size + 34, count * size + (count - 1) * 14 + 32);
+
+    const panelX = this.width - panelW - (isVeryNarrow ? 10 : 14);
+    const panelY = isVeryNarrow ? 58 : 64;
+
+    const startY = panelY + 28;
 
     return {
-      panel: null,
+      panel: {
+        x: panelX,
+        y: panelY,
+        w: panelW,
+        h: panelH,
+        r: 22
+      },
       items: orders.map((order, index) => ({
         id: order.id,
-        x,
+        x: panelX + panelW / 2,
         y: startY + index * gap,
         w: size,
         h: size,
         size,
-        radius: 0
+        radius: 999
       }))
     };
   },
-
   getOrderSlotPosition(state, orderId) {
   const layout = this.getOrderSlots(state);
   const slot = layout.items.find((item) => item.id === orderId);
@@ -709,6 +738,49 @@ drawMonsters(state) {
     }
   },
 
+  preloadImage(src) {
+    if (!src) return;
+
+    if (this.imageCache[src] && this.imageCache[src] !== false) return;
+    if (this.imageCache[src] === false) return;
+
+    const img = new Image();
+
+    img.onload = () => {
+      this.imageCache[src] = img;
+      this.updateBackgroundCover();
+    };
+
+    img.onerror = () => {
+      console.warn("[VMonster] Image introuvable ou non chargée :", src);
+      this.imageCache[src] = false;
+    };
+
+    img.src = src;
+    this.imageCache[src] = img;
+  },
+
+  preloadOrderAssets(state) {
+    const orders = state?.orders || [];
+    for (const order of orders) {
+      const meta = VMSLevels.getMonsterByLevel(order.monsterLevel);
+      if (meta?.asset) {
+        this.preloadImage(meta.asset);
+      }
+    }
+
+    if (window.VMSGame?.currentMonster?.asset) {
+      this.preloadImage(window.VMSGame.currentMonster.asset);
+    }
+
+    if (state?.monsters?.length) {
+      for (const monster of state.monsters) {
+        const meta = VMSLevels.getMonsterByLevel(monster.level);
+        this.preloadImage(monster.asset || meta?.asset);
+      }
+    }
+  },
+
   getImage(src) {
     if (!src) return null;
 
@@ -719,23 +791,9 @@ drawMonsters(state) {
       return img.complete && img.naturalWidth > 0 ? img : null;
     }
 
-    const img = new Image();
-
-    img.onload = () => {
-      this.imageCache[src] = img;
-      this.updateBackgroundCover();
-    };
-
-    img.onerror = () => {
-      this.imageCache[src] = false;
-    };
-
-    img.src = src;
-    this.imageCache[src] = img;
-
+    this.preloadImage(src);
     return null;
   },
-
   lerp(a, b, t) {
     return a + (b - a) * t;
   },
