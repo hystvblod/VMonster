@@ -171,6 +171,7 @@
 
     if (sku.kind === "ultimate") {
       VMSShop?.unlockUltimatePack?.();
+      VMSBestiary?.revealAll?.();
     }
 
     if (sku.kind === "bestiary_reveal_all") {
