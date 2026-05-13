@@ -7,52 +7,95 @@
 
 .game-hud.game-hud-minimal {
   position: absolute;
-  top: 12px;
-  left: 12px;
-  right: auto;
+  inset: 0;
   z-index: 30;
-  display: flex;
-  align-items: center;
   pointer-events: none;
 }
 
 .hud-back-btn {
-  width: 46px;
-  height: 46px;
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  width: 42px;
+  height: 42px;
+  padding: 0;
   border: 0;
-  border-radius: 15px;
-  display: inline-flex;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  display: flex;
   align-items: center;
   justify-content: center;
   pointer-events: auto;
-  background: linear-gradient(180deg, rgba(17, 24, 57, .92), rgba(11, 14, 35, .88));
-  border: 1px solid rgba(153, 236, 255, .35);
-  box-shadow:
-    0 8px 18px rgba(0, 0, 0, .28),
-    inset 0 0 0 1px rgba(255,255,255,.04);
-  backdrop-filter: blur(10px);
 }
 
-.hud-back-btn svg {
-  width: 22px;
-  height: 22px;
-  fill: #eafcff;
+.hud-back-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+}
+
+.game-side-icons {
+  position: absolute;
+  top: 78px;
+  right: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  pointer-events: none;
+}
+
+.game-side-icon {
+  width: 48px;
+  height: 48px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.game-side-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, .45));
+}
+
+.game-side-icon span {
+  position: absolute;
+  right: -3px;
+  bottom: -4px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: rgba(8, 14, 36, .92);
+  border: 1px solid rgba(255, 255, 255, .45);
+  color: #fff;
+  font: 900 11px/19px Arial, sans-serif;
+  text-align: center;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, .35);
 }
 
 @media (max-width: 420px) {
-  .game-hud.game-hud-minimal {
-    top: 10px;
-    left: 10px;
-  }
-
   .hud-back-btn {
-    width: 42px;
-    height: 42px;
-    border-radius: 14px;
+    top: 14px;
+    left: 14px;
+    width: 40px;
+    height: 40px;
   }
 
-  .hud-back-btn svg {
-    width: 20px;
-    height: 20px;
+  .game-side-icons {
+    top: 72px;
+    right: 10px;
+    gap: 9px;
+  }
+
+  .game-side-icon {
+    width: 44px;
+    height: 44px;
   }
 }
