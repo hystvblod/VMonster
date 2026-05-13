@@ -270,10 +270,33 @@
     return `${skinBasePath(worldId, styleId)}/pack.webp`;
   }
 
+  function getBaseBackgroundAsset(worldId) {
+    const world = WORLDS.find((item) => item.id === worldId);
+
+    const map = {
+      lab: "./assets/environment/backgrounds/bg_lab_main_01.webp",
+      ocean: "./assets/environment/backgrounds/bg_ocean_main_01.webp",
+      volcano: "./assets/environment/backgrounds/bg_volcano_main_01..webp",
+      nuclear: "./assets/environment/backgrounds/bg_nuclear_main_01.webp",
+      secret: "./assets/environment/backgrounds/bg_secret_main_01.webp"
+    };
+
+    return map[world?.id] || map.lab;
+  }
+
   function getWorldBackgroundItems(world) {
     const files = getBackgroundFilesForWorld(world.id);
 
-    return files.map((fileName, index) => {
+    const baseItem = {
+      type: "background",
+      id: `${world.id}_base_background`,
+      worldId: world.id,
+      isBaseBackground: true,
+      title: tt("shop_base_decor_title"),
+      img: getBaseBackgroundAsset(world.id)
+    };
+
+    const shopItems = files.map((fileName, index) => {
       const baseName = fileName.replace(/\.webp$/i, "");
       const numberLabel = String(index + 1).padStart(2, "0");
 
@@ -285,6 +308,8 @@
         img: bgAsset(world.id, fileName)
       };
     });
+
+    return [baseItem, ...shopItems];
   }
 
   function isWorldNormallyAccessible(worldId) {
@@ -295,6 +320,11 @@
   function isClassicNormallyVisible(worldId, monster) {
     const level = Number(window.VMSEconomy?.currentLevel || window.VMSStorage?.get?.("currentLevel", 1) || 1);
     return isWorldNormallyAccessible(worldId) && monster.level <= level;
+  }
+
+  function isMonsterVisibleInShop(worldId, monster) {
+    const classicId = `classic_${worldId}_monster_${monster.padded}`;
+    return isClassicNormallyVisible(worldId, monster) || isClassicRevealed(classicId);
   }
 
   function getStyleItems(world, style) {
@@ -313,7 +343,10 @@
 
 
     MONSTERS.forEach((monster) => {
-      const monsterName = getMonsterDisplayName(world.id, monster);
+      const visible = isMonsterVisibleInShop(world.id, monster);
+      const monsterName = visible
+        ? getMonsterDisplayName(world.id, monster)
+        : tt("shop_unknown_monster_title");
 
       items.push({
         type: "monster_skin",
@@ -321,6 +354,7 @@
         worldId: world.id,
         styleId: style.id,
         monsterNumber: monster.number,
+        visible,
         title: monsterName,
         img: premiumMonsterAsset(world.id, style.id, monster)
       });
@@ -455,6 +489,11 @@
     }
 
     if (item.type === "background") {
+      if (item.isBaseBackground) {
+        const active = getActiveBackground() === item.id || getActiveBackground() === "default_background";
+        return `<button class="shop-skin-action ${active ? "is-active" : "is-owned"}" type="button" ${active ? "disabled" : ""} data-skin-action="activate-bg" data-item-id="${esc(item.id)}">${esc(active ? tt("shop_active") : tt("shop_activate"))}</button>`;
+      }
+
       if (isOwned(item.id)) {
         const active = getActiveBackground() === item.id;
         return `<button class="shop-skin-action ${active ? "is-active" : "is-owned"}" type="button" ${active ? "disabled" : ""} data-skin-action="activate-bg" data-item-id="${esc(item.id)}">${esc(active ? tt("shop_active") : tt("shop_activate"))}</button>`;
@@ -465,6 +504,10 @@
     }
 
     if (item.type === "monster_skin") {
+      if (!item.visible) {
+        return `<button class="shop-skin-action is-locked" type="button" disabled>${esc(tt("shop_monster_locked"))}</button>`;
+      }
+
       if (isOwned(item.id)) {
         const active = getActiveMonsterSkin() === item.id;
         return `<button class="shop-skin-action ${active ? "is-active" : "is-owned"}" type="button" ${active ? "disabled" : ""} data-skin-action="activate-monster" data-item-id="${esc(item.id)}">${esc(active ? tt("shop_active") : tt("shop_activate"))}</button>`;
@@ -486,7 +529,7 @@
   }
 
   function renderCosmeticItem(item, index, total) {
-    const locked = item.type === "classic" && !item.visible;
+    const locked = (item.type === "classic" || item.type === "monster_skin") && !item.visible;
     const imageClass = item.type === "background" || item.type === "pack" ? "shop-skin-img" : "shop-skin-img shop-skin-img-contain";
     const titleOnTop = item.type === "monster_skin" || item.type === "classic";
 
@@ -634,6 +677,15 @@
   async function buyMonsterSkin(itemId) {
     if (!itemId || isOwned(itemId)) return;
 
+    const match = String(itemId).match(/^(.+?)_(.+?)_monster_(\d+)$/);
+    const worldId = match?.[1];
+    const monsterNumber = Number(match?.[3] || 0);
+    const monster = MONSTERS.find((item) => item.number === monsterNumber);
+
+    if (!worldId || !monster || !isMonsterVisibleInShop(worldId, monster)) {
+      return showMessage(tt("shop_monster_locked_title"), tt("shop_monster_locked_text"));
+    }
+
     const ok = await window.VMSEconomy?.spendCoins?.(MONSTER_SKIN_PRICE);
     if (!ok) return showMessage(tt("shop_not_enough_vcoins_title"), tt("shop_not_enough_vcoins_text"));
 
@@ -643,7 +695,8 @@
   }
 
   function activateBackground(itemId) {
-    if (!isOwned(itemId)) return;
+    const isBase = String(itemId || "").endsWith("_base_background");
+    if (!isBase && !isOwned(itemId)) return;
     setActiveBackground(itemId);
     window.VMSShop?.render?.();
   }
