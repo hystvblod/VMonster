@@ -142,13 +142,28 @@
 
       <section id="screen-shop" class="screen">
         <header class="screen-header shop-header">
-          <button class="back-btn" type="button" data-action="back-home">‹</button>
+          <button class="shop-back-btn" type="button" data-action="back-home" aria-label="Retour accueil">
+            <img src="./assets/ui/back.webp" alt="" />
+          </button>
+
           <div class="shop-title-wrap">
             <h2 data-i18n="shop_title"></h2>
+
+            <div class="shop-balance-row" aria-label="Soldes boutique">
+              <div class="shop-balance-pill">
+                <img src="./assets/ui/vcoins.webp" alt="" />
+                <span id="shopCoins">0</span>
+              </div>
+
+              <div class="shop-balance-pill">
+                <img src="./assets/ui/jeton.webp" alt="" />
+                <span id="shopTokens">0</span>
+              </div>
+            </div>
           </div>
         </header>
 
-        <main class="scroll-content">
+        <main class="scroll-content shop-scroll-content">
           <div id="shopList" class="shop-grid"></div>
         </main>
       </section>
