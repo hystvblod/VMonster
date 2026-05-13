@@ -126,5 +126,11 @@ window.VMSEconomy = {
 
     const tokenNode = document.getElementById("hudTokens");
     if (tokenNode) tokenNode.textContent = String(this.tokens || 0);
+
+    const shopCoinsNode = document.getElementById("shopCoins");
+    if (shopCoinsNode) shopCoinsNode.textContent = String(this.coins || 0);
+
+    const shopTokensNode = document.getElementById("shopTokens");
+    if (shopTokensNode) shopTokensNode.textContent = String(this.tokens || 0);
   }
 };
