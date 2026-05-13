@@ -208,7 +208,11 @@
     });
 
     saveStorageMap(map);
+
+    window.VMSShop?.revealAllClassicMonsters?.();
+
     render();
+    window.VMSShop?.render?.();
   }
 
   function getProgress() {
@@ -412,7 +416,12 @@
     }
 
     markDiscovered(entry.id);
+
+    window.VMSShop?.revealClassicFromBestiary?.(entry.worldId, entry.level);
+
     render();
+    window.VMSShop?.render?.();
+
     openPopup(entry.id);
   }
 
@@ -552,11 +561,6 @@
               <div>
                 <dt>${esc(t("bestiary_habitat_label"))}</dt>
                 <dd>${esc(t(entry.habitatKey))}</dd>
-              </div>
-
-              <div>
-                <dt>${esc(t("bestiary_fusion_role_label"))}</dt>
-                <dd>${esc(t(entry.fusionRoleKey))}</dd>
               </div>
             </dl>
           </div>

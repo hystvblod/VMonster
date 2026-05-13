@@ -161,5 +161,10 @@
   "referral.reward_title": "Parrainage validé",
   "referral.reward_text": "La récompense de parrainage a été validée.",
   "referral.android_only_popup.text": "La récompense automatique fonctionne surtout avec Android via le lien d’invitation.",
-  "common_close": "Close"
+  "common_close": "Close",
+  "shop_base_decor_title": "Base decor",
+  "shop_unknown_monster_title": "Unknown creature",
+  "shop_monster_locked": "Discover first",
+  "shop_monster_locked_title": "Creature still unknown",
+  "shop_monster_locked_text": "Discover this creature in the game before buying or activating its skin."
 }

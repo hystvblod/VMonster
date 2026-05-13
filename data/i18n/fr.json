@@ -672,5 +672,10 @@
   "bestiary.secret.12.description": "Oblivionyx est le boss final de l’univers secret, une entité noire et violette couverte d’yeux, de cristaux et d’énergie dimensionnelle.",
   "bestiary.secret.12.fusionRole": "Boss final le plus mystérieux du jeu.",
   "bestiary_identity_card": "Carte d'identité",
-  "common_close": "Fermer"
+  "common_close": "Fermer",
+  "shop_base_decor_title": "Décor de base",
+  "shop_unknown_monster_title": "Créature inconnue",
+  "shop_monster_locked": "À découvrir",
+  "shop_monster_locked_title": "Créature encore inconnue",
+  "shop_monster_locked_text": "Découvre d’abord cette créature en jeu avant d’acheter ou d’activer son skin."
 }
