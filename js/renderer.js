@@ -243,196 +243,150 @@ labMap: {
   },
 
   drawWorldHeader(state) {
-  const level = state?.level;
-  if (!level) return;
+    const level = state?.level;
+    if (!level) return;
 
-  const ctx = this.ctx;
-  const title = VMSI18n.t(level.nameKey || "world_lab_name");
-  const waveText = level.isInfinite
-    ? VMSI18n.t("hud_infinite_mode")
-    : VMSI18n.t("hud_wave_progress", {
-        wave: level.wave || 1,
-        total: level.wavesPerWorld || 20
-      });
+    const ctx = this.ctx;
+    const title = VMSI18n.t(level.nameKey || "world_lab_name");
+    const waveText = level.isInfinite
+      ? VMSI18n.t("hud_infinite_mode")
+      : VMSI18n.t("hud_wave_progress", {
+          wave: level.wave || 1,
+          total: level.wavesPerWorld || 20
+        });
 
-  const boxW = Math.min(this.width * 0.68, 270);
-  const boxH = 50;
-  const x = this.width / 2 - boxW / 2;
-  const y = 18;
-
-  ctx.save();
-
-  const grd = ctx.createLinearGradient(x, y, x, y + boxH);
-  grd.addColorStop(0, "rgba(10,18,48,.92)");
-  grd.addColorStop(1, "rgba(9,12,32,.86)");
-
-  ctx.fillStyle = grd;
-  this.roundRect(ctx, x, y, boxW, boxH, 16);
-  ctx.fill();
-
-  ctx.strokeStyle = "rgba(140,235,255,.34)";
-  ctx.lineWidth = 1.8;
-  this.roundRect(ctx, x, y, boxW, boxH, 16);
-  ctx.stroke();
-
-  ctx.fillStyle = "#ffffff";
-  ctx.font = `900 ${Math.max(15, this.width * 0.038)}px Arial`;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText(title, this.width / 2, y + 17);
-
-  ctx.fillStyle = "rgba(212,245,255,.86)";
-  ctx.font = `800 ${Math.max(11, this.width * 0.028)}px Arial`;
-  ctx.fillText(waveText, this.width / 2, y + 35);
-
-  ctx.restore();
-},
-
-drawOrders(state) {
-  const orders = state?.orders || [];
-  if (!orders.length) return;
-
-  const ctx = this.ctx;
-  const layout = this.getOrderSlots(state);
-  const panel = layout.panel;
-  const slots = layout.items;
-
-  const totalDone = orders.reduce((sum, order) => sum + Math.min(order.done, order.amount), 0);
-  const totalNeeded = orders.reduce((sum, order) => sum + order.amount, 0);
-
-  ctx.save();
-
-  const panelGrd = ctx.createLinearGradient(panel.x, panel.y, panel.x, panel.y + panel.h);
-  panelGrd.addColorStop(0, "rgba(8,14,36,.86)");
-  panelGrd.addColorStop(1, "rgba(8,11,28,.78)");
-
-  ctx.fillStyle = panelGrd;
-  this.roundRect(ctx, panel.x, panel.y, panel.w, panel.h, 18);
-  ctx.fill();
-
-  ctx.strokeStyle = "rgba(140,235,255,.28)";
-  ctx.lineWidth = 1.6;
-  this.roundRect(ctx, panel.x, panel.y, panel.w, panel.h, 18);
-  ctx.stroke();
-
-  ctx.fillStyle = "#ffffff";
-  ctx.font = `900 ${Math.max(12, this.width * 0.03)}px Arial`;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText(`Commande : ${totalDone}/${totalNeeded}`, this.width / 2, panel.y + 16);
-
-  for (let i = 0; i < orders.length; i++) {
-    const order = orders[i];
-    const slot = slots[i];
-    if (!slot) continue;
-
-    const meta = VMSLevels.getMonsterByLevel(order.monsterLevel);
-    const img = this.getImage(meta.asset);
-    const completed = order.done >= order.amount;
-    const fillRatio = VMSUtils.clamp(order.done / order.amount, 0, 1);
+    const boxW = Math.min(this.width * 0.56, 220);
+    const boxH = 42;
+    const x = this.width / 2 - boxW / 2;
+    const y = 8;
 
     ctx.save();
-    ctx.translate(slot.x, slot.y);
 
-    const w = slot.w;
-    const h = slot.h;
-    const r = slot.radius;
+    const grd = ctx.createLinearGradient(x, y, x, y + boxH);
+    grd.addColorStop(0, "rgba(10,18,48,.88)");
+    grd.addColorStop(1, "rgba(9,12,32,.78)");
 
-    const cardGrd = ctx.createLinearGradient(0, -h / 2, 0, h / 2);
-    cardGrd.addColorStop(0, completed ? "rgba(34,76,52,.98)" : "rgba(16,28,62,.98)");
-    cardGrd.addColorStop(1, completed ? "rgba(17,40,29,.95)" : "rgba(10,16,36,.92)");
-
-    ctx.fillStyle = cardGrd;
-    this.roundRect(ctx, -w / 2, -h / 2, w, h, r);
+    ctx.fillStyle = grd;
+    this.roundRect(ctx, x, y, boxW, boxH, 14);
     ctx.fill();
 
-    ctx.strokeStyle = completed ? "rgba(132,255,186,.9)" : "rgba(158,229,255,.5)";
-    ctx.lineWidth = 1.8;
-    this.roundRect(ctx, -w / 2, -h / 2, w, h, r);
+    ctx.strokeStyle = "rgba(140,235,255,.28)";
+    ctx.lineWidth = 1.4;
+    this.roundRect(ctx, x, y, boxW, boxH, 14);
     ctx.stroke();
 
-    if (img) {
-      const imgSize = Math.min(w * 0.72, h * 0.52);
-      const imgX = -imgSize / 2;
-      const imgY = -h * 0.31;
-
-      ctx.globalAlpha = 0.32;
-      this.drawTrimmedImage(ctx, img, imgX, imgY, imgSize, imgSize);
-
-      ctx.save();
-      ctx.beginPath();
-      ctx.rect(
-        imgX,
-        imgY + imgSize * (1 - fillRatio),
-        imgSize,
-        imgSize * fillRatio
-      );
-      ctx.clip();
-      ctx.globalAlpha = completed ? 1 : 0.88;
-      this.drawTrimmedImage(ctx, img, imgX, imgY, imgSize, imgSize);
-      ctx.restore();
-    } else {
-      ctx.globalAlpha = completed ? 0.95 : 0.42;
-      ctx.fillStyle = meta.color || "#8fe8ff";
-      ctx.beginPath();
-      ctx.arc(0, -h * 0.08, Math.min(w, h) * 0.18, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    ctx.globalAlpha = 1;
-    ctx.fillStyle = completed ? "#baffd1" : "#ffffff";
-    ctx.font = `900 ${Math.max(10, w * 0.22)}px Arial`;
+    ctx.fillStyle = "#ffffff";
+    ctx.font = `900 ${Math.max(14, this.width * 0.035)}px Arial`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(`${order.done}/${order.amount}`, 0, h / 2 - 10);
+    ctx.fillText(title, this.width / 2, y + 15);
+
+    ctx.fillStyle = "rgba(212,245,255,.86)";
+    ctx.font = `800 ${Math.max(10, this.width * 0.025)}px Arial`;
+    ctx.fillText(waveText, this.width / 2, y + 31);
+
     ctx.restore();
-  }
+  },
 
-  ctx.restore();
-},
+  drawOrders(state) {
+    const orders = state?.orders || [];
+    if (!orders.length) return;
 
-getOrderSlots(state) {
-  const orders = state?.orders || [];
-  const count = orders.length;
-  if (!count) {
+    const ctx = this.ctx;
+    const layout = this.getOrderSlots(state);
+    const slots = layout.items;
+
+    ctx.save();
+
+    for (let i = 0; i < orders.length; i++) {
+      const order = orders[i];
+      const slot = slots[i];
+      if (!slot) continue;
+
+      const meta = VMSLevels.getMonsterByLevel(order.monsterLevel);
+      const img = this.getImage(meta.asset);
+      const completed = order.done >= order.amount;
+      const fillRatio = VMSUtils.clamp(order.done / order.amount, 0, 1);
+
+      ctx.save();
+      ctx.translate(slot.x, slot.y);
+
+      const imgSize = slot.size;
+
+      ctx.globalAlpha = completed ? 1 : 0.36;
+
+      if (img) {
+        this.drawTrimmedImage(ctx, img, -imgSize / 2, -imgSize / 2, imgSize, imgSize);
+
+        if (!completed) {
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(
+            -imgSize / 2,
+            -imgSize / 2 + imgSize * (1 - fillRatio),
+            imgSize,
+            imgSize * fillRatio
+          );
+          ctx.clip();
+
+          ctx.globalAlpha = 1;
+          this.drawTrimmedImage(ctx, img, -imgSize / 2, -imgSize / 2, imgSize, imgSize);
+          ctx.restore();
+        }
+      } else {
+        ctx.fillStyle = meta.color || "#8fe8ff";
+        ctx.beginPath();
+        ctx.arc(0, 0, imgSize * 0.34, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.globalAlpha = 1;
+
+      ctx.shadowColor = "rgba(0,0,0,.65)";
+      ctx.shadowBlur = 6;
+      ctx.fillStyle = completed ? "#baffd1" : "#ffffff";
+      ctx.font = `900 ${Math.max(11, this.width * 0.027)}px Arial`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(`${order.done}/${order.amount}`, 0, imgSize * 0.47);
+
+      ctx.restore();
+    }
+
+    ctx.restore();
+  },
+
+  getOrderSlots(state) {
+    const orders = state?.orders || [];
+    const count = orders.length;
+
+    if (!count) {
+      return {
+        panel: null,
+        items: []
+      };
+    }
+
+    const size = Math.max(42, Math.min(54, this.width * 0.13));
+    const x = Math.max(30, this.width * 0.105);
+    const startY = Math.max(92, this.height * 0.13);
+    const gap = size + 12;
+
     return {
       panel: null,
-      items: []
+      items: orders.map((order, index) => ({
+        id: order.id,
+        x,
+        y: startY + index * gap,
+        w: size,
+        h: size,
+        size,
+        radius: 0
+      }))
     };
-  }
+  },
 
-  const panelW = Math.min(this.width * 0.82, 332);
-  const panelH = 92;
-  const panelX = this.width / 2 - panelW / 2;
-  const panelY = 76;
-
-  const padX = 12;
-  const gap = 8;
-  const availableW = panelW - padX * 2 - gap * (count - 1);
-  const cardW = Math.max(36, Math.min(52, availableW / count));
-  const cardH = Math.round(cardW * 1.18);
-  const centerY = panelY + 54;
-  const startX = panelX + padX + cardW / 2;
-
-  return {
-    panel: {
-      x: panelX,
-      y: panelY,
-      w: panelW,
-      h: panelH
-    },
-    items: orders.map((order, index) => ({
-      id: order.id,
-      x: startX + index * (cardW + gap),
-      y: centerY,
-      w: cardW,
-      h: cardH,
-      radius: 12
-    }))
-  };
-},
-
-getOrderSlotPosition(state, orderId) {
+  getOrderSlotPosition(state, orderId) {
   const layout = this.getOrderSlots(state);
   const slot = layout.items.find((item) => item.id === orderId);
   return slot ? { x: slot.x, y: slot.y } : null;

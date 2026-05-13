@@ -10,6 +10,7 @@ window.VMS_CONFIG = {
   assets: {
     ui: {
       logo: "./assets/ui/logo.webp",
+      back: "./assets/ui/back.webp",
 
       shop: "./assets/ui/shop.webp",
       settings: "./assets/ui/settings.webp",
