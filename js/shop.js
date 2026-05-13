@@ -65,6 +65,51 @@
 
   const MONSTER_COUNT = 12;
 
+  const SHOP_BACKGROUNDS = {
+    lab: [
+      "bg_01.webp",
+      "bg_02.webp",
+      "bg_03.webp",
+      "bg_04.webp",
+      "bg_05.webp"
+    ],
+
+    ocean: [
+      "bg_01.webp",
+      "bg_02.webp",
+      "bg_03.webp",
+      "bg_04.webp",
+      "bg_05.webp"
+    ],
+
+    volcano: [
+      "bg_01.webp",
+      "bg_02.webp",
+      "bg_03.webp",
+      "bg_04.webp"
+    ],
+
+    nuclear: [
+      "bg_01.webp",
+      "bg_02.webp",
+      "bg_03.webp",
+      "bg_04.webp"
+    ],
+
+    secret: [
+      "bg_01.webp",
+      "bg_02.webp",
+      "bg_03.webp",
+      "bg_04.webp"
+    ]
+  };
+
+  function getBackgroundFilesForWorld(worldId) {
+    const files = SHOP_BACKGROUNDS[worldId];
+    return Array.isArray(files) ? files : [];
+  }
+
+
   const MONSTERS = Array.from({ length: MONSTER_COUNT }, (_, index) => {
     const number = index + 1;
     const padded = String(number).padStart(2, "0");
@@ -217,31 +262,30 @@
     return tt(getMonsterNameKey(worldId, monster), tt("monster_generic_name", { n: monster.number }));
   }
 
-  function bgAsset(worldId, number) {
-    return `./assets/shop/backgrounds/${worldId}/bg_${String(number).padStart(2, "0")}.webp`;
+  function bgAsset(worldId, fileName) {
+    return `./assets/shop/backgrounds/${worldId}/${fileName}`;
   }
 
   function packAsset(worldId, styleId) {
     return `${skinBasePath(worldId, styleId)}/pack.webp`;
   }
 
-function getWorldBackgroundItems(world) {
-  const items = [];
+  function getWorldBackgroundItems(world) {
+    const files = getBackgroundFilesForWorld(world.id);
 
-  for (let i = 1; i <= 12; i += 1) {
-    const padded = String(i).padStart(2, "0");
+    return files.map((fileName, index) => {
+      const baseName = fileName.replace(/\.webp$/i, "");
+      const numberLabel = String(index + 1).padStart(2, "0");
 
-    items.push({
-      type: "background",
-      id: `${world.id}_bg_${padded}`,
-      worldId: world.id,
-      title: `${tt("shop_decor_row_title")} ${padded}`,
-      img: bgAsset(world.id, i)
+      return {
+        type: "background",
+        id: `${world.id}_${baseName}`,
+        worldId: world.id,
+        title: `${tt("shop_decor_row_title")} ${numberLabel}`,
+        img: bgAsset(world.id, fileName)
+      };
     });
   }
-
-  return items;
-}
 
   function isWorldNormallyAccessible(worldId) {
     if (worldId === "lab") return true;

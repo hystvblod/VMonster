@@ -89,15 +89,15 @@ window.VMSGame = {
     const activeId = window.VMSShop?.getActiveBackground?.();
     if (!activeId || activeId === "default_background") return null;
 
-    const match = String(activeId).match(/^(.+)_bg_(\d+)$/);
+    const match = String(activeId).match(/^(.+)_bg_([a-z0-9_-]+)$/i);
     if (!match) return null;
 
     const activeWorldId = match[1];
-    const bgNumber = match[2];
+    const bgId = match[2];
 
     if (activeWorldId !== worldId) return null;
 
-    return `./assets/shop/backgrounds/${worldId}/bg_${bgNumber}.webp`;
+    return `./assets/shop/backgrounds/${worldId}/bg_${bgId}.webp`;
   },
 
   startInfinite(worldId) {
