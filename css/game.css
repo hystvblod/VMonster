@@ -40,7 +40,7 @@
 .game-side-icons {
   position: absolute;
   top: 78px;
-  right: 13px;
+  left: 13px;
   display: flex;
   flex-direction: column;
   gap: 11px;
@@ -90,7 +90,7 @@
 
   .game-side-icons {
     top: 72px;
-    right: 10px;
+    left: 10px;
     gap: 9px;
   }
 

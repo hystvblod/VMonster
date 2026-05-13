@@ -313,6 +313,17 @@ labMap: {
 
       const imgSize = slot.size;
 
+      /* Fond gris doux derrière le monstre, sans encadré carré */
+      ctx.save();
+      ctx.globalAlpha = 0.72;
+      ctx.fillStyle = "rgba(120, 128, 140, 0.62)";
+      ctx.shadowColor = "rgba(0, 0, 0, 0.45)";
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.ellipse(0, 2, imgSize * 0.48, imgSize * 0.42, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
       ctx.globalAlpha = completed ? 1 : 0.36;
 
       if (img) {
@@ -368,7 +379,10 @@ labMap: {
     }
 
     const size = Math.max(42, Math.min(54, this.width * 0.13));
-    const x = Math.max(30, this.width * 0.105);
+    const isVeryNarrow = this.width <= 360;
+    const x = isVeryNarrow
+      ? this.width - Math.max(22, this.width * 0.085)
+      : this.width - Math.max(30, this.width * 0.105);
     const startY = Math.max(92, this.height * 0.13);
     const gap = size + 12;
 
