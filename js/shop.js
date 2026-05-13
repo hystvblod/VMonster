@@ -26,23 +26,41 @@
     { id: "secret", titleKey: "world_secret_name", fallback: "Laboratoire secret" }
   ];
 
-  const DEFAULT_STYLES = [
-    { id: "girly", titleKey: "shop_skin_style_girly" },
-    { id: "nature", titleKey: "shop_skin_style_nature" },
-    { id: "adventure", titleKey: "shop_skin_style_adventure" }
-  ];
-
   const WORLD_STYLES = {
     lab: [
-      { id: "girly", titleKey: "shop_skin_style_girly" },
+      { id: "candy", titleKey: "shop_skin_style_candy" },
+      { id: "temple", titleKey: "shop_skin_style_temple" },
+      { id: "nature", titleKey: "shop_skin_style_nature" },
+      { id: "neon", titleKey: "shop_skin_style_neon" }
+    ],
+
+    ocean: [
       { id: "candy", titleKey: "shop_skin_style_candy" },
       { id: "nature", titleKey: "shop_skin_style_nature" },
       { id: "neon", titleKey: "shop_skin_style_neon" }
+    ],
+
+    volcano: [
+      { id: "candy", titleKey: "shop_skin_style_candy" },
+      { id: "nature", titleKey: "shop_skin_style_nature" },
+      { id: "neon", titleKey: "shop_skin_style_neon" }
+    ],
+
+    nuclear: [
+      { id: "candy", titleKey: "shop_skin_style_candy" },
+      { id: "cryo", titleKey: "shop_skin_style_cryo" },
+      { id: "neon", titleKey: "shop_skin_style_neon" }
+    ],
+
+    secret: [
+      { id: "candy", titleKey: "shop_skin_style_candy" },
+      { id: "nature", titleKey: "shop_skin_style_nature" },
+      { id: "temple", titleKey: "shop_skin_style_temple" }
     ]
   };
 
   function getStylesForWorld(worldId) {
-    return WORLD_STYLES[worldId] || DEFAULT_STYLES;
+    return WORLD_STYLES[worldId] || [];
   }
 
   const MONSTER_COUNT = 12;

@@ -21,25 +21,26 @@
     vmonster_world_nuclear: { kind: "world", worldId: "nuclear" },
     vmonster_world_secret: { kind: "world", worldId: "secret" },
 
-    vmonster_skinpack_lab_girly: { kind: "skinpack", worldId: "lab", styleId: "girly" },
+    vmonster_skinpack_lab_candy: { kind: "skinpack", worldId: "lab", styleId: "candy" },
+    vmonster_skinpack_lab_temple: { kind: "skinpack", worldId: "lab", styleId: "temple" },
     vmonster_skinpack_lab_nature: { kind: "skinpack", worldId: "lab", styleId: "nature" },
-    vmonster_skinpack_lab_adventure: { kind: "skinpack", worldId: "lab", styleId: "adventure" },
+    vmonster_skinpack_lab_neon: { kind: "skinpack", worldId: "lab", styleId: "neon" },
 
-    vmonster_skinpack_ocean_girly: { kind: "skinpack", worldId: "ocean", styleId: "girly" },
+    vmonster_skinpack_ocean_candy: { kind: "skinpack", worldId: "ocean", styleId: "candy" },
     vmonster_skinpack_ocean_nature: { kind: "skinpack", worldId: "ocean", styleId: "nature" },
-    vmonster_skinpack_ocean_adventure: { kind: "skinpack", worldId: "ocean", styleId: "adventure" },
+    vmonster_skinpack_ocean_neon: { kind: "skinpack", worldId: "ocean", styleId: "neon" },
 
-    vmonster_skinpack_volcano_girly: { kind: "skinpack", worldId: "volcano", styleId: "girly" },
+    vmonster_skinpack_volcano_candy: { kind: "skinpack", worldId: "volcano", styleId: "candy" },
     vmonster_skinpack_volcano_nature: { kind: "skinpack", worldId: "volcano", styleId: "nature" },
-    vmonster_skinpack_volcano_adventure: { kind: "skinpack", worldId: "volcano", styleId: "adventure" },
+    vmonster_skinpack_volcano_neon: { kind: "skinpack", worldId: "volcano", styleId: "neon" },
 
-    vmonster_skinpack_nuclear_girly: { kind: "skinpack", worldId: "nuclear", styleId: "girly" },
-    vmonster_skinpack_nuclear_nature: { kind: "skinpack", worldId: "nuclear", styleId: "nature" },
-    vmonster_skinpack_nuclear_adventure: { kind: "skinpack", worldId: "nuclear", styleId: "adventure" },
+    vmonster_skinpack_nuclear_candy: { kind: "skinpack", worldId: "nuclear", styleId: "candy" },
+    vmonster_skinpack_nuclear_cryo: { kind: "skinpack", worldId: "nuclear", styleId: "cryo" },
+    vmonster_skinpack_nuclear_neon: { kind: "skinpack", worldId: "nuclear", styleId: "neon" },
 
-    vmonster_skinpack_secret_girly: { kind: "skinpack", worldId: "secret", styleId: "girly" },
+    vmonster_skinpack_secret_candy: { kind: "skinpack", worldId: "secret", styleId: "candy" },
     vmonster_skinpack_secret_nature: { kind: "skinpack", worldId: "secret", styleId: "nature" },
-    vmonster_skinpack_secret_adventure: { kind: "skinpack", worldId: "secret", styleId: "adventure" }
+    vmonster_skinpack_secret_temple: { kind: "skinpack", worldId: "secret", styleId: "temple" }
   };
 
   const prices = {};
