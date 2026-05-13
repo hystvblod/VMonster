@@ -89,6 +89,18 @@ window.VMSGame = {
     const activeId = window.VMSShop?.getActiveBackground?.();
     if (!activeId || activeId === "default_background") return null;
 
+    const baseMap = {
+      lab: "./assets/environment/backgrounds/bg_lab_main_01.webp",
+      ocean: "./assets/environment/backgrounds/bg_ocean_main_01.webp",
+      volcano: "./assets/environment/backgrounds/bg_volcano_main_01..webp",
+      nuclear: "./assets/environment/backgrounds/bg_nuclear_main_01.webp",
+      secret: "./assets/environment/backgrounds/bg_secret_main_01.webp"
+    };
+
+    if (activeId === `${worldId}_base_background`) {
+      return baseMap[worldId] || baseMap.lab;
+    }
+
     const match = String(activeId).match(/^(.+)_bg_([a-z0-9_-]+)$/i);
     if (!match) return null;
 
