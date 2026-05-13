@@ -208,7 +208,11 @@
     });
 
     saveStorageMap(map);
+
+    window.VMSShop?.revealAllClassicMonsters?.();
+
     render();
+    window.VMSShop?.render?.();
   }
 
   function getProgress() {
@@ -412,7 +416,12 @@
     }
 
     markDiscovered(entry.id);
+
+    window.VMSShop?.revealClassicFromBestiary?.(entry.worldId, entry.level);
+
     render();
+    window.VMSShop?.render?.();
+
     openPopup(entry.id);
   }
 

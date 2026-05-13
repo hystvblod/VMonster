@@ -10,6 +10,8 @@
   const SHOP_ACTIVE_BG_KEY = "shopActiveBackground";
   const SHOP_ACTIVE_MONSTER_KEY = "shopActiveMonsterSkin";
 
+  const BESTIARY_DISCOVERED_KEY = "vmonster_bestiary_discovered_v1";
+
   const UI = {
     vcoins: window.VMSAsset("ui", "vcoins"),
     jeton: window.VMSAsset("ui", "jeton"),
@@ -196,6 +198,67 @@
     saveRevealedClassicMap(revealed);
   }
 
+  function bestiaryIdFromWorldAndMonster(worldId, monster) {
+    if (!worldId || !monster) return "";
+    return `${worldId}_${monster.padded}`;
+  }
+
+  function classicIdFromWorldAndMonster(worldId, monster) {
+    if (!worldId || !monster) return "";
+    return `classic_${worldId}_monster_${monster.padded}`;
+  }
+
+  function markBestiaryDiscovered(worldId, monster) {
+    const entryId = bestiaryIdFromWorldAndMonster(worldId, monster);
+    if (!entryId) return;
+
+    const map = window.VMSStorage?.get?.(BESTIARY_DISCOVERED_KEY, {}) || {};
+    map[entryId] = map[entryId] || Date.now();
+    window.VMSStorage?.set?.(BESTIARY_DISCOVERED_KEY, map);
+  }
+
+  function revealMonsterEverywhere(worldId, monster) {
+    const classicId = classicIdFromWorldAndMonster(worldId, monster);
+    if (!classicId) return;
+
+    markClassicRevealed(classicId);
+    markBestiaryDiscovered(worldId, monster);
+  }
+
+  function revealWorldEverywhere(worldId) {
+    MONSTERS.forEach((monster) => {
+      revealMonsterEverywhere(worldId, monster);
+    });
+  }
+
+  function revealAllWorldsEverywhere() {
+    WORLDS.forEach((world) => {
+      revealWorldEverywhere(world.id);
+    });
+  }
+
+  function revealClassicFromBestiary(worldId, level) {
+    const monster = MONSTERS.find((item) => item.number === Number(level));
+    if (!monster) return false;
+
+    markClassicRevealed(classicIdFromWorldAndMonster(worldId, monster));
+    window.VMSShop?.render?.();
+
+    return true;
+  }
+
+  function revealAllClassicMonsters() {
+    WORLDS.forEach((world) => {
+      MONSTERS.forEach((monster) => {
+        markClassicRevealed(classicIdFromWorldAndMonster(world.id, monster));
+      });
+    });
+
+    window.VMSShop?.render?.();
+
+    return true;
+  }
+
   function getRewardCount(itemId) {
     const map = getProgressMap();
     return Math.max(0, Math.min(BG_REWARD_REQUIRED, Number(map[itemId] || 0)));
@@ -323,7 +386,7 @@
   }
 
   function isMonsterVisibleInShop(worldId, monster) {
-    const classicId = `classic_${worldId}_monster_${monster.padded}`;
+    const classicId = classicIdFromWorldAndMonster(worldId, monster);
     return isClassicNormallyVisible(worldId, monster) || isClassicRevealed(classicId);
   }
 
@@ -344,9 +407,6 @@
 
     MONSTERS.forEach((monster) => {
       const visible = isMonsterVisibleInShop(world.id, monster);
-      const monsterName = visible
-        ? getMonsterDisplayName(world.id, monster)
-        : tt("shop_unknown_monster_title");
 
       items.push({
         type: "monster_skin",
@@ -355,7 +415,7 @@
         styleId: style.id,
         monsterNumber: monster.number,
         visible,
-        title: monsterName,
+        title: visible ? getMonsterDisplayName(world.id, monster) : tt("shop_unknown_monster_title"),
         img: premiumMonsterAsset(world.id, style.id, monster)
       });
     });
@@ -669,9 +729,21 @@
     const ok = await window.VMSAds?.showRewarded?.("shop_classic_reveal");
     if (!ok) return showMessage(tt("shop_reward_error_title"), tt("shop_reward_error_text"));
 
-    markClassicRevealed(itemId);
+    const parts = String(itemId).match(/^classic_(.+)_monster_(\d+)$/);
+    const worldId = parts?.[1];
+    const number = Number(parts?.[2] || 0);
+    const monster = MONSTERS.find((item) => item.number === number);
+
+    if (worldId && monster) {
+      revealMonsterEverywhere(worldId, monster);
+    } else {
+      markClassicRevealed(itemId);
+    }
+
     showMessage(tt("shop_classic_revealed_title"), tt("shop_classic_revealed_text"));
+
     window.VMSShop?.render?.();
+    window.VMSBestiary?.render?.();
   }
 
   async function buyMonsterSkin(itemId) {
@@ -679,8 +751,8 @@
 
     const match = String(itemId).match(/^(.+?)_(.+?)_monster_(\d+)$/);
     const worldId = match?.[1];
-    const monsterNumber = Number(match?.[3] || 0);
-    const monster = MONSTERS.find((item) => item.number === monsterNumber);
+    const number = Number(match?.[3] || 0);
+    const monster = MONSTERS.find((item) => item.number === number);
 
     if (!worldId || !monster || !isMonsterVisibleInShop(worldId, monster)) {
       return showMessage(tt("shop_monster_locked_title"), tt("shop_monster_locked_text"));
@@ -835,12 +907,19 @@
       const style = getStylesForWorld(worldId).find((s) => s.id === styleId);
       if (!world || !style) return false;
 
-      getStyleItems(world, style).forEach((item) => {
-        markOwned(item.id);
-        if (item.type === "background") setRewardCount(item.id, BG_REWARD_REQUIRED);
+      const packId = `${world.id}_${style.id}_pack`;
+      markOwned(packId);
+
+      MONSTERS.forEach((monster) => {
+        const skinId = `${world.id}_${style.id}_monster_${monster.padded}`;
+        markOwned(skinId);
       });
 
+      revealWorldEverywhere(world.id);
+
       this.render();
+      window.VMSBestiary?.render?.();
+
       return true;
     },
 
@@ -848,8 +927,14 @@
       WORLDS.forEach((world) => {
         getStylesForWorld(world.id).forEach((style) => this.unlockSkinPack(world.id, style.id));
       });
+
+      revealAllWorldsEverywhere();
+
       window.VMSEconomy?.activateNoAds?.();
+
       this.render();
+      window.VMSBestiary?.render?.();
+
       return true;
     },
 
@@ -864,6 +949,9 @@
     getRevealedClassicMonsters() {
       return getRevealedClassicMap();
     },
+
+    revealClassicFromBestiary,
+    revealAllClassicMonsters,
 
     getActiveBackground,
     getActiveMonsterSkin
