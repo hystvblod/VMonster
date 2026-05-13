@@ -148,6 +148,12 @@ window.VMSGame = {
       VMSRenderer.setBackground(this.state.level.background);
     }
 
+    /*
+      On attend le chargement réel des monstres avant de lancer la partie.
+      Comme ça, plus de ronds placeholder visibles pendant le jeu.
+    */
+    await VMSRenderer.preloadForLevel(this.state);
+
     this.nextMonsterLevel = VMSLevels.getRandomSpawnLevel(this.state.level.spawnPoolMaxLevel || 3);
     this.spawnCurrentMonster();
 

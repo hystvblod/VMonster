@@ -302,16 +302,21 @@ labMap: {
 
     if (panel) {
       const grd = ctx.createLinearGradient(panel.x, panel.y, panel.x, panel.y + panel.h);
-      grd.addColorStop(0, "rgba(18, 28, 42, 0.72)");
-      grd.addColorStop(1, "rgba(9, 14, 24, 0.58)");
+      grd.addColorStop(0, "rgba(232, 238, 242, 0.72)");
+      grd.addColorStop(1, "rgba(168, 178, 188, 0.54)");
 
       ctx.fillStyle = grd;
       this.roundRect(ctx, panel.x, panel.y, panel.w, panel.h, panel.r);
       ctx.fill();
 
-      ctx.strokeStyle = "rgba(170, 185, 195, 0.34)";
-      ctx.lineWidth = 1.4;
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.62)";
+      ctx.lineWidth = 1.6;
       this.roundRect(ctx, panel.x, panel.y, panel.w, panel.h, panel.r);
+      ctx.stroke();
+
+      ctx.strokeStyle = "rgba(55, 70, 86, 0.28)";
+      ctx.lineWidth = 1;
+      this.roundRect(ctx, panel.x + 2, panel.y + 2, panel.w - 4, panel.h - 4, panel.r - 2);
       ctx.stroke();
     }
 
@@ -329,18 +334,6 @@ labMap: {
       ctx.translate(slot.x, slot.y);
 
       const imgSize = slot.size;
-
-      ctx.save();
-      ctx.globalAlpha = completed ? 0.88 : 0.76;
-      ctx.fillStyle = completed
-        ? "rgba(74, 118, 90, 0.78)"
-        : "rgba(126, 134, 145, 0.68)";
-      ctx.shadowColor = "rgba(0, 0, 0, 0.48)";
-      ctx.shadowBlur = 8;
-      ctx.beginPath();
-      ctx.ellipse(0, 0, imgSize * 0.54, imgSize * 0.47, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
 
       if (img) {
         ctx.globalAlpha = completed ? 1 : 0.34;
@@ -362,21 +355,21 @@ labMap: {
           ctx.restore();
         }
       } else {
-        ctx.globalAlpha = 0.95;
+        ctx.globalAlpha = 0.9;
         ctx.fillStyle = meta.color || "#8fe8ff";
         ctx.beginPath();
-        ctx.arc(0, 0, imgSize * 0.28, 0, Math.PI * 2);
+        ctx.arc(0, 0, imgSize * 0.25, 0, Math.PI * 2);
         ctx.fill();
       }
 
       ctx.globalAlpha = 1;
-      ctx.shadowColor = "rgba(0,0,0,.75)";
-      ctx.shadowBlur = 6;
-      ctx.fillStyle = completed ? "#baffd1" : "#ffffff";
+      ctx.shadowColor = "rgba(0,0,0,.85)";
+      ctx.shadowBlur = 7;
+      ctx.fillStyle = completed ? "#d7ffe4" : "#ffffff";
       ctx.font = `900 ${Math.max(10, this.width * 0.026)}px Arial`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillText(`${order.done}/${order.amount}`, 0, imgSize * 0.58);
+      ctx.fillText(`${order.done}/${order.amount}`, 0, imgSize * 0.60);
 
       ctx.restore();
     }
@@ -400,13 +393,13 @@ labMap: {
       ? Math.max(34, Math.min(40, this.width * 0.112))
       : Math.max(40, Math.min(50, this.width * 0.126));
 
-    const gap = isVeryNarrow ? size + 10 : size + 14;
+    const gap = isVeryNarrow ? size + 9 : size + 12;
 
-    const panelW = isVeryNarrow ? 54 : 62;
-    const panelH = Math.max(size + 34, count * size + (count - 1) * 14 + 32);
+    const panelW = isVeryNarrow ? 56 : 64;
+    const panelH = Math.max(size + 42, count * size + (count - 1) * 12 + 36);
 
-    const panelX = this.width - panelW - (isVeryNarrow ? 10 : 14);
-    const panelY = isVeryNarrow ? 58 : 64;
+    const panelX = this.width - panelW - (isVeryNarrow ? 9 : 13);
+    const panelY = isVeryNarrow ? 54 : 58;
 
     const startY = panelY + 28;
 
@@ -416,7 +409,7 @@ labMap: {
         y: panelY,
         w: panelW,
         h: panelH,
-        r: 22
+        r: 23
       },
       items: orders.map((order, index) => ({
         id: order.id,
@@ -738,47 +731,90 @@ drawMonsters(state) {
     }
   },
 
-  preloadImage(src) {
-    if (!src) return;
+  loadImage(src) {
+    if (!src) return Promise.resolve(null);
 
-    if (this.imageCache[src] && this.imageCache[src] !== false) return;
-    if (this.imageCache[src] === false) return;
+    if (this.imageCache[src] && this.imageCache[src] !== false) {
+      const cached = this.imageCache[src];
 
-    const img = new Image();
+      if (cached.complete && cached.naturalWidth > 0) {
+        return Promise.resolve(cached);
+      }
 
-    img.onload = () => {
+      return new Promise((resolve) => {
+        cached.onload = () => resolve(cached);
+        cached.onerror = () => resolve(null);
+      });
+    }
+
+    if (this.imageCache[src] === false) {
+      return Promise.resolve(null);
+    }
+
+    return new Promise((resolve) => {
+      const img = new Image();
+
+      img.onload = async () => {
+        this.imageCache[src] = img;
+
+        try {
+          if (img.decode) {
+            await img.decode();
+          }
+        } catch (error) {
+          // Pas grave : certains navigateurs peuvent refuser decode alors que l'image est bien utilisable.
+        }
+
+        try {
+          this.getImageTrim(img);
+        } catch (error) {
+          // Pas grave non plus : le trim retombera en dessin normal si besoin.
+        }
+
+        this.updateBackgroundCover();
+        resolve(img);
+      };
+
+      img.onerror = () => {
+        console.warn("[VMonster] Image introuvable ou non chargée :", src);
+        this.imageCache[src] = false;
+        resolve(null);
+      };
+
+      img.src = src;
       this.imageCache[src] = img;
-      this.updateBackgroundCover();
-    };
-
-    img.onerror = () => {
-      console.warn("[VMonster] Image introuvable ou non chargée :", src);
-      this.imageCache[src] = false;
-    };
-
-    img.src = src;
-    this.imageCache[src] = img;
+    });
   },
 
-  preloadOrderAssets(state) {
+  async preloadForLevel(state) {
+    const sources = new Set();
+
+    if (this.bgSrc) {
+      sources.add(this.bgSrc);
+    }
+
+    if (state?.level?.background) {
+      sources.add(state.level.background);
+    }
+
+    const maxLevel = Math.max(12, Number(state?.level?.spawnPoolMaxLevel || 5));
+
+    for (let level = 1; level <= maxLevel; level++) {
+      const meta = VMSLevels.getMonsterByLevel(level);
+      if (meta?.asset) {
+        sources.add(meta.asset);
+      }
+    }
+
     const orders = state?.orders || [];
     for (const order of orders) {
       const meta = VMSLevels.getMonsterByLevel(order.monsterLevel);
       if (meta?.asset) {
-        this.preloadImage(meta.asset);
+        sources.add(meta.asset);
       }
     }
 
-    if (window.VMSGame?.currentMonster?.asset) {
-      this.preloadImage(window.VMSGame.currentMonster.asset);
-    }
-
-    if (state?.monsters?.length) {
-      for (const monster of state.monsters) {
-        const meta = VMSLevels.getMonsterByLevel(monster.level);
-        this.preloadImage(monster.asset || meta?.asset);
-      }
-    }
+    await Promise.all([...sources].map((src) => this.loadImage(src)));
   },
 
   getImage(src) {
@@ -791,7 +827,7 @@ drawMonsters(state) {
       return img.complete && img.naturalWidth > 0 ? img : null;
     }
 
-    this.preloadImage(src);
+    this.loadImage(src);
     return null;
   },
   lerp(a, b, t) {
