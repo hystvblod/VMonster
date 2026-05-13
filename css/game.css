@@ -39,11 +39,11 @@
 
 .game-side-icons {
   position: absolute;
-  top: 78px;
-  left: 13px;
+  top: 96px;
+  left: 22px;
   display: flex;
   flex-direction: column;
-  gap: 11px;
+  gap: 16px;
   pointer-events: none;
 }
 
@@ -89,13 +89,21 @@
   }
 
   .game-side-icons {
-    top: 72px;
-    left: 10px;
-    gap: 9px;
+    top: 92px;
+    left: 18px;
+    gap: 14px;
   }
 
   .game-side-icon {
     width: 44px;
     height: 44px;
+  }
+}
+
+@media (max-width: 360px) {
+  .game-side-icons {
+    top: 88px;
+    left: 14px;
+    gap: 12px;
   }
 }
