@@ -119,6 +119,36 @@
       "score": 30000,
       "color": "#facc15",
       "asset": "./assets/monsters/monster_12.webp"
+    },
+    {
+      "id": "monster_13_colossio",
+      "level": 13,
+      "nameKey": "monster_13_colossio",
+      "radius": 110,
+      "drawRadius": 111,
+      "score": 60000,
+      "color": "#fb923c",
+      "asset": "./assets/monsters/monster_13.webp"
+    },
+    {
+      "id": "monster_14_titanoo",
+      "level": 14,
+      "nameKey": "monster_14_titanoo",
+      "radius": 124,
+      "drawRadius": 125,
+      "score": 120000,
+      "color": "#f43f5e",
+      "asset": "./assets/monsters/monster_14.webp"
+    },
+    {
+      "id": "monster_15_gigazilla",
+      "level": 15,
+      "nameKey": "monster_15_gigazilla",
+      "radius": 140,
+      "drawRadius": 141,
+      "score": 250000,
+      "color": "#a855f7",
+      "asset": "./assets/monsters/monster_15.webp"
     }
   ]
 }
