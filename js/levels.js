@@ -145,7 +145,7 @@ window.VMSLevels = {
 },
 
 getMaxMonsterLevel() {
-    return 12;
+    return 15;
   },
 
   getRandomSpawnLevel(maxLevel = 3) {
