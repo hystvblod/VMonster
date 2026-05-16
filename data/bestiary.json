@@ -135,6 +135,39 @@
           "personalityKey": "bestiary.lab.12.personality",
           "descriptionKey": "bestiary.lab.12.description",
           "fusionRoleKey": "bestiary.lab.12.fusionRole"
+        },
+        {
+          "id": "lab_13",
+          "level": 13,
+          "asset": "./assets/monsters/lab/monster_13.webp",
+          "nameKey": "bestiary.lab.13.name",
+          "typeKey": "bestiary.lab.13.type",
+          "habitatKey": "bestiary.lab.13.habitat",
+          "personalityKey": "bestiary.lab.13.personality",
+          "descriptionKey": "bestiary.lab.13.description",
+          "fusionRoleKey": "bestiary.lab.13.fusionRole"
+        },
+        {
+          "id": "lab_14",
+          "level": 14,
+          "asset": "./assets/monsters/lab/monster_14.webp",
+          "nameKey": "bestiary.lab.14.name",
+          "typeKey": "bestiary.lab.14.type",
+          "habitatKey": "bestiary.lab.14.habitat",
+          "personalityKey": "bestiary.lab.14.personality",
+          "descriptionKey": "bestiary.lab.14.description",
+          "fusionRoleKey": "bestiary.lab.14.fusionRole"
+        },
+        {
+          "id": "lab_15",
+          "level": 15,
+          "asset": "./assets/monsters/lab/monster_15.webp",
+          "nameKey": "bestiary.lab.15.name",
+          "typeKey": "bestiary.lab.15.type",
+          "habitatKey": "bestiary.lab.15.habitat",
+          "personalityKey": "bestiary.lab.15.personality",
+          "descriptionKey": "bestiary.lab.15.description",
+          "fusionRoleKey": "bestiary.lab.15.fusionRole"
         }
       ]
     },
@@ -273,6 +306,39 @@
           "personalityKey": "bestiary.ocean.12.personality",
           "descriptionKey": "bestiary.ocean.12.description",
           "fusionRoleKey": "bestiary.ocean.12.fusionRole"
+        },
+        {
+          "id": "ocean_13",
+          "level": 13,
+          "asset": "./assets/monsters/ocean/monster_13.webp",
+          "nameKey": "bestiary.ocean.13.name",
+          "typeKey": "bestiary.ocean.13.type",
+          "habitatKey": "bestiary.ocean.13.habitat",
+          "personalityKey": "bestiary.ocean.13.personality",
+          "descriptionKey": "bestiary.ocean.13.description",
+          "fusionRoleKey": "bestiary.ocean.13.fusionRole"
+        },
+        {
+          "id": "ocean_14",
+          "level": 14,
+          "asset": "./assets/monsters/ocean/monster_14.webp",
+          "nameKey": "bestiary.ocean.14.name",
+          "typeKey": "bestiary.ocean.14.type",
+          "habitatKey": "bestiary.ocean.14.habitat",
+          "personalityKey": "bestiary.ocean.14.personality",
+          "descriptionKey": "bestiary.ocean.14.description",
+          "fusionRoleKey": "bestiary.ocean.14.fusionRole"
+        },
+        {
+          "id": "ocean_15",
+          "level": 15,
+          "asset": "./assets/monsters/ocean/monster_15.webp",
+          "nameKey": "bestiary.ocean.15.name",
+          "typeKey": "bestiary.ocean.15.type",
+          "habitatKey": "bestiary.ocean.15.habitat",
+          "personalityKey": "bestiary.ocean.15.personality",
+          "descriptionKey": "bestiary.ocean.15.description",
+          "fusionRoleKey": "bestiary.ocean.15.fusionRole"
         }
       ]
     },
@@ -411,6 +477,39 @@
           "personalityKey": "bestiary.volcano.12.personality",
           "descriptionKey": "bestiary.volcano.12.description",
           "fusionRoleKey": "bestiary.volcano.12.fusionRole"
+        },
+        {
+          "id": "volcano_13",
+          "level": 13,
+          "asset": "./assets/monsters/volcano/monster_13.webp",
+          "nameKey": "bestiary.volcano.13.name",
+          "typeKey": "bestiary.volcano.13.type",
+          "habitatKey": "bestiary.volcano.13.habitat",
+          "personalityKey": "bestiary.volcano.13.personality",
+          "descriptionKey": "bestiary.volcano.13.description",
+          "fusionRoleKey": "bestiary.volcano.13.fusionRole"
+        },
+        {
+          "id": "volcano_14",
+          "level": 14,
+          "asset": "./assets/monsters/volcano/monster_14.webp",
+          "nameKey": "bestiary.volcano.14.name",
+          "typeKey": "bestiary.volcano.14.type",
+          "habitatKey": "bestiary.volcano.14.habitat",
+          "personalityKey": "bestiary.volcano.14.personality",
+          "descriptionKey": "bestiary.volcano.14.description",
+          "fusionRoleKey": "bestiary.volcano.14.fusionRole"
+        },
+        {
+          "id": "volcano_15",
+          "level": 15,
+          "asset": "./assets/monsters/volcano/monster_15.webp",
+          "nameKey": "bestiary.volcano.15.name",
+          "typeKey": "bestiary.volcano.15.type",
+          "habitatKey": "bestiary.volcano.15.habitat",
+          "personalityKey": "bestiary.volcano.15.personality",
+          "descriptionKey": "bestiary.volcano.15.description",
+          "fusionRoleKey": "bestiary.volcano.15.fusionRole"
         }
       ]
     },
@@ -549,6 +648,39 @@
           "personalityKey": "bestiary.nuclear.12.personality",
           "descriptionKey": "bestiary.nuclear.12.description",
           "fusionRoleKey": "bestiary.nuclear.12.fusionRole"
+        },
+        {
+          "id": "nuclear_13",
+          "level": 13,
+          "asset": "./assets/monsters/nuclear/monster_13.webp",
+          "nameKey": "bestiary.nuclear.13.name",
+          "typeKey": "bestiary.nuclear.13.type",
+          "habitatKey": "bestiary.nuclear.13.habitat",
+          "personalityKey": "bestiary.nuclear.13.personality",
+          "descriptionKey": "bestiary.nuclear.13.description",
+          "fusionRoleKey": "bestiary.nuclear.13.fusionRole"
+        },
+        {
+          "id": "nuclear_14",
+          "level": 14,
+          "asset": "./assets/monsters/nuclear/monster_14.webp",
+          "nameKey": "bestiary.nuclear.14.name",
+          "typeKey": "bestiary.nuclear.14.type",
+          "habitatKey": "bestiary.nuclear.14.habitat",
+          "personalityKey": "bestiary.nuclear.14.personality",
+          "descriptionKey": "bestiary.nuclear.14.description",
+          "fusionRoleKey": "bestiary.nuclear.14.fusionRole"
+        },
+        {
+          "id": "nuclear_15",
+          "level": 15,
+          "asset": "./assets/monsters/nuclear/monster_15.webp",
+          "nameKey": "bestiary.nuclear.15.name",
+          "typeKey": "bestiary.nuclear.15.type",
+          "habitatKey": "bestiary.nuclear.15.habitat",
+          "personalityKey": "bestiary.nuclear.15.personality",
+          "descriptionKey": "bestiary.nuclear.15.description",
+          "fusionRoleKey": "bestiary.nuclear.15.fusionRole"
         }
       ]
     },
@@ -687,6 +819,39 @@
           "personalityKey": "bestiary.secret.12.personality",
           "descriptionKey": "bestiary.secret.12.description",
           "fusionRoleKey": "bestiary.secret.12.fusionRole"
+        },
+        {
+          "id": "secret_13",
+          "level": 13,
+          "asset": "./assets/monsters/secret/monster_13.webp",
+          "nameKey": "bestiary.secret.13.name",
+          "typeKey": "bestiary.secret.13.type",
+          "habitatKey": "bestiary.secret.13.habitat",
+          "personalityKey": "bestiary.secret.13.personality",
+          "descriptionKey": "bestiary.secret.13.description",
+          "fusionRoleKey": "bestiary.secret.13.fusionRole"
+        },
+        {
+          "id": "secret_14",
+          "level": 14,
+          "asset": "./assets/monsters/secret/monster_14.webp",
+          "nameKey": "bestiary.secret.14.name",
+          "typeKey": "bestiary.secret.14.type",
+          "habitatKey": "bestiary.secret.14.habitat",
+          "personalityKey": "bestiary.secret.14.personality",
+          "descriptionKey": "bestiary.secret.14.description",
+          "fusionRoleKey": "bestiary.secret.14.fusionRole"
+        },
+        {
+          "id": "secret_15",
+          "level": 15,
+          "asset": "./assets/monsters/secret/monster_15.webp",
+          "nameKey": "bestiary.secret.15.name",
+          "typeKey": "bestiary.secret.15.type",
+          "habitatKey": "bestiary.secret.15.habitat",
+          "personalityKey": "bestiary.secret.15.personality",
+          "descriptionKey": "bestiary.secret.15.description",
+          "fusionRoleKey": "bestiary.secret.15.fusionRole"
         }
       ]
     }

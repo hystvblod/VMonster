@@ -65,7 +65,7 @@
     return WORLD_STYLES[worldId] || [];
   }
 
-  const MONSTER_COUNT = 12;
+  const MONSTER_COUNT = 15;
 
   const SHOP_BACKGROUNDS = {
     lab: [
