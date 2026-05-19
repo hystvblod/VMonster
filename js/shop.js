@@ -52,7 +52,8 @@
     volcano: [
       { id: "candy", titleKey: "shop_skin_style_candy" },
       { id: "nature", titleKey: "shop_skin_style_nature" },
-      { id: "neon", titleKey: "shop_skin_style_neon" }
+      { id: "neon", titleKey: "shop_skin_style_neon" },
+      { id: "cryo", titleKey: "shop_skin_style_cryo" }
     ],
 
     nuclear: [
