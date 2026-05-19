@@ -8,6 +8,12 @@ window.VMSInput = {
     canvas.addEventListener("pointerdown", (event) => {
       if (!window.VMSGame || !VMSGame.running) return;
 
+      if (window.VMSGameTools?.handleCanvasPointerDown?.(event)) {
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
+
       this.pointerDown = true;
       this.pointerId = event.pointerId;
 
