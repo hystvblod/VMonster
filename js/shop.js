@@ -2,7 +2,14 @@
   "use strict";
 
   const BG_REWARD_REQUIRED = 3;
-  const MONSTER_SKIN_PRICE = 300;
+  function getMonsterSkinPrice(monsterNumber) {
+    const number = Number(monsterNumber || 1);
+
+    if (number >= 11) return 1100;
+    if (number >= 6) return 800;
+
+    return 500;
+  }
 
   const SHOP_PROGRESS_KEY = "shopBgRewardProgress";
   const SHOP_OWNED_KEY = "shopOwnedItems";
@@ -573,7 +580,7 @@
         return `<button class="shop-skin-action ${active ? "is-active" : "is-owned"}" type="button" ${active ? "disabled" : ""} data-skin-action="activate-monster" data-item-id="${esc(item.id)}">${esc(active ? tt("shop_active") : tt("shop_activate"))}</button>`;
       }
 
-      return `<button class="shop-skin-action is-buy" type="button" data-skin-action="buy-monster" data-item-id="${esc(item.id)}">${vcoinsText(MONSTER_SKIN_PRICE)}</button>`;
+      return `<button class="shop-skin-action is-buy" type="button" data-skin-action="buy-monster" data-item-id="${esc(item.id)}">${vcoinsText(getMonsterSkinPrice(item.monsterNumber))}</button>`;
     }
 
     if (item.type === "classic") {
@@ -758,7 +765,8 @@
       return showMessage(tt("shop_monster_locked_title"), tt("shop_monster_locked_text"));
     }
 
-    const ok = await window.VMSEconomy?.spendCoins?.(MONSTER_SKIN_PRICE);
+    const price = getMonsterSkinPrice(number);
+    const ok = await window.VMSEconomy?.spendCoins?.(price);
     if (!ok) return showMessage(tt("shop_not_enough_vcoins_title"), tt("shop_not_enough_vcoins_text"));
 
     markOwned(itemId);

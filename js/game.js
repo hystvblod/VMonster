@@ -703,7 +703,12 @@ updateParticles(delta) {
     this.gameOver = true;
     this.stop();
 
-    const coins = Math.max(5, Math.floor(this.score / 120));
+    const isInfiniteMode = this.mode === "infinite";
+
+    const coins = isInfiniteMode
+      ? Math.min(500, Math.max(10, Math.floor(this.score / 100)))
+      : Math.max(5, Math.floor(this.score / 120));
+
     VMSEconomy.addCoins(coins);
 
     if (this.score > this.bestScore) {
@@ -716,6 +721,50 @@ updateParticles(delta) {
     VMSUserData?.saveProgress?.();
     VMSUserData?.refreshRemote?.();
     VMSAds?.maybeShowInterstitial?.("game_over");
+
+    if (isInfiniteMode) {
+      VMSModals.show({
+        title: VMSI18n.t("modal_game_over_title"),
+        text: VMSI18n.t("modal_game_over_text", {
+          score: this.score,
+          coins
+        }),
+        rewardAmount: coins,
+        rewardIcon: window.VMSAsset("ui", "vcoins"),
+        primaryText: VMSI18n.t("btn_double_reward"),
+        secondaryText: VMSI18n.t("btn_restart"),
+        tertiaryText: VMSI18n.t("btn_home"),
+        onPrimary: async () => {
+          const watched = await VMSAds.showRewarded("infinite_double_reward");
+
+          if (watched) {
+            VMSEconomy.addCoins(coins);
+
+            VMSModals.show({
+              title: VMSI18n.t("modal_reward_doubled_title"),
+              text: VMSI18n.t("modal_reward_doubled_text", {
+                coins: coins * 2
+              }),
+              rewardAmount: coins * 2,
+              rewardIcon: window.VMSAsset("ui", "vcoins"),
+              primaryText: VMSI18n.t("btn_restart"),
+              secondaryText: VMSI18n.t("btn_home"),
+              onPrimary: () => this.start(),
+              onSecondary: () => VMSRouter.home()
+            });
+
+            VMSUserData?.saveProgress?.();
+            return;
+          }
+
+          this.start();
+        },
+        onSecondary: () => this.start(),
+        onTertiary: () => VMSRouter.home()
+      });
+
+      return;
+    }
 
     VMSModals.show({
       title: VMSI18n.t("modal_game_over_title"),

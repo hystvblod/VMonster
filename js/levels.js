@@ -34,7 +34,7 @@ window.VMSLevels = {
         originalId: row[0],
         worldId: row[1],
         wave: row[2],
-        wavesPerWorld: 20,
+        wavesPerWorld: null,
         rewardVCoins: row[3],
         spawnPoolMaxLevel: row[4],
         dangerGraceMs: row[5],
