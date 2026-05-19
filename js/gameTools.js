@@ -29,32 +29,141 @@
     });
   }
 
-  function showToolsPopup() {
-    const tokens = Number(window.VMSEconomy?.tokens || 0);
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
 
-    window.VMSModals.show({
-      title: t("game_tools_title"),
-      text: t("game_tools_text", { tokens }),
-      primaryText: t("game_tools_delete_token"),
-      secondaryText: t("game_tools_undo_token"),
-      tertiaryText: t("game_tools_more"),
-      onPrimary: () => startDeleteMode("token"),
-      onSecondary: () => undoWithToken(),
-      onTertiary: () => showMoreToolsPopup()
+  function getTokenPackPriceText() {
+    const price = window.VMSPurchases?.getPrice?.("vmonster_jetons_12");
+    return price || t("game_tools_buy_12_price_fallback");
+  }
+
+  function closeToolsPopup() {
+    const layer = document.getElementById("gameToolsLayer");
+    if (layer) layer.remove();
+  }
+
+  function showToolsPopup() {
+    closeToolsPopup();
+
+    const tokens = Number(window.VMSEconomy?.tokens || 0);
+    const tokenIcon = "./assets/ui/jeton.webp";
+    const rewardIcon = "./assets/ui/reward.webp";
+
+    const layer = document.createElement("div");
+    layer.id = "gameToolsLayer";
+    layer.className = "game-tools-layer";
+
+    layer.innerHTML = `
+      <div class="game-tools-card" role="dialog" aria-modal="true">
+        <div class="game-tools-top">
+          <img class="game-tools-token-img" src="${tokenIcon}" alt="" />
+          <div class="game-tools-balance">
+            <strong>${escapeHtml(t("game_tools_title"))}</strong>
+            <span>${escapeHtml(t("game_tools_balance", { tokens }))}</span>
+          </div>
+        </div>
+
+        <button class="game-tools-buy-card" type="button" data-game-tool-action="buy12">
+          <img src="${tokenIcon}" alt="" />
+          <span>${escapeHtml(t("game_tools_buy_12"))}</span>
+          <strong>${escapeHtml(getTokenPackPriceText())}</strong>
+        </button>
+
+        <div class="game-tools-action-list">
+          <button class="game-tools-action-card" type="button" data-game-tool-action="delete-token">
+            <span class="game-tools-action-label">${escapeHtml(t("game_tools_delete_token"))}</span>
+            <span class="game-tools-action-price">
+              <img src="${tokenIcon}" alt="" />
+              <strong>1</strong>
+            </span>
+          </button>
+
+          <button class="game-tools-action-card" type="button" data-game-tool-action="delete-reward">
+            <span class="game-tools-action-label">${escapeHtml(t("game_tools_delete_reward_short"))}</span>
+            <span class="game-tools-action-price">
+              <img src="${rewardIcon}" alt="" />
+            </span>
+          </button>
+
+          <button class="game-tools-action-card" type="button" data-game-tool-action="undo-token">
+            <span class="game-tools-action-label">${escapeHtml(t("game_tools_undo_token"))}</span>
+            <span class="game-tools-action-price">
+              <img src="${tokenIcon}" alt="" />
+              <strong>1</strong>
+            </span>
+          </button>
+
+          <button class="game-tools-action-card" type="button" data-game-tool-action="undo-reward">
+            <span class="game-tools-action-label">${escapeHtml(t("game_tools_undo_reward_short"))}</span>
+            <span class="game-tools-action-price">
+              <img src="${rewardIcon}" alt="" />
+            </span>
+          </button>
+        </div>
+
+        <button class="game-tools-cancel" type="button" data-game-tool-action="cancel">
+          ${escapeHtml(t("btn_cancel"))}
+        </button>
+      </div>
+    `;
+
+    layer.addEventListener("click", async (event) => {
+      if (event.target === layer) {
+        closeToolsPopup();
+        return;
+      }
+
+      const button = event.target.closest("[data-game-tool-action]");
+      if (!button) return;
+
+      const action = button.getAttribute("data-game-tool-action");
+
+      if (action === "cancel") {
+        closeToolsPopup();
+        return;
+      }
+
+      if (action === "buy12") {
+        closeToolsPopup();
+        await window.VMSPurchases?.buy?.("vmonster_jetons_12");
+        return;
+      }
+
+      if (action === "delete-token") {
+        closeToolsPopup();
+        startDeleteMode("token");
+        return;
+      }
+
+      if (action === "delete-reward") {
+        closeToolsPopup();
+        startDeleteMode("reward");
+        return;
+      }
+
+      if (action === "undo-token") {
+        closeToolsPopup();
+        undoWithToken();
+        return;
+      }
+
+      if (action === "undo-reward") {
+        closeToolsPopup();
+        undoWithReward();
+      }
     });
+
+    document.body.appendChild(layer);
   }
 
   function showMoreToolsPopup() {
-    window.VMSModals.show({
-      title: t("game_tools_more_title"),
-      text: t("game_tools_more_text"),
-      primaryText: t("game_tools_delete_reward"),
-      secondaryText: t("game_tools_undo_reward"),
-      tertiaryText: t("game_tools_buy_12"),
-      onPrimary: () => startDeleteMode("reward"),
-      onSecondary: () => undoWithReward(),
-      onTertiary: () => window.VMSPurchases?.buy?.("vmonster_jetons_12")
-    });
+    showToolsPopup();
   }
 
   function startDeleteMode(paymentMode) {
