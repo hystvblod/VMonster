@@ -107,3 +107,16 @@
     gap: 12px;
   }
 }
+
+.game-side-button {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.game-side-button:active {
+  transform: scale(0.94);
+}

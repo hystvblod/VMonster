@@ -62,6 +62,9 @@
       }
 
       if (action === "open-shop") VMSRouter.show("screen-shop");
+      if (action === "open-game-tools") {
+        window.VMSGameTools?.showToolsPopup?.();
+      }
 
       if (action === "open-bestiary") {
         VMSBestiary.render();

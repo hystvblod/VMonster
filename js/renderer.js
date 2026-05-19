@@ -450,9 +450,13 @@ drawMonsters(state) {
     ctx.save();
     ctx.translate(monster.x, monster.y);
 
-    const alpha = typeof monster.collectAlpha === "number"
+    const baseAlpha = typeof monster.collectAlpha === "number"
       ? VMSUtils.clamp(monster.collectAlpha, 0, 1)
       : 1;
+
+    const alpha = monster.pendingDelete
+      ? baseAlpha * 0.35
+      : baseAlpha;
 
     ctx.globalAlpha = 0.24 * alpha;
     ctx.fillStyle = "#000";
@@ -468,7 +472,7 @@ drawMonsters(state) {
     );
     ctx.fill();
 
-    ctx.globalAlpha = 1;
+    ctx.globalAlpha = alpha;
 
     if (isCurrent) {
       ctx.shadowColor = monster.color || meta.color;

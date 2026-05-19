@@ -296,6 +296,8 @@ window.VMSGame = {
 
     this.updateAim(clientX, clientY);
 
+    window.VMSGameTools?.createUndoSnapshot?.();
+
     const monster = this.currentMonster;
     monster.vx = this.state.aim.vx;
     monster.vy = this.state.aim.vy;
