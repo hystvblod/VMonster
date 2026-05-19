@@ -587,10 +587,12 @@ completeLevel() {
 
   const completedWave = this.state.level.wave || 1;
   const completedWorld = this.state.level.worldNumber || 1;
-  const isWorldComplete = completedWave >= 20;
+  const wavesInCurrentWorld = this.state.level.wavesPerWorld || 20;
+  const isWorldComplete = completedWave >= wavesInCurrentWorld;
 
+  const maxCampaignLevel = VMSLevels.getTotalLevels();
   this.levelIndex += 1;
-  if (this.levelIndex > 100) this.levelIndex = 100;
+  if (this.levelIndex > maxCampaignLevel) this.levelIndex = maxCampaignLevel;
 
   VMSStorage.set("currentLevel", this.levelIndex);
     VMSUserData?.saveProgress?.();

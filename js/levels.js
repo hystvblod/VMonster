@@ -21,11 +21,17 @@ window.VMSLevels = {
   },
 
   normalizeLevels(rawLevels) {
-    return rawLevels.map((row) => {
-      if (!Array.isArray(row)) return row;
+    const normalized = rawLevels.map((row, index) => {
+      if (!Array.isArray(row)) {
+        return {
+          ...row,
+          id: index + 1
+        };
+      }
 
       return {
-        id: row[0],
+        id: index + 1,
+        originalId: row[0],
         worldId: row[1],
         wave: row[2],
         wavesPerWorld: 20,
@@ -41,10 +47,16 @@ window.VMSLevels = {
         }))
       };
     });
+
+    return normalized.map((level) => ({
+      ...level,
+      wavesPerWorld: normalized.filter((item) => item.worldId === level.worldId).length
+    }));
   },
 
   getLevel(index) {
-    const safeIndex = Math.max(1, Math.min(Number(index || 1), 100));
+    const totalLevels = this.getTotalLevels();
+    const safeIndex = Math.max(1, Math.min(Number(index || 1), totalLevels));
     const level = this.levels.find((item) => item.id === safeIndex) || this.levels[0];
 
     const world = this.getWorldById(level.worldId);
@@ -59,6 +71,10 @@ window.VMSLevels = {
       worldId: world.id,
       worldNumber: this.worlds.findIndex((item) => item.id === world.id) + 1
     };
+  },
+
+  getTotalLevels() {
+    return Array.isArray(this.levels) ? this.levels.length : 1;
   },
 
   getWorldById(worldId) {
@@ -149,13 +165,12 @@ getMaxMonsterLevel() {
   },
 
   getRandomSpawnLevel(maxLevel = 3) {
-    const cappedMax = Math.max(1, Math.min(Number(maxLevel || 3), 5));
+    const cappedMax = Math.max(1, Math.min(Number(maxLevel || 2), 4));
     const roll = Math.random();
 
-    if (cappedMax >= 5 && roll > 0.985) return 5;
-    if (cappedMax >= 4 && roll > 0.965) return 4;
-    if (cappedMax >= 3 && roll > 0.93) return 3;
-    if (cappedMax >= 2 && roll > 0.70) return 2;
+    if (cappedMax >= 4 && roll > 0.94) return 4;
+    if (cappedMax >= 3 && roll > 0.84) return 3;
+    if (cappedMax >= 2 && roll > 0.62) return 2;
 
     return 1;
   }
