@@ -587,7 +587,16 @@ labMap: {
     const ctx = this.ctx;
     const meta = VMSLevels.getMonsterByLevel(monster.level);
     const img = this.getImage(monster.asset || meta.asset);
-    const visualRadius = monster.drawRadius || meta.drawRadius || monster.radius;
+    const trackScale = this.getTrackScale ? this.getTrackScale() : 1;
+
+    const baseVisualRadius = Number(
+      monster.baseDrawRadius ||
+      monster.drawRadius ||
+      meta.drawRadius ||
+      monster.radius
+    );
+
+    const visualRadius = baseVisualRadius * trackScale;
     const size = visualRadius * 2.35;
 
     ctx.save();
@@ -783,6 +792,23 @@ labMap: {
       width: Math.max(p.topRight.x, p.bottomRight.x) - Math.min(p.topLeft.x, p.bottomLeft.x),
       height: p.bottomLeft.y - p.topLeft.y
     };
+  },
+
+  getTrackScale() {
+    const rect = this.getTrackRect();
+
+    // Référence mobile de base : piste sur écran type 390x844
+    const referenceTrackWidth = 330;
+    const referenceTrackHeight = 595;
+
+    const scaleW = rect.width / referenceTrackWidth;
+    const scaleH = rect.height / referenceTrackHeight;
+
+    // On prend le plus petit pour garder les proportions propres
+    const scale = Math.min(scaleW, scaleH);
+
+    // Sécurité pour éviter monstres minuscules ou énormes
+    return Math.max(0.72, Math.min(1.45, scale));
   },
 
   getSpawnPoint() {
