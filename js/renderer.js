@@ -783,19 +783,21 @@ labMap: {
 
 
   getWorldScale() {
-    // Base officielle : Samsung Galaxy A51/A71 dans Chrome DevTools
-    // Sur cet écran : scale = 1, donc les tailles JSON restent normales.
-    const referenceCanvasWidth = 412;
-    const referenceCanvasHeight = 914;
+    const rect = this.getTrackRect();
 
-    const scaleW = this.width / referenceCanvasWidth;
-    const scaleH = this.height / referenceCanvasHeight;
+    /*
+      Base officielle : Galaxy A51 / A71.
+      La piste sur A51 fait environ 396 px de large.
+      Donc :
+      - piste 396 px = scale 1
+      - piste 300 px = scale 0.75
+      - piste 792 px = scale 2
+    */
+    const referenceTrackWidth = 396;
 
-    // Un seul scale uniforme = pas de déformation.
-    const scale = Math.min(scaleW, scaleH);
+    const scale = rect.width / referenceTrackWidth;
 
-    // Sécurité : évite monstres trop petits ou trop énormes.
-    return Math.max(0.75, Math.min(1.35, scale));
+    return Math.max(0.55, Math.min(2.80, scale));
   },
   getTrackRect() {
     const p = this.getTrackPolygonPoints();
