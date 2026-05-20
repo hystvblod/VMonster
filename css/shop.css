@@ -789,29 +789,56 @@
   border-radius: 16px;
 }
 
-/* Carte No Ads : encadré spécial, pas comme les autres */
-.shop-product-card-noads {
-  background:
-    radial-gradient(circle at 50% 20%, rgba(255,255,255,.24), transparent 42%),
-    linear-gradient(180deg, rgba(124, 231, 255, .22), rgba(255,255,255,.06));
-  border-color: rgba(124, 231, 255, .46);
-  box-shadow:
-    0 20px 42px rgba(0,0,0,.30),
-    inset 0 0 0 1px rgba(255,255,255,.08);
-}
-
-/* Carte Diamant : encadré spécial + pulse léger */
+/* Premium : No Ads + Diamant SANS encadré */
+.shop-product-card-noads,
 .shop-product-card-diamond {
-  background:
-    radial-gradient(circle at 50% 18%, rgba(255,255,255,.30), transparent 42%),
-    linear-gradient(180deg, rgba(183, 139, 255, .26), rgba(255,255,255,.07));
-  border-color: rgba(214, 190, 255, .55);
-  box-shadow:
-    0 22px 46px rgba(0,0,0,.32),
-    0 0 28px rgba(183, 139, 255, .16),
-    inset 0 0 0 1px rgba(255,255,255,.10);
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  min-height: auto;
+  padding: 4px;
+  border-radius: 0;
 }
 
+/* On garde l'alignement propre comme les autres produits */
+.shop-product-card-noads {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.shop-product-card-diamond {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* No Ads + Diamant plus grands */
+.shop-product-card-noads .shop-product-img,
+.shop-product-card-diamond .shop-product-img {
+  width: clamp(92px, 10vw, 128px);
+  height: clamp(92px, 10vw, 128px);
+}
+
+/* Texte centré sous les icônes */
+.shop-product-card-noads strong,
+.shop-product-card-diamond strong {
+  text-align: center;
+}
+
+/* Prix sans encadré non plus */
+.shop-product-card-noads .shop-product-price,
+.shop-product-card-diamond .shop-product-price {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  padding: 0;
+  min-height: auto;
+}
+
+/* Diamant : léger pulse uniquement sur l'image */
 .shop-product-card-diamond .shop-product-img {
   animation: shopDiamondPulse 1.9s ease-in-out infinite;
 }
@@ -819,14 +846,10 @@
 @keyframes shopDiamondPulse {
   0%, 100% {
     transform: scale(1);
-    filter: drop-shadow(0 10px 18px rgba(0,0,0,.42));
   }
 
   50% {
-    transform: scale(1.08);
-    filter:
-      drop-shadow(0 10px 18px rgba(0,0,0,.42))
-      drop-shadow(0 0 16px rgba(214,190,255,.55));
+    transform: scale(1.07);
   }
 }
 
