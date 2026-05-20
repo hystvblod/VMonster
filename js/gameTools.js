@@ -40,7 +40,7 @@
 
   function getTokenPackPriceText() {
     const price = window.VMSPurchases?.getPrice?.("vmonster_jetons_12");
-    return price || t("game_tools_buy_12_price_fallback");
+    return price || "—";
   }
 
   function closeToolsPopup() {
@@ -61,24 +61,23 @@
 
     layer.innerHTML = `
       <div class="game-tools-card" role="dialog" aria-modal="true">
-        <div class="game-tools-top">
-          <img class="game-tools-token-img" src="${tokenIcon}" alt="" />
-          <div class="game-tools-balance">
-            <strong>${escapeHtml(t("game_tools_title"))}</strong>
-            <span>${escapeHtml(t("game_tools_balance", { tokens }))}</span>
-          </div>
+        <div class="game-tools-token-balance">
+          <img src="${tokenIcon}" alt="" />
+          <strong>${escapeHtml(tokens)}</strong>
         </div>
 
         <button class="game-tools-buy-card" type="button" data-game-tool-action="buy12">
-          <img src="${tokenIcon}" alt="" />
-          <span>${escapeHtml(t("game_tools_buy_12"))}</span>
-          <strong>${escapeHtml(getTokenPackPriceText())}</strong>
+          <span class="game-tools-buy-left">
+            <img src="${tokenIcon}" alt="" />
+            <strong>12</strong>
+          </span>
+          <span class="game-tools-store-price">${escapeHtml(getTokenPackPriceText())}</span>
         </button>
 
         <div class="game-tools-action-list">
           <button class="game-tools-action-card" type="button" data-game-tool-action="delete-token">
             <span class="game-tools-action-label">${escapeHtml(t("game_tools_delete_token"))}</span>
-            <span class="game-tools-action-price">
+            <span class="game-tools-action-cost">
               <img src="${tokenIcon}" alt="" />
               <strong>1</strong>
             </span>
@@ -86,14 +85,14 @@
 
           <button class="game-tools-action-card" type="button" data-game-tool-action="delete-reward">
             <span class="game-tools-action-label">${escapeHtml(t("game_tools_delete_reward_short"))}</span>
-            <span class="game-tools-action-price">
+            <span class="game-tools-action-cost">
               <img src="${rewardIcon}" alt="" />
             </span>
           </button>
 
           <button class="game-tools-action-card" type="button" data-game-tool-action="undo-token">
             <span class="game-tools-action-label">${escapeHtml(t("game_tools_undo_token"))}</span>
-            <span class="game-tools-action-price">
+            <span class="game-tools-action-cost">
               <img src="${tokenIcon}" alt="" />
               <strong>1</strong>
             </span>
@@ -101,7 +100,7 @@
 
           <button class="game-tools-action-card" type="button" data-game-tool-action="undo-reward">
             <span class="game-tools-action-label">${escapeHtml(t("game_tools_undo_reward_short"))}</span>
-            <span class="game-tools-action-price">
+            <span class="game-tools-action-cost">
               <img src="${rewardIcon}" alt="" />
             </span>
           </button>
