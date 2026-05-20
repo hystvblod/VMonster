@@ -758,8 +758,8 @@
 
 /* Boutique : icône reward plus grosse */
 .shop-product-card[data-shop-action="reward"] .shop-price-icon {
-  width: clamp(52px, 6.4vw, 72px);
-  height: clamp(52px, 6.4vw, 72px);
+  width: clamp(44px, 5.4vw, 60px);
+  height: clamp(44px, 5.4vw, 60px);
 }
 
 /* Premium : No Ads + Diamant plus grands et séparés visuellement */
