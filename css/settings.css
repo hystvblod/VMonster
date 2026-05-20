@@ -30,48 +30,79 @@
   backdrop-filter: blur(10px);
 }
 
-.vm-lang-grid {
+.vr-langGrid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
+  margin-top: 10px;
+  margin-bottom: 6px;
 }
 
-.vm-lang-btn {
-  min-height: 62px;
-  padding: 8px 10px;
-  border-radius: 18px;
-  border: 1px solid rgba(255,255,255,.12);
-  background: rgba(255,255,255,.08);
-  color: #fff;
-  display: grid;
-  grid-template-columns: 38px minmax(0, 1fr);
+@media (min-width: 520px) {
+  .vr-langGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.vr-langBtn {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 10px;
-  text-align: left;
-  font-weight: 900;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 10px 6px 12px;
+  border-radius: 14px;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  text-align: center;
+  appearance: none;
 }
 
-.vm-lang-btn.is-active {
-  background: rgba(255, 207, 103, .22);
-  border-color: rgba(255, 226, 140, .75);
-  box-shadow: 0 0 0 2px rgba(255, 226, 140, .16) inset;
+.vr-langBtn:active {
+  transform: scale(.98);
 }
 
-.vm-flag-box {
-  width: 38px;
-  height: 26px;
+.vr-langBtn.isActive {
+  outline: 0;
+  box-shadow: 0 0 0 2px rgba(255,255,255,.22), 0 14px 34px rgba(0,0,0,.26) !important;
+  background: transparent !important;
+  border: 0 !important;
+}
+
+.vr-flagBox {
+  width: 46px;
+  height: 32px;
   border-radius: 8px;
   overflow: hidden;
-  display: grid;
-  place-items: center;
-  box-shadow: 0 4px 10px rgba(0,0,0,.25);
-  background: rgba(255,255,255,.12);
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  flex: 0 0 auto;
 }
 
-.vm-flag-box svg {
+.vr-flagBox svg {
   width: 100%;
   height: 100%;
   display: block;
+}
+
+.vr-langText {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  font-size: clamp(11px, 2.8vw, 13px);
+  font-weight: 800;
+  line-height: 1.15;
+  color: rgba(255,255,255,.96);
+  text-align: center;
+  word-break: break-word;
 }
 
 .vm-settings-section {
@@ -213,7 +244,7 @@
 }
 
 @media (min-width: 520px) {
-  .vm-lang-grid {
+  .vr-langGrid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
