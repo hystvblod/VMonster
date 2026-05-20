@@ -477,8 +477,7 @@ labMap: {
       const fp = VMSGame.getMonsterFootprint(monster);
 
       const visualRadius = Number(monster.drawRadius || meta.drawRadius || monster.radius || 40);
-      const size = visualRadius * 2.35;
-      const spriteY = monster.y - size / 2;
+      const labelY = monster.y - visualRadius * 1.25;
       const depthY = fp.y + fp.ry;
 
       // Ellipse verte = base au sol utilisée pour la profondeur visuelle.
@@ -543,7 +542,6 @@ labMap: {
       const labelW = ctx.measureText(label).width + 12;
       const labelH = 20;
       const labelX = monster.x - labelW / 2;
-      const labelY = spriteY - 22;
 
       ctx.globalAlpha = 0.82;
       ctx.fillStyle = "rgba(0,0,0,0.72)";
