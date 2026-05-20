@@ -20,8 +20,7 @@
     "it",
     "ko",
     "ja",
-    "id",
-    "ar"
+    "id"
   ];
 
   const LANG_TO_FILE = {
@@ -35,8 +34,7 @@
     it: "it-IT",
     ko: "ko-KR",
     ja: "ja-JP",
-    id: "id",
-    ar: "ar"
+    id: "id"
   };
 
   const FILE_TO_LANG = {
@@ -62,8 +60,7 @@
     { code: "it", ui: "Italiano" },
     { code: "ko", ui: "한국어" },
     { code: "ja", ui: "日本語" },
-    { code: "id", ui: "Bahasa Indonesia" },
-    { code: "ar", ui: "العربية" }
+    { code: "id", ui: "Bahasa Indonesia" }
   ];
 
   const LANGUAGE_FLAGS = {
@@ -87,9 +84,7 @@
 
     ja: `<svg viewBox="0 0 30 20" aria-hidden="true"><rect width="30" height="20" fill="#ffffff"/><circle cx="15" cy="10" r="5" fill="#d11f2e"/></svg>`,
 
-    id: `<svg viewBox="0 0 30 20" aria-hidden="true"><rect width="30" height="10" y="0" fill="#d11f2e"/><rect width="30" height="10" y="10" fill="#ffffff"/></svg>`,
-
-    ar: `<svg viewBox="0 0 30 20" aria-hidden="true"><rect width="30" height="20" fill="#0b7a3b"/><text x="15" y="13" text-anchor="middle" font-size="7" fill="#fff" font-family="Arial">AR</text></svg>`
+    id: `<svg viewBox="0 0 30 20" aria-hidden="true"><rect width="30" height="10" y="0" fill="#d11f2e"/><rect width="30" height="10" y="10" fill="#ffffff"/></svg>`
   };
 
   let _lang = DEFAULT_LANG;
@@ -113,16 +108,22 @@
 
     const base = s0.split(/[-_]/)[0];
 
-    if (base === "pt" && s0.includes("br")) return "ptbr";
+    if (base === "pt" && (s0.includes("br") || s0.includes("ptbr"))) return "ptbr";
     if (base === "pt") return "pt";
     if (base === "es" && s0.includes("419")) return "eslatam";
 
     return base || DEFAULT_LANG;
   }
 
+  function normalizeMaybeLang(raw) {
+    const s = String(raw ?? "").trim();
+    if (!s) return "";
+    return normalizeLang(s);
+  }
+
   function isSupportedLang(raw) {
-    const l = normalizeLang(raw);
-    return SUPPORTED_LANGS.includes(l);
+    const l = normalizeMaybeLang(raw);
+    return !!l && SUPPORTED_LANGS.includes(l);
   }
 
   function toFileLang(lang) {
@@ -171,7 +172,7 @@
   }
 
   function getSavedLang(forcedLang) {
-    const forced = normalizeLang(forcedLang);
+    const forced = normalizeMaybeLang(forcedLang);
     if (forced && SUPPORTED_LANGS.includes(forced)) return forced;
 
     try {
@@ -523,11 +524,13 @@
   }
 
   async function resolveInitialLang(forcedLang) {
-    const forced = normalizeLang(forcedLang);
+    const forced = normalizeMaybeLang(forcedLang);
     if (forced && SUPPORTED_LANGS.includes(forced)) return forced;
 
-    const saved = getSavedLang("");
-    if (saved && hasExplicitLanguageChoice()) return saved;
+    const saved = getSavedLang();
+    if (saved && hasExplicitLanguageChoice()) {
+      return saved;
+    }
 
     return await showLanguagePicker();
   }
@@ -587,7 +590,7 @@
     saveLangLocal(_lang);
 
     document.documentElement.lang = _lang;
-    document.documentElement.dir = _lang === "ar" ? "rtl" : "ltr";
+    document.documentElement.dir = "ltr";
 
     applyTranslations();
     emitLanguageChanged();
@@ -606,7 +609,7 @@
     _dict = loaded.dict || {};
 
     document.documentElement.lang = _lang;
-    document.documentElement.dir = _lang === "ar" ? "rtl" : "ltr";
+    document.documentElement.dir = "ltr";
 
     applyTranslations();
     emitLanguageChanged();
