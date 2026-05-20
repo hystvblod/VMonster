@@ -126,19 +126,19 @@
   inset: 0;
   z-index: 9999;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
-  padding: max(22px, env(safe-area-inset-top)) 12px 12px;
+  padding: 14px;
   background: rgba(4, 3, 12, .66);
   backdrop-filter: blur(10px);
 }
 
 .game-tools-card {
-  width: min(360px, calc(100vw - 24px));
-  max-height: calc(100vh - 34px);
+  width: min(360px, calc(100vw - 28px));
+  max-height: calc(100vh - 28px);
   overflow-y: auto;
   border-radius: 28px;
-  padding: 14px;
+  padding: 16px;
   color: #fff;
   background:
     radial-gradient(circle at top, rgba(142, 95, 255, .28), transparent 42%),
@@ -147,26 +147,26 @@
   box-shadow: 0 26px 80px rgba(0, 0, 0, .58);
 }
 
-/* Haut : juste image jeton + nombre, centré */
+/* Haut : image jeton + solde, tout centré */
 .game-tools-token-balance {
   width: 100%;
-  height: 48px;
-  margin: 0 0 12px;
+  min-height: 56px;
+  margin: 0 0 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .game-tools-token-balance img {
-  width: 46px;
-  height: 46px;
+  width: 54px;
+  height: 54px;
   object-fit: contain;
-  filter: drop-shadow(0 5px 9px rgba(0, 0, 0, .45));
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .48));
 }
 
 .game-tools-token-balance strong {
-  font-size: 24px;
+  font-size: 27px;
   line-height: 1;
   font-weight: 1000;
   color: #fff;
@@ -174,14 +174,14 @@
   text-shadow: 0 3px 8px rgba(0, 0, 0, .42);
 }
 
-/* Achat : image jeton + 12 + prix, tout centré ensemble */
+/* Achat : image jeton + 12 + prix, tout centré */
 .game-tools-buy-card {
   width: 100%;
-  min-height: 64px;
+  min-height: 70px;
   border: 0;
-  border-radius: 20px;
+  border-radius: 22px;
   padding: 10px 16px;
-  margin: 0 0 12px;
+  margin: 0 0 14px;
   color: #281943;
   background: linear-gradient(135deg, #ffe678, #fff3b8);
   box-shadow: 0 15px 32px rgba(0, 0, 0, .30);
@@ -197,18 +197,18 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 9px;
 }
 
 .game-tools-buy-left img {
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
   object-fit: contain;
-  filter: drop-shadow(0 5px 9px rgba(0, 0, 0, .34));
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .36));
 }
 
 .game-tools-buy-left strong {
-  font-size: 23px;
+  font-size: 25px;
   line-height: 1;
   font-weight: 1000;
   color: #1f1437;
@@ -224,18 +224,18 @@
   text-align: center;
 }
 
-/* Actions */
+/* Liste actions */
 .game-tools-action-list {
   display: grid;
-  gap: 9px;
+  gap: 10px;
 }
 
-/* Chaque cartouche : contenu centré au milieu */
+/* Chaque cartouche : image puis texte, tout centré */
 .game-tools-action-card {
   width: 100%;
-  min-height: 60px;
+  min-height: 66px;
   border: 1px solid rgba(255, 255, 255, .12);
-  border-radius: 18px;
+  border-radius: 20px;
   padding: 10px 14px;
   color: #fff;
   background:
@@ -245,42 +245,30 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 13px;
+  text-align: center;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
 
-.game-tools-action-label {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  font-size: 14px;
-  line-height: 1.12;
-  font-weight: 1000;
-  color: #fff;
-}
-
-/* Coût : icône + nombre, PAS à droite, mais juste à côté du texte */
 .game-tools-action-cost {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 7px;
-  min-width: auto;
-  height: 42px;
+  flex: 0 0 auto;
   pointer-events: none;
 }
 
 .game-tools-action-cost img {
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   object-fit: contain;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, .45));
+  filter: drop-shadow(0 5px 9px rgba(0, 0, 0, .48));
 }
 
 .game-tools-action-cost strong {
-  font-size: 21px;
+  font-size: 24px;
   line-height: 1;
   font-weight: 1000;
   color: #fff;
@@ -288,10 +276,21 @@
   text-shadow: 0 3px 7px rgba(0, 0, 0, .45);
 }
 
+.game-tools-action-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 15px;
+  line-height: 1.12;
+  font-weight: 1000;
+  color: #fff;
+}
+
 .game-tools-cancel {
   width: 100%;
-  min-height: 50px;
-  margin-top: 12px;
+  min-height: 52px;
+  margin-top: 14px;
   border: 0;
   border-radius: 18px;
   color: rgba(255, 255, 255, .92);
@@ -310,42 +309,37 @@
 
 @media (max-width: 380px) {
   .game-tools-layer {
-    padding-left: 10px;
-    padding-right: 10px;
+    padding: 10px;
   }
 
   .game-tools-card {
     width: min(330px, calc(100vw - 20px));
     border-radius: 24px;
-    padding: 12px;
-  }
-
-  .game-tools-token-balance {
-    height: 46px;
+    padding: 13px;
   }
 
   .game-tools-token-balance img {
-    width: 42px;
-    height: 42px;
+    width: 50px;
+    height: 50px;
   }
 
   .game-tools-token-balance strong {
-    font-size: 23px;
+    font-size: 25px;
   }
 
   .game-tools-buy-card {
-    min-height: 60px;
+    min-height: 66px;
     gap: 14px;
     padding: 9px 12px;
   }
 
   .game-tools-buy-left img {
-    width: 44px;
-    height: 44px;
+    width: 52px;
+    height: 52px;
   }
 
   .game-tools-buy-left strong {
-    font-size: 22px;
+    font-size: 24px;
   }
 
   .game-tools-store-price {
@@ -353,22 +347,21 @@
   }
 
   .game-tools-action-card {
-    min-height: 58px;
-    gap: 10px;
-    padding: 10px 12px;
+    min-height: 62px;
+    gap: 11px;
+    padding: 9px 10px;
+  }
+
+  .game-tools-action-cost img {
+    width: 44px;
+    height: 44px;
+  }
+
+  .game-tools-action-cost strong {
+    font-size: 22px;
   }
 
   .game-tools-action-label {
     font-size: 13px;
   }
-
-  .game-tools-action-cost img {
-    width: 37px;
-    height: 37px;
-  }
-
-  .game-tools-action-cost strong {
-    font-size: 20px;
-  }
 }
-

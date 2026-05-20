@@ -76,33 +76,33 @@
 
         <div class="game-tools-action-list">
           <button class="game-tools-action-card" type="button" data-game-tool-action="delete-token">
-            <span class="game-tools-action-label">${escapeHtml(t("game_tools_delete_token"))}</span>
             <span class="game-tools-action-cost">
               <img src="${tokenIcon}" alt="" />
               <strong>1</strong>
             </span>
+            <span class="game-tools-action-label">${escapeHtml(t("game_tools_delete_token"))}</span>
           </button>
 
           <button class="game-tools-action-card" type="button" data-game-tool-action="delete-reward">
-            <span class="game-tools-action-label">${escapeHtml(t("game_tools_delete_reward_short"))}</span>
             <span class="game-tools-action-cost">
               <img src="${rewardIcon}" alt="" />
             </span>
+            <span class="game-tools-action-label">${escapeHtml(t("game_tools_delete_reward_short"))}</span>
           </button>
 
           <button class="game-tools-action-card" type="button" data-game-tool-action="undo-token">
-            <span class="game-tools-action-label">${escapeHtml(t("game_tools_undo_token"))}</span>
             <span class="game-tools-action-cost">
               <img src="${tokenIcon}" alt="" />
               <strong>1</strong>
             </span>
+            <span class="game-tools-action-label">${escapeHtml(t("game_tools_undo_token"))}</span>
           </button>
 
           <button class="game-tools-action-card" type="button" data-game-tool-action="undo-reward">
-            <span class="game-tools-action-label">${escapeHtml(t("game_tools_undo_reward_short"))}</span>
             <span class="game-tools-action-cost">
               <img src="${rewardIcon}" alt="" />
             </span>
+            <span class="game-tools-action-label">${escapeHtml(t("game_tools_undo_reward_short"))}</span>
           </button>
         </div>
 
