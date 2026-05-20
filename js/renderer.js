@@ -587,7 +587,16 @@ labMap: {
     const ctx = this.ctx;
     const meta = VMSLevels.getMonsterByLevel(monster.level);
     const img = this.getImage(monster.asset || meta.asset);
-    const visualRadius = monster.drawRadius || meta.drawRadius || monster.radius;
+    const worldScale = this.getWorldScale ? this.getWorldScale() : 1;
+
+    const baseVisualRadius = Number(
+      monster.baseDrawRadius ||
+      monster.drawRadius ||
+      meta.drawRadius ||
+      monster.radius
+    );
+
+    const visualRadius = baseVisualRadius * worldScale;
     const size = visualRadius * 2.35;
 
     ctx.save();
@@ -772,6 +781,22 @@ labMap: {
     };
   },
 
+
+  getWorldScale() {
+    // Base officielle : Samsung Galaxy A51/A71 dans Chrome DevTools
+    // Sur cet écran : scale = 1, donc les tailles JSON restent normales.
+    const referenceCanvasWidth = 412;
+    const referenceCanvasHeight = 914;
+
+    const scaleW = this.width / referenceCanvasWidth;
+    const scaleH = this.height / referenceCanvasHeight;
+
+    // Un seul scale uniforme = pas de déformation.
+    const scale = Math.min(scaleW, scaleH);
+
+    // Sécurité : évite monstres trop petits ou trop énormes.
+    return Math.max(0.75, Math.min(1.35, scale));
+  },
   getTrackRect() {
     const p = this.getTrackPolygonPoints();
 
