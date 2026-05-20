@@ -41,8 +41,24 @@ window.VMSGame = {
   getMonsterFootprint(monster) {
     const meta = VMSLevels.getMonsterByLevel(Number(monster.level || 1)) || {};
     const level = Number(monster.level || 1);
-    const radius = Number(monster.radius || meta.radius || 40);
-    const visualRadius = Number(monster.drawRadius || meta.drawRadius || radius);
+    const trackScale = VMSRenderer.getTrackScale ? VMSRenderer.getTrackScale() : 1;
+
+    const baseRadius = Number(
+      monster.baseRadius ||
+      monster.radius ||
+      meta.radius ||
+      40
+    );
+
+    const baseVisualRadius = Number(
+      monster.baseDrawRadius ||
+      monster.drawRadius ||
+      meta.drawRadius ||
+      baseRadius
+    );
+
+    const radius = baseRadius * trackScale;
+    const visualRadius = baseVisualRadius * trackScale;
 
     let rxFactor;
     let ryFactor;
@@ -237,6 +253,8 @@ window.VMSGame = {
       y: spawn.y,
       vx: 0,
       vy: 0,
+      baseRadius: meta.radius,
+      baseDrawRadius: meta.drawRadius || meta.radius,
       radius: meta.radius,
       drawRadius: meta.drawRadius || meta.radius,
       mass: meta.radius * meta.radius,
@@ -474,6 +492,8 @@ window.VMSGame = {
       y,
       vx,
       vy,
+      baseRadius: meta.radius,
+      baseDrawRadius: meta.drawRadius || meta.radius,
       radius: meta.radius,
       drawRadius: meta.drawRadius || meta.radius,
       mass: meta.radius * meta.radius,
