@@ -377,11 +377,18 @@ window.VMSGame = {
     }
 
     if (footprint.y + footprint.ry > rect.bottom) {
+      const wasLaunchingUp = monster.age < 220 && monster.vy < 0;
+
+      // On replace toujours le monstre dans la piste.
+      // Donc il ne descend pas visuellement trop bas.
       monster.y = rect.bottom - footprint.ry - footprint.offsetY;
 
-      // Collision en bas basée sur la base au sol.
-      monster.vy = -Math.abs(monster.vy) * 0.18;
-      monster.vx *= 0.82;
+      // Mais si c'est le tout début du lancer vers le haut,
+      // on ne casse PAS sa vitesse.
+      if (!wasLaunchingUp) {
+        monster.vy = -Math.abs(monster.vy) * 0.18;
+        monster.vx *= 0.82;
+      }
     }
   },
 
