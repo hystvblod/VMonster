@@ -483,19 +483,7 @@ drawMonsters(state) {
     const fp = VMSGame.getMonsterFootprint(monster);
 
     const visualRadius = Number(monster.drawRadius || meta.drawRadius || monster.radius || 40);
-    const size = visualRadius * 2.35;
-
-    const spriteX = monster.x - size / 2;
-    const spriteY = monster.y - size / 2;
     const depthY = fp.y + fp.ry;
-
-    // Carré blanc = zone dans laquelle le sprite est affiché.
-    ctx.globalAlpha = 0.8;
-    ctx.strokeStyle = "rgba(255,255,255,0.9)";
-    ctx.lineWidth = 1.5;
-    ctx.setLineDash([6, 5]);
-    ctx.strokeRect(spriteX, spriteY, size, size);
-    ctx.setLineDash([]);
 
     // Ellipse verte = base au sol utilisée pour la profondeur visuelle.
     ctx.globalAlpha = 0.95;
@@ -504,6 +492,22 @@ drawMonsters(state) {
     ctx.beginPath();
     ctx.ellipse(fp.x, fp.y, fp.rx, fp.ry, 0, 0, Math.PI * 2);
     ctx.stroke();
+
+    // Cercle orange = vraie collision actuelle entre monstres.
+    ctx.globalAlpha = 0.95;
+    ctx.strokeStyle = "rgba(255,160,0,0.95)";
+    ctx.lineWidth = 2;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.arc(
+      monster.x,
+      monster.y,
+      monster.radius || visualRadius,
+      0,
+      Math.PI * 2
+    );
+    ctx.stroke();
+    ctx.setLineDash([]);
 
     ctx.globalAlpha = 0.14;
     ctx.fillStyle = "rgba(0,255,160,0.85)";
