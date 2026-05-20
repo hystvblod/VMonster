@@ -46,6 +46,7 @@ labMap: {
 
   // Mets false quand tout est bien calé.
   debugZones: true,
+  debugMonsterVisuals: false,
 
   init(canvas) {
     this.canvas = canvas;
@@ -100,6 +101,11 @@ labMap: {
     this.drawOrders(state);
     this.drawMonsters(state);
     this.drawCurrentMonster();
+
+    if (this.debugMonsterVisuals) {
+      this.drawMonsterVisualDebug(state);
+    }
+
     this.drawAim(state);
     this.drawParticles(state);
     this.drawDangerWarning(state);
@@ -428,12 +434,159 @@ labMap: {
 },
 
 drawMonsters(state) {
-    if (!state?.monsters) return;
+  if (!state?.monsters) return;
 
-    for (const monster of state.monsters) {
-      this.drawMonster(monster);
-    }
-  },
+  /*
+    Correction uniquement VISUELLE.
+    On ne change pas les collisions, ni la physique, ni les fusions.
+
+    À chaque frame, on regarde la base au sol des monstres.
+    Ceux du fond sont dessinés d'abord.
+    Ceux de devant sont dessinés après, donc ils passent visuellement au-dessus.
+  */
+  const sortedMonsters = [...state.monsters].sort((a, b) => {
+    const fa = VMSGame.getMonsterFootprint(a);
+    const fb = VMSGame.getMonsterFootprint(b);
+
+    const depthA = fa.y + fa.ry;
+    const depthB = fb.y + fb.ry;
+
+    return depthA - depthB || fa.x - fb.x;
+  });
+
+  this.lastMonsterDrawOrder = sortedMonsters.map((monster, index) => ({
+    monster,
+    index
+  }));
+
+  for (const monster of sortedMonsters) {
+    this.drawMonster(monster);
+  }
+},
+
+  drawMonsterVisualDebug(state) {
+  if (!state?.monsters || !window.VMSGame) return;
+
+  const ctx = this.ctx;
+
+  const monsters = this.lastMonsterDrawOrder?.length
+    ? this.lastMonsterDrawOrder
+    : state.monsters.map((monster, index) => ({ monster, index }));
+
+  ctx.save();
+
+  for (const item of monsters) {
+    const monster = item.monster;
+    if (!monster) continue;
+
+    const meta = VMSLevels.getMonsterByLevel(monster.level) || {};
+    const fp = VMSGame.getMonsterFootprint(monster);
+
+    const visualRadius = Number(monster.drawRadius || meta.drawRadius || monster.radius || 40);
+    const size = visualRadius * 2.35;
+
+    const spriteX = monster.x - size / 2;
+    const spriteY = monster.y - size / 2;
+    const depthY = fp.y + fp.ry;
+
+    // Carré blanc = zone dans laquelle le sprite est affiché.
+    ctx.globalAlpha = 0.8;
+    ctx.strokeStyle = "rgba(255,255,255,0.9)";
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([6, 5]);
+    ctx.strokeRect(spriteX, spriteY, size, size);
+    ctx.setLineDash([]);
+
+    // Ellipse verte = base au sol utilisée pour la profondeur visuelle.
+    ctx.globalAlpha = 0.95;
+    ctx.strokeStyle = "rgba(0,255,160,0.95)";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.ellipse(fp.x, fp.y, fp.rx, fp.ry, 0, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.globalAlpha = 0.14;
+    ctx.fillStyle = "rgba(0,255,160,0.85)";
+    ctx.beginPath();
+    ctx.ellipse(fp.x, fp.y, fp.rx, fp.ry, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Ligne bleue = profondeur utilisée pour savoir qui passe devant.
+    ctx.globalAlpha = 0.9;
+    ctx.strokeStyle = "rgba(90,190,255,0.95)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(fp.x - fp.rx, depthY);
+    ctx.lineTo(fp.x + fp.rx, depthY);
+    ctx.stroke();
+
+    // Point rouge = centre de l'image.
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = "rgba(255,60,60,1)";
+    ctx.beginPath();
+    ctx.arc(monster.x, monster.y, 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Point vert = base / pied du monstre.
+    ctx.fillStyle = "rgba(0,255,160,1)";
+    ctx.beginPath();
+    ctx.arc(fp.x, fp.y, 5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Label : ordre d'affichage + niveau.
+    const label = `#${item.index + 1} L${monster.level}`;
+
+    ctx.font = "700 12px Arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    const labelW = ctx.measureText(label).width + 12;
+    const labelH = 20;
+    const labelX = monster.x - labelW / 2;
+    const labelY = spriteY - 22;
+
+    ctx.globalAlpha = 0.82;
+    ctx.fillStyle = "rgba(0,0,0,0.72)";
+    this.roundRect(ctx, labelX, labelY, labelW, labelH, 8);
+    ctx.fill();
+
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = "#ffffff";
+    ctx.fillText(label, monster.x, labelY + labelH / 2);
+  }
+
+  if (window.VMSGame?.currentMonster) {
+    const monster = VMSGame.currentMonster;
+    const meta = VMSLevels.getMonsterByLevel(monster.level) || {};
+    const fp = VMSGame.getMonsterFootprint(monster);
+
+    const visualRadius = Number(monster.drawRadius || meta.drawRadius || monster.radius || 40);
+    const size = visualRadius * 2.35;
+
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = "rgba(120,220,255,0.95)";
+    ctx.lineWidth = 3;
+    ctx.setLineDash([4, 4]);
+    ctx.strokeRect(
+      monster.x - size / 2,
+      monster.y - size / 2,
+      size,
+      size
+    );
+    ctx.setLineDash([]);
+
+    ctx.beginPath();
+    ctx.ellipse(fp.x, fp.y, fp.rx, fp.ry, 0, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.font = "800 12px Arial";
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#ffffff";
+    ctx.fillText("CURRENT", monster.x, monster.y - size / 2 - 10);
+  }
+
+  ctx.restore();
+},
 
   drawCurrentMonster() {
     if (!window.VMSGame || !VMSGame.currentMonster) return;
@@ -651,25 +804,45 @@ drawMonsters(state) {
   },
 
   drawTrimmedImage(ctx, img, dx, dy, dw, dh) {
-    const trim = this.getImageTrim(img);
+  const trim = this.getImageTrim(img);
 
-    if (!trim) {
-      ctx.drawImage(img, dx, dy, dw, dh);
-      return;
-    }
+  if (!trim) {
+    ctx.drawImage(img, dx, dy, dw, dh);
+    return;
+  }
 
-    ctx.drawImage(
-      img,
-      trim.x,
-      trim.y,
-      trim.w,
-      trim.h,
-      dx,
-      dy,
-      dw,
-      dh
-    );
-  },
+  /*
+    On découpe le transparent, mais on garde les vraies proportions.
+    Avant, l'image découpée était forcée dans un carré.
+    Ça pouvait étirer ou écraser certains monstres.
+  */
+  const sourceRatio = trim.w / trim.h;
+  const targetRatio = dw / dh;
+
+  let drawW = dw;
+  let drawH = dh;
+
+  if (sourceRatio > targetRatio) {
+    drawH = dw / sourceRatio;
+  } else {
+    drawW = dh * sourceRatio;
+  }
+
+  const drawX = dx + (dw - drawW) / 2;
+  const drawY = dy + (dh - drawH) / 2;
+
+  ctx.drawImage(
+    img,
+    trim.x,
+    trim.y,
+    trim.w,
+    trim.h,
+    drawX,
+    drawY,
+    drawW,
+    drawH
+  );
+},
 
   getImageTrim(img) {
     const key = img.src;
