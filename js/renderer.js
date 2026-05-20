@@ -46,7 +46,7 @@ labMap: {
 
   // Mets false quand tout est bien calé.
   debugZones: true,
-  debugMonsterVisuals: false,
+  debugMonsterVisuals: true,
 
   init(canvas) {
     this.canvas = canvas;
