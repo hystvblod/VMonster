@@ -379,9 +379,12 @@ window.VMSGame = {
     if (footprint.y + footprint.ry > rect.bottom) {
       monster.y = rect.bottom - footprint.ry - footprint.offsetY;
 
-      // Collision en bas basée sur la base au sol.
-      monster.vy = -Math.abs(monster.vy) * 0.18;
-      monster.vx *= 0.82;
+      // On ne casse la vitesse que si le monstre descend vers le bas.
+      // S'il vient d'être lancé vers le haut, on le replace mais on garde sa force.
+      if (monster.vy > 0) {
+        monster.vy = -Math.abs(monster.vy) * 0.18;
+        monster.vx *= 0.82;
+      }
     }
   },
 
