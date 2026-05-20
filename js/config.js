@@ -17,6 +17,7 @@ window.VMS_CONFIG = {
       crosspromo: "./assets/ui/crosspromo.webp",
 
       noads: "./assets/ui/noads.webp",
+      diamond: "./assets/ui/diamond.webp",
       vcoins: "./assets/ui/vcoins.webp",
       jeton: "./assets/ui/jeton.webp",
       reward: "./assets/ui/reward.webp",

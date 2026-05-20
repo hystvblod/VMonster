@@ -23,6 +23,7 @@
     vcoins: window.VMSAsset("ui", "vcoins"),
     jeton: window.VMSAsset("ui", "jeton"),
     noads: window.VMSAsset("ui", "noads"),
+    diamond: window.VMSAsset("ui", "diamond"),
     reward: window.VMSAsset("ui", "reward"),
     fallback: window.VMSAsset("ui", "fallback")
   };
@@ -507,15 +508,17 @@
           kind: "iap",
           icon: UI.noads,
           title: tt("shop_no_ads_title"),
-          productId: "vmonster_no_ads"
+          productId: "vmonster_no_ads",
+          noads: true
         },
         {
           id: "ultimate",
           kind: "iap",
-          icon: UI.noads,
+          icon: UI.diamond,
           title: tt("shop_ultimate_title"),
           productId: "vmonster_ultimate_pack",
-          ultimate: true
+          ultimate: true,
+          diamond: true
         }
       ]
     };
@@ -527,7 +530,7 @@
       : `<span>${esc(priceLabel(item.productId))}</span>`;
 
     return `
-      <button class="shop-product-card ${item.wide ? "shop-product-card-wide" : ""} ${item.ultimate ? "shop-product-card-ultimate" : ""}" type="button" data-shop-action="${esc(item.kind)}" data-id="${esc(item.id)}" data-product-id="${esc(item.productId || "")}" data-reward-action="${esc(item.action || "")}">
+      <button class="shop-product-card ${item.wide ? "shop-product-card-wide" : ""} ${item.noads ? "shop-product-card-noads" : ""} ${item.diamond ? "shop-product-card-diamond" : ""} ${item.ultimate ? "shop-product-card-ultimate" : ""}" type="button" data-shop-action="${esc(item.kind)}" data-id="${esc(item.id)}" data-product-id="${esc(item.productId || "")}" data-reward-action="${esc(item.action || "")}">
         ${imageTag(item.icon, "shop-product-img")}
         <strong>${esc(item.title)}</strong>
         <span class="shop-product-price">${bottom}</span>
