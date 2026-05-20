@@ -381,6 +381,7 @@ labMap: {
 
     ctx.restore();
   },
+
   getOrderSlots(state) {
     const orders = state?.orders || [];
     const count = orders.length;
@@ -427,170 +428,157 @@ labMap: {
       }))
     };
   },
+
   getOrderSlotPosition(state, orderId) {
-  const layout = this.getOrderSlots(state);
-  const slot = layout.items.find((item) => item.id === orderId);
-  return slot ? { x: slot.x, y: slot.y } : null;
-},
+    const layout = this.getOrderSlots(state);
+    const slot = layout.items.find((item) => item.id === orderId);
+    return slot ? { x: slot.x, y: slot.y } : null;
+  },
 
-drawMonsters(state) {
-  if (!state?.monsters) return;
+  drawMonsters(state) {
+    if (!state?.monsters) return;
 
-  /*
-    Correction uniquement VISUELLE.
-    On ne change pas les collisions, ni la physique, ni les fusions.
+    const sortedMonsters = [...state.monsters].sort((a, b) => {
+      const fa = VMSGame.getMonsterFootprint(a);
+      const fb = VMSGame.getMonsterFootprint(b);
 
-    À chaque frame, on regarde la base au sol des monstres.
-    Ceux du fond sont dessinés d'abord.
-    Ceux de devant sont dessinés après, donc ils passent visuellement au-dessus.
-  */
-  const sortedMonsters = [...state.monsters].sort((a, b) => {
-    const fa = VMSGame.getMonsterFootprint(a);
-    const fb = VMSGame.getMonsterFootprint(b);
+      const depthA = fa.y + fa.ry;
+      const depthB = fb.y + fb.ry;
 
-    const depthA = fa.y + fa.ry;
-    const depthB = fb.y + fb.ry;
+      return depthA - depthB || fa.x - fb.x;
+    });
 
-    return depthA - depthB || fa.x - fb.x;
-  });
+    this.lastMonsterDrawOrder = sortedMonsters.map((monster, index) => ({
+      monster,
+      index
+    }));
 
-  this.lastMonsterDrawOrder = sortedMonsters.map((monster, index) => ({
-    monster,
-    index
-  }));
-
-  for (const monster of sortedMonsters) {
-    this.drawMonster(monster);
-  }
-},
+    for (const monster of sortedMonsters) {
+      this.drawMonster(monster);
+    }
+  },
 
   drawMonsterVisualDebug(state) {
-  if (!state?.monsters || !window.VMSGame) return;
+    if (!state?.monsters || !window.VMSGame) return;
 
-  const ctx = this.ctx;
+    const ctx = this.ctx;
 
-  const monsters = this.lastMonsterDrawOrder?.length
-    ? this.lastMonsterDrawOrder
-    : state.monsters.map((monster, index) => ({ monster, index }));
+    const monsters = this.lastMonsterDrawOrder?.length
+      ? this.lastMonsterDrawOrder
+      : state.monsters.map((monster, index) => ({ monster, index }));
 
-  ctx.save();
+    ctx.save();
 
-  for (const item of monsters) {
-    const monster = item.monster;
-    if (!monster) continue;
+    for (const item of monsters) {
+      const monster = item.monster;
+      if (!monster) continue;
 
-    const meta = VMSLevels.getMonsterByLevel(monster.level) || {};
-    const fp = VMSGame.getMonsterFootprint(monster);
+      const meta = VMSLevels.getMonsterByLevel(monster.level) || {};
+      const fp = VMSGame.getMonsterFootprint(monster);
 
-    const visualRadius = Number(monster.drawRadius || meta.drawRadius || monster.radius || 40);
-    const depthY = fp.y + fp.ry;
+      const visualRadius = Number(monster.drawRadius || meta.drawRadius || monster.radius || 40);
+      const size = visualRadius * 2.35;
+      const spriteY = monster.y - size / 2;
+      const depthY = fp.y + fp.ry;
 
-    // Ellipse verte = base au sol utilisée pour la profondeur visuelle.
-    ctx.globalAlpha = 0.95;
-    ctx.strokeStyle = "rgba(0,255,160,0.95)";
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.ellipse(fp.x, fp.y, fp.rx, fp.ry, 0, 0, Math.PI * 2);
-    ctx.stroke();
+      // Ellipse verte = base au sol utilisée pour la profondeur visuelle.
+      ctx.globalAlpha = 0.95;
+      ctx.strokeStyle = "rgba(0,255,160,0.95)";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.ellipse(fp.x, fp.y, fp.rx, fp.ry, 0, 0, Math.PI * 2);
+      ctx.stroke();
 
-    // Cercle orange = vraie collision actuelle entre monstres.
-    ctx.globalAlpha = 0.95;
-    ctx.strokeStyle = "rgba(255,160,0,0.95)";
-    ctx.lineWidth = 2;
-    ctx.setLineDash([4, 4]);
-    ctx.beginPath();
-    ctx.arc(
-      monster.x,
-      monster.y,
-      monster.radius || visualRadius,
-      0,
-      Math.PI * 2
-    );
-    ctx.stroke();
-    ctx.setLineDash([]);
+      // Cercle orange = vraie collision actuelle entre monstres.
+      ctx.globalAlpha = 0.95;
+      ctx.strokeStyle = "rgba(255,160,0,0.95)";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.arc(
+        monster.x,
+        monster.y,
+        monster.radius || visualRadius,
+        0,
+        Math.PI * 2
+      );
+      ctx.stroke();
+      ctx.setLineDash([]);
 
-    ctx.globalAlpha = 0.14;
-    ctx.fillStyle = "rgba(0,255,160,0.85)";
-    ctx.beginPath();
-    ctx.ellipse(fp.x, fp.y, fp.rx, fp.ry, 0, 0, Math.PI * 2);
-    ctx.fill();
+      ctx.globalAlpha = 0.14;
+      ctx.fillStyle = "rgba(0,255,160,0.85)";
+      ctx.beginPath();
+      ctx.ellipse(fp.x, fp.y, fp.rx, fp.ry, 0, 0, Math.PI * 2);
+      ctx.fill();
 
-    // Ligne bleue = profondeur utilisée pour savoir qui passe devant.
-    ctx.globalAlpha = 0.9;
-    ctx.strokeStyle = "rgba(90,190,255,0.95)";
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(fp.x - fp.rx, depthY);
-    ctx.lineTo(fp.x + fp.rx, depthY);
-    ctx.stroke();
+      // Ligne bleue = profondeur utilisée pour savoir qui passe devant.
+      ctx.globalAlpha = 0.9;
+      ctx.strokeStyle = "rgba(90,190,255,0.95)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(fp.x - fp.rx, depthY);
+      ctx.lineTo(fp.x + fp.rx, depthY);
+      ctx.stroke();
 
-    // Point rouge = centre de l'image.
-    ctx.globalAlpha = 1;
-    ctx.fillStyle = "rgba(255,60,60,1)";
-    ctx.beginPath();
-    ctx.arc(monster.x, monster.y, 4, 0, Math.PI * 2);
-    ctx.fill();
+      // Point rouge = centre de l'image.
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = "rgba(255,60,60,1)";
+      ctx.beginPath();
+      ctx.arc(monster.x, monster.y, 4, 0, Math.PI * 2);
+      ctx.fill();
 
-    // Point vert = base / pied du monstre.
-    ctx.fillStyle = "rgba(0,255,160,1)";
-    ctx.beginPath();
-    ctx.arc(fp.x, fp.y, 5, 0, Math.PI * 2);
-    ctx.fill();
+      // Point vert = base / pied du monstre.
+      ctx.fillStyle = "rgba(0,255,160,1)";
+      ctx.beginPath();
+      ctx.arc(fp.x, fp.y, 5, 0, Math.PI * 2);
+      ctx.fill();
 
-    // Label : ordre d'affichage + niveau.
-    const label = `#${item.index + 1} L${monster.level}`;
+      // Label : ordre d'affichage + niveau.
+      const label = `#${item.index + 1} L${monster.level}`;
 
-    ctx.font = "700 12px Arial";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
+      ctx.font = "700 12px Arial";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
 
-    const labelW = ctx.measureText(label).width + 12;
-    const labelH = 20;
-    const labelX = monster.x - labelW / 2;
-    const labelY = spriteY - 22;
+      const labelW = ctx.measureText(label).width + 12;
+      const labelH = 20;
+      const labelX = monster.x - labelW / 2;
+      const labelY = spriteY - 22;
 
-    ctx.globalAlpha = 0.82;
-    ctx.fillStyle = "rgba(0,0,0,0.72)";
-    this.roundRect(ctx, labelX, labelY, labelW, labelH, 8);
-    ctx.fill();
+      ctx.globalAlpha = 0.82;
+      ctx.fillStyle = "rgba(0,0,0,0.72)";
+      this.roundRect(ctx, labelX, labelY, labelW, labelH, 8);
+      ctx.fill();
 
-    ctx.globalAlpha = 1;
-    ctx.fillStyle = "#ffffff";
-    ctx.fillText(label, monster.x, labelY + labelH / 2);
-  }
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = "#ffffff";
+      ctx.fillText(label, monster.x, labelY + labelH / 2);
+    }
 
-  if (window.VMSGame?.currentMonster) {
-    const monster = VMSGame.currentMonster;
-    const meta = VMSLevels.getMonsterByLevel(monster.level) || {};
-    const fp = VMSGame.getMonsterFootprint(monster);
+    if (window.VMSGame?.currentMonster) {
+      const monster = VMSGame.currentMonster;
+      const meta = VMSLevels.getMonsterByLevel(monster.level) || {};
+      const fp = VMSGame.getMonsterFootprint(monster);
 
-    const visualRadius = Number(monster.drawRadius || meta.drawRadius || monster.radius || 40);
-    const size = visualRadius * 2.35;
+      const visualRadius = Number(monster.drawRadius || meta.drawRadius || monster.radius || 40);
+      const size = visualRadius * 2.35;
 
-    ctx.globalAlpha = 1;
-    ctx.strokeStyle = "rgba(120,220,255,0.95)";
-    ctx.lineWidth = 3;
-    ctx.setLineDash([4, 4]);
-    ctx.strokeRect(
-      monster.x - size / 2,
-      monster.y - size / 2,
-      size,
-      size
-    );
-    ctx.setLineDash([]);
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = "rgba(120,220,255,0.95)";
+      ctx.lineWidth = 3;
 
-    ctx.beginPath();
-    ctx.ellipse(fp.x, fp.y, fp.rx, fp.ry, 0, 0, Math.PI * 2);
-    ctx.stroke();
+      ctx.beginPath();
+      ctx.ellipse(fp.x, fp.y, fp.rx, fp.ry, 0, 0, Math.PI * 2);
+      ctx.stroke();
 
-    ctx.font = "800 12px Arial";
-    ctx.textAlign = "center";
-    ctx.fillStyle = "#ffffff";
-    ctx.fillText("CURRENT", monster.x, monster.y - size / 2 - 10);
-  }
+      ctx.font = "800 12px Arial";
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#ffffff";
+      ctx.fillText("CURRENT", monster.x, monster.y - size / 2 - 10);
+    }
 
-  ctx.restore();
-},
+    ctx.restore();
+  },
 
   drawCurrentMonster() {
     if (!window.VMSGame || !VMSGame.currentMonster) return;
@@ -808,45 +796,40 @@ drawMonsters(state) {
   },
 
   drawTrimmedImage(ctx, img, dx, dy, dw, dh) {
-  const trim = this.getImageTrim(img);
+    const trim = this.getImageTrim(img);
 
-  if (!trim) {
-    ctx.drawImage(img, dx, dy, dw, dh);
-    return;
-  }
+    if (!trim) {
+      ctx.drawImage(img, dx, dy, dw, dh);
+      return;
+    }
 
-  /*
-    On découpe le transparent, mais on garde les vraies proportions.
-    Avant, l'image découpée était forcée dans un carré.
-    Ça pouvait étirer ou écraser certains monstres.
-  */
-  const sourceRatio = trim.w / trim.h;
-  const targetRatio = dw / dh;
+    const sourceRatio = trim.w / trim.h;
+    const targetRatio = dw / dh;
 
-  let drawW = dw;
-  let drawH = dh;
+    let drawW = dw;
+    let drawH = dh;
 
-  if (sourceRatio > targetRatio) {
-    drawH = dw / sourceRatio;
-  } else {
-    drawW = dh * sourceRatio;
-  }
+    if (sourceRatio > targetRatio) {
+      drawH = dw / sourceRatio;
+    } else {
+      drawW = dh * sourceRatio;
+    }
 
-  const drawX = dx + (dw - drawW) / 2;
-  const drawY = dy + (dh - drawH) / 2;
+    const drawX = dx + (dw - drawW) / 2;
+    const drawY = dy + (dh - drawH) / 2;
 
-  ctx.drawImage(
-    img,
-    trim.x,
-    trim.y,
-    trim.w,
-    trim.h,
-    drawX,
-    drawY,
-    drawW,
-    drawH
-  );
-},
+    ctx.drawImage(
+      img,
+      trim.x,
+      trim.y,
+      trim.w,
+      trim.h,
+      drawX,
+      drawY,
+      drawW,
+      drawH
+    );
+  },
 
   getImageTrim(img) {
     const key = img.src;
@@ -1010,6 +993,7 @@ drawMonsters(state) {
     this.loadImage(src);
     return null;
   },
+
   lerp(a, b, t) {
     return a + (b - a) * t;
   },
