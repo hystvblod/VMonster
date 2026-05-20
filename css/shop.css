@@ -755,3 +755,94 @@
     min-height: 220px;
   }
 }
+
+/* Boutique : icône reward plus grosse */
+.shop-product-card[data-shop-action="reward"] .shop-price-icon {
+  width: clamp(52px, 6.4vw, 72px);
+  height: clamp(52px, 6.4vw, 72px);
+}
+
+/* Premium : No Ads + Diamant plus grands et séparés visuellement */
+.shop-product-grid-premium {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: clamp(280px, 72vw, 430px);
+  gap: 14px;
+}
+
+.shop-product-grid-premium .shop-product-card {
+  min-height: clamp(150px, 20vw, 210px);
+  padding: clamp(14px, 2vw, 22px) clamp(10px, 1.5vw, 18px);
+  border-radius: 28px;
+}
+
+.shop-product-grid-premium .shop-product-img {
+  width: clamp(78px, 9vw, 112px);
+  height: clamp(78px, 9vw, 112px);
+}
+
+.shop-product-grid-premium .shop-product-card strong {
+  font-size: clamp(14px, 1.55vw, 18px);
+}
+
+.shop-product-grid-premium .shop-product-price {
+  min-height: clamp(40px, 4.8vw, 54px);
+  border-radius: 16px;
+}
+
+/* Carte No Ads : encadré spécial, pas comme les autres */
+.shop-product-card-noads {
+  background:
+    radial-gradient(circle at 50% 20%, rgba(255,255,255,.24), transparent 42%),
+    linear-gradient(180deg, rgba(124, 231, 255, .22), rgba(255,255,255,.06));
+  border-color: rgba(124, 231, 255, .46);
+  box-shadow:
+    0 20px 42px rgba(0,0,0,.30),
+    inset 0 0 0 1px rgba(255,255,255,.08);
+}
+
+/* Carte Diamant : encadré spécial + pulse léger */
+.shop-product-card-diamond {
+  background:
+    radial-gradient(circle at 50% 18%, rgba(255,255,255,.30), transparent 42%),
+    linear-gradient(180deg, rgba(183, 139, 255, .26), rgba(255,255,255,.07));
+  border-color: rgba(214, 190, 255, .55);
+  box-shadow:
+    0 22px 46px rgba(0,0,0,.32),
+    0 0 28px rgba(183, 139, 255, .16),
+    inset 0 0 0 1px rgba(255,255,255,.10);
+}
+
+.shop-product-card-diamond .shop-product-img {
+  animation: shopDiamondPulse 1.9s ease-in-out infinite;
+}
+
+@keyframes shopDiamondPulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 10px 18px rgba(0,0,0,.42));
+  }
+
+  50% {
+    transform: scale(1.08);
+    filter:
+      drop-shadow(0 10px 18px rgba(0,0,0,.42))
+      drop-shadow(0 0 16px rgba(214,190,255,.55));
+  }
+}
+
+/* Mobile très étroit */
+@media (max-width: 360px) {
+  .shop-product-grid-premium {
+    max-width: 100%;
+    gap: 10px;
+  }
+
+  .shop-product-grid-premium .shop-product-card {
+    min-height: 142px;
+  }
+
+  .shop-product-grid-premium .shop-product-img {
+    width: 72px;
+    height: 72px;
+  }
+}
