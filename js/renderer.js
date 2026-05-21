@@ -786,12 +786,10 @@ labMap: {
     const rect = this.getTrackRect();
 
     /*
-      Base officielle : Galaxy A51 / A71.
-      La piste sur A51 fait environ 396 px de large.
-      Donc :
-      - piste 396 px = scale 1
-      - piste 300 px = scale 0.75
-      - piste 792 px = scale 2
+      Base officielle : ta piste sur Galaxy A51/A71.
+      A51 = scale 1.
+      Si la piste est 20% plus grande, les monstres deviennent 20% plus grands.
+      Si la piste est 20% plus petite, les monstres deviennent 20% plus petits.
     */
     const referenceTrackWidth = 396;
 
