@@ -246,7 +246,7 @@ window.VMSGame = {
     const meta = VMSLevels.getMonsterByLevel(level);
     const spawn = VMSRenderer.getSpawnPoint();
 
-    this.currentMonster = {
+    const monster = {
       id: this.createId(),
       level,
       x: spawn.x,
@@ -265,9 +265,20 @@ window.VMSGame = {
       asset: meta.asset
     };
 
+    /*
+      IMPORTANT :
+      Le point de lancement correspond à l'ellipse au sol du monstre,
+      pas au centre de l'image.
+      Comme ça, petit monstre ou dragon énorme : leur base est placée pareil.
+    */
+    const footprint = this.getMonsterFootprint(monster);
+    monster.y = spawn.y - footprint.offsetY;
+
+    this.currentMonster = monster;
+
     this.nextMonsterLevel = VMSLevels.getRandomSpawnLevel(this.state.level.spawnPoolMaxLevel || 3);
     this.refreshHud();
-    this.spawnParticles(spawn.x, spawn.y, "#9cecff", 10);
+    this.spawnParticles(monster.x, spawn.y, "#9cecff", 10);
   },
 
   startAim(clientX, clientY) {
@@ -417,7 +428,9 @@ window.VMSGame = {
       const dy = b.y - a.y;
       const distSq = dx * dx + dy * dy;
 
-      const minDist = a.radius + b.radius;
+      const fa = this.getMonsterFootprint(a);
+      const fb = this.getMonsterFootprint(b);
+      const minDist = fa.radius + fb.radius;
 
       // Même niveau : fusion dès qu'ils sont très proches.
       // Comme ça ils ne se chevauchent pas longtemps.
