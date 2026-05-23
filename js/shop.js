@@ -339,7 +339,7 @@
   }
 
   function packAsset(worldId, styleId) {
-    return "./assets/shop/pack.webp";
+    return "./assets/ui/pack.webp";
   }
 
   function getBaseBackgroundAsset(worldId) {
