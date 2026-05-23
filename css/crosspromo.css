@@ -183,3 +183,65 @@
   background: linear-gradient(135deg, #70b7ff, #4a80ff);
   box-shadow: 0 12px 26px rgba(74,128,255,.28);
 }
+
+/* ===== Responsive crosspromo VMonster ===== */
+
+.vm-crosspromo-page {
+  inset:
+    calc(clamp(112px, 13vw, 150px) + env(safe-area-inset-top))
+    clamp(14px, 3vw, 34px)
+    calc(18px + env(safe-area-inset-bottom));
+}
+
+.vm-crosspromo-grid {
+  width: min(100%, clamp(620px, 70vw, 980px));
+  gap: clamp(14px, 2vw, 24px);
+}
+
+.vm-crosspromo-card {
+  border-radius: clamp(22px, 3vw, 34px);
+}
+
+.vm-crosspromo-hero {
+  height: clamp(172px, 22vw, 300px);
+}
+
+.vm-crosspromo-content {
+  padding: clamp(14px, 2vw, 24px);
+}
+
+.vm-crosspromo-desc {
+  font-size: clamp(14px, 1.6vw, 18px);
+}
+
+.vm-crosspromo-shot {
+  height: clamp(92px, 12vw, 160px);
+}
+
+.vm-crosspromo-btn {
+  min-height: clamp(52px, 6vw, 68px);
+  font-size: clamp(15px, 1.7vw, 19px);
+}
+
+@media (min-width: 700px) {
+  .vm-crosspromo-page {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: min(860px, calc(100% - 48px));
+  }
+}
+
+@media (min-width: 1024px) {
+  .vm-crosspromo-page {
+    width: min(1040px, calc(100% - 64px));
+  }
+
+  .vm-crosspromo-grid {
+    width: min(100%, 1040px);
+  }
+
+  .vm-crosspromo-hero {
+    height: 310px;
+  }
+}

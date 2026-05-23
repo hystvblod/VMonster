@@ -365,3 +365,95 @@
     font-size: 13px;
   }
 }
+
+/* ===== Responsive game HUD / outils VMonster ===== */
+
+.hud-back-btn {
+  top: clamp(14px, 2.3vw, 26px);
+  left: clamp(14px, 2.3vw, 28px);
+  width: clamp(40px, 5vw, 60px);
+  height: clamp(40px, 5vw, 60px);
+}
+
+.game-side-icons {
+  top: clamp(88px, 11vw, 130px);
+  left: clamp(14px, 2.4vw, 32px);
+  gap: clamp(10px, 1.8vw, 18px);
+}
+
+.game-side-icon {
+  width: clamp(44px, 5.5vw, 66px);
+  height: clamp(44px, 5.5vw, 66px);
+}
+
+.game-side-icon img {
+  width: clamp(25px, 3.4vw, 38px);
+  height: clamp(25px, 3.4vw, 38px);
+}
+
+.game-side-icon span {
+  min-width: clamp(20px, 2.8vw, 30px);
+  height: clamp(20px, 2.8vw, 30px);
+  font-size: clamp(11px, 1.3vw, 15px);
+}
+
+.game-tools-layer {
+  padding: clamp(12px, 2.5vw, 28px);
+}
+
+.game-tools-card {
+  width: min(clamp(330px, 44vw, 500px), calc(100vw - 24px));
+  max-height: calc(100vh - 28px);
+  border-radius: clamp(22px, 3vw, 34px);
+  padding: clamp(14px, 2vw, 24px);
+}
+
+.game-tools-token-balance {
+  min-height: clamp(56px, 7vw, 78px);
+}
+
+.game-tools-token-balance img,
+.game-tools-buy-left img {
+  width: clamp(50px, 6vw, 72px);
+  height: clamp(50px, 6vw, 72px);
+}
+
+.game-tools-token-balance strong,
+.game-tools-buy-left strong {
+  font-size: clamp(25px, 3.2vw, 38px);
+}
+
+.game-tools-buy-card {
+  min-height: clamp(68px, 8vw, 92px);
+  padding: clamp(10px, 1.8vw, 18px);
+}
+
+.game-tools-action-card {
+  min-height: clamp(62px, 7vw, 86px);
+  padding: clamp(10px, 1.8vw, 18px);
+}
+
+.game-tools-action-cost img {
+  width: clamp(44px, 5.4vw, 64px);
+  height: clamp(44px, 5.4vw, 64px);
+}
+
+.game-tools-action-cost strong {
+  font-size: clamp(22px, 2.8vw, 34px);
+}
+
+.game-tools-action-label {
+  font-size: clamp(13px, 1.6vw, 18px);
+}
+
+.game-tools-cancel {
+  min-height: clamp(52px, 6vw, 66px);
+  font-size: clamp(15px, 1.7vw, 19px);
+}
+
+@media (max-width: 380px) {
+  .game-tools-card {
+    width: min(330px, calc(100vw - 20px));
+    padding: 13px;
+  }
+}
