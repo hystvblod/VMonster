@@ -339,7 +339,7 @@
   }
 
   function packAsset(worldId, styleId) {
-    return `${skinBasePath(worldId, styleId)}/pack.webp`;
+    return "./assets/shop/pack.webp";
   }
 
   function getBaseBackgroundAsset(worldId) {
