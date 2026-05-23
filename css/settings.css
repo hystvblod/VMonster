@@ -248,3 +248,84 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+
+/* ===== Responsive paramètres VMonster ===== */
+
+.vm-settings-page {
+  inset:
+    calc(clamp(104px, 13vw, 144px) + env(safe-area-inset-top))
+    clamp(14px, 3vw, 34px)
+    calc(18px + env(safe-area-inset-bottom));
+}
+
+.vm-settings-card {
+  width: min(100%, clamp(520px, 62vw, 780px));
+  border-radius: clamp(22px, 3vw, 34px);
+  padding: clamp(14px, 2vw, 26px);
+}
+
+.vm-settings-intro {
+  max-width: clamp(38ch, 52vw, 70ch);
+  font-size: clamp(14px, 1.6vw, 18px);
+}
+
+.vr-langGrid {
+  gap: clamp(8px, 1.3vw, 14px);
+}
+
+.vr-langBtn {
+  min-height: clamp(84px, 10vw, 116px);
+  border-radius: clamp(16px, 2vw, 24px);
+  padding: clamp(10px, 1.5vw, 16px);
+}
+
+.vr-flagBox {
+  width: clamp(46px, 5.5vw, 66px);
+  height: clamp(32px, 4vw, 46px);
+}
+
+.vr-langText {
+  font-size: clamp(11px, 1.4vw, 15px);
+}
+
+.vm-toggle-row,
+.vm-nav-row {
+  min-height: clamp(68px, 8vw, 92px);
+  border-radius: clamp(18px, 2.4vw, 28px);
+  padding: clamp(12px, 1.8vw, 20px);
+}
+
+.vm-toggle-label,
+.vm-nav-label {
+  font-size: clamp(15px, 1.7vw, 20px);
+}
+
+.vm-toggle-desc,
+.vm-nav-desc {
+  font-size: clamp(12px, 1.4vw, 16px);
+}
+
+.vm-privacy-btn {
+  min-width: clamp(112px, 15vw, 170px);
+  min-height: clamp(42px, 5vw, 56px);
+  font-size: clamp(13px, 1.5vw, 17px);
+}
+
+@media (min-width: 700px) {
+  .vm-settings-page {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: min(860px, calc(100% - 48px));
+  }
+
+  .vr-langGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .vm-settings-page {
+    width: min(1040px, calc(100% - 64px));
+  }
+}

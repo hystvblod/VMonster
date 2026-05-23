@@ -1,4 +1,4 @@
-﻿.screen {
+.screen {
   position: absolute;
   inset: 0;
   display: none;
@@ -13,40 +13,44 @@
 .screen-header,
 .game-hud {
   position: absolute;
-  left: 16px;
-  right: 16px;
+  left: clamp(14px, 3vw, 34px);
+  right: clamp(14px, 3vw, 34px);
   z-index: 20;
   display: flex;
   align-items: center;
 }
 
 .topbar {
-  top: 16px;
+  top: calc(clamp(14px, 2.4vw, 28px) + env(safe-area-inset-top));
   justify-content: space-between;
 }
 
 .screen-header {
-  top: 16px;
-  gap: 14px;
+  top: calc(clamp(16px, 2.6vw, 30px) + env(safe-area-inset-top));
+  gap: clamp(12px, 2vw, 20px);
 }
 
 .screen-header h2 {
   margin: 0;
-  font-size: 25px;
+  font-size: clamp(24px, 3.2vw, 38px);
   line-height: 1.1;
 }
 
 .screen-header p {
   margin: 4px 0 0;
   color: rgba(255,255,255,.68);
-  font-size: 13px;
+  font-size: clamp(13px, 1.55vw, 17px);
+  line-height: 1.35;
 }
 
 .scroll-content {
   position: absolute;
-  inset: 92px 0 0;
+  inset: calc(clamp(92px, 12vw, 138px) + env(safe-area-inset-top)) 0 0;
   overflow: auto;
-  padding: 12px 16px 28px;
+  padding:
+    clamp(12px, 2vw, 24px)
+    clamp(14px, 3vw, 34px)
+    calc(28px + env(safe-area-inset-bottom));
 }
 
 .currency-pill,
@@ -55,19 +59,20 @@
 .combo-chip {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 38px;
-  padding: 0 13px;
+  gap: clamp(6px, 1vw, 10px);
+  height: clamp(38px, 4.5vw, 50px);
+  padding: 0 clamp(13px, 2vw, 20px);
   border-radius: 999px;
   background: rgba(255,255,255,.12);
   border: 1px solid rgba(255,255,255,.12);
   backdrop-filter: blur(10px);
   font-weight: 900;
+  font-size: clamp(13px, 1.6vw, 18px);
 }
 
 .coin-dot {
-  width: 18px;
-  height: 18px;
+  width: clamp(18px, 2.4vw, 26px);
+  height: clamp(18px, 2.4vw, 26px);
   border-radius: 50%;
   background: radial-gradient(circle at 35% 30%, #fff3a4, #ffc533 50%, #e07619 100%);
   box-shadow: 0 0 14px rgba(255, 199, 64, .55);
