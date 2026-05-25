@@ -302,8 +302,51 @@
     return price || tt("store_not_connected_short");
   }
 
-  function imageTag(src, className) {
-    return `<img class="${esc(className || "")}" src="${esc(src)}" alt="" draggable="false" onerror="this.onerror=null;this.src='${UI.fallback}'">`;
+  function imageTag(src, className, lazy = false) {
+    const safeSrc = esc(src || UI.fallback);
+    const safeClass = esc(className || "");
+
+    if (!lazy) {
+      return `<img class="${safeClass}" src="${safeSrc}" alt="" draggable="false" decoding="async" onerror="this.onerror=null;this.src='${UI.fallback}'">`;
+    }
+
+    return `<img class="${safeClass}" src="${esc(UI.fallback)}" data-shop-src="${safeSrc}" alt="" draggable="false" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='${UI.fallback}'">`;
+  }
+
+  function loadShopImage(img) {
+    if (!img || !img.dataset || !img.dataset.shopSrc) return;
+
+    const realSrc = img.dataset.shopSrc;
+    img.src = realSrc;
+    img.removeAttribute("data-shop-src");
+  }
+
+  function loadVisibleImagesInRow(row) {
+    if (!row) return;
+
+    const index = Number(row.dataset.index || 0);
+    const slides = Array.from(row.querySelectorAll(".shop-skin-slide"));
+    if (!slides.length) return;
+
+    const indexesToLoad = [
+      index,
+      index - 1,
+      index + 1
+    ];
+
+    indexesToLoad.forEach((rawIndex) => {
+      const safeIndex = ((rawIndex % slides.length) + slides.length) % slides.length;
+      const slide = slides[safeIndex];
+      slide?.querySelectorAll("img[data-shop-src]").forEach(loadShopImage);
+    });
+  }
+
+  function setupShopImages(root) {
+    if (!root) return;
+
+    root.querySelectorAll(".shop-skin-row").forEach((row) => {
+      loadVisibleImagesInRow(row);
+    });
   }
 
   function rewardIconText(text) {
@@ -612,7 +655,7 @@
   locked
     ? `<div class="shop-skin-question">?</div>`
     : `<button class="shop-preview-btn" type="button" data-skin-action="preview-image" data-preview-img="${esc(item.img)}" data-preview-title="${esc(item.title)}">
-        ${imageTag(item.img, imageClass)}
+        ${imageTag(item.img, imageClass, true)}
       </button>`
 }
           <div class="shop-skin-overlay">
@@ -675,6 +718,8 @@
     row.querySelectorAll(".shop-skin-dot").forEach((dot, i) => {
       dot.classList.toggle("active", i === index);
     });
+
+    loadVisibleImagesInRow(row);
   }
 
   function wireCarousels(root) {
@@ -883,6 +928,7 @@
       `;
 
       wireCarousels(list);
+      setupShopImages(list);
     },
 
     async handleClick(target) {
