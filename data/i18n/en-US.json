@@ -276,5 +276,6 @@
   "bestiary.secret.13.habitat": "Autel secret",
   "bestiary.secret.13.personality": "Protecteur, ancien et menaçant",
   "bestiary.secret.13.description": "Une entité secrète entourée de reliques, de cristaux sombres et d’yeux lumineux.",
-  "bestiary.secret.13.fusionRole": "Il sert de dernier grand palier avant les formes secrètes finales."
+  "bestiary.secret.13.fusionRole": "Il sert de dernier grand palier avant les formes secrètes finales.",
+  "inter.pause.ready": "Quick break before continuing!"
 }
