@@ -22,11 +22,11 @@ window.VMS_CONFIG = {
       jeton: "./assets/ui/jeton.webp",
       reward: "./assets/ui/reward.webp",
 
-      worldLab: "./assets/ui/world_lab.webp",
-      worldOcean: "./assets/ui/world_ocean.webp",
-      worldVolcano: "./assets/ui/world_volcano.webp",
-      worldNuclear: "./assets/ui/world_nuclear.webp",
-      worldSecret: "./assets/ui/world_secret.webp",
+      worldLab: "./assets/environment/backgrounds/bg_lab_main_01.webp",
+      worldOcean: "./assets/environment/backgrounds/bg_ocean_main_01.webp",
+      worldVolcano: "./assets/environment/backgrounds/bg_volcano_main_01.webp",
+      worldNuclear: "./assets/environment/backgrounds/bg_nuclear_main_01.webp",
+      worldSecret: "./assets/environment/backgrounds/bg_secret_main_01.webp",
 
       fallback: "./assets/ui/shop.webp"
     }
