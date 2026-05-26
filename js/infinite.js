@@ -6,31 +6,31 @@ window.VMSInfinite = {
     {
       id: "lab",
       nameKey: "world_lab_name",
-      image: window.VMSAsset("ui", "worldLab"),
+      image: "./assets/environment/backgrounds/bg_lab_main_01.webp",
       productId: null
     },
     {
       id: "ocean",
       nameKey: "world_ocean_name",
-      image: window.VMSAsset("ui", "worldOcean"),
+      image: "./assets/environment/backgrounds/bg_ocean_main_01.webp",
       productId: "vmonster_world_ocean"
     },
     {
       id: "volcano",
       nameKey: "world_volcano_name",
-      image: window.VMSAsset("ui", "worldVolcano"),
+      image: "./assets/environment/backgrounds/bg_volcano_main_01.webp",
       productId: "vmonster_world_volcano"
     },
     {
       id: "nuclear",
       nameKey: "world_nuclear_name",
-      image: window.VMSAsset("ui", "worldNuclear"),
+      image: "./assets/environment/backgrounds/bg_nuclear_main_01.webp",
       productId: "vmonster_world_nuclear"
     },
     {
       id: "secret",
       nameKey: "world_secret_name",
-      image: window.VMSAsset("ui", "worldSecret"),
+      image: "./assets/environment/backgrounds/bg_secret_main_01.webp",
       productId: "vmonster_world_secret"
     }
   ],
