@@ -7,9 +7,16 @@
 
 .game-hud.game-hud-minimal {
   position: absolute;
-  inset: 0;
+  inset: auto;
+  left: var(--vm-stage-left, 0px);
+  top: var(--vm-stage-top, 0px);
+  width: 412px;
+  height: 914px;
   z-index: 30;
   pointer-events: none;
+  transform-origin: top left;
+  transform: scale(var(--vm-stage-scale, 1));
+  display: block;
 }
 
 .hud-back-btn {
