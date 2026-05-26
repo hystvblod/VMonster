@@ -108,7 +108,7 @@ window.VMSGame = {
     const baseMap = {
       lab: "./assets/environment/backgrounds/bg_lab_main_01.webp",
       ocean: "./assets/environment/backgrounds/bg_ocean_main_01.webp",
-      volcano: "./assets/environment/backgrounds/bg_volcano_main_01..webp",
+      volcano: "./assets/environment/backgrounds/bg_volcano_main_01.webp",
       nuclear: "./assets/environment/backgrounds/bg_nuclear_main_01.webp",
       secret: "./assets/environment/backgrounds/bg_secret_main_01.webp"
     };
