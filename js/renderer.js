@@ -45,8 +45,8 @@ labMap: {
 
 
   // Mets false quand tout est bien calé.
-  debugZones: true,
-  debugMonsterVisuals: true,
+  debugZones: false,
+  debugMonsterVisuals: false,
 
   init(canvas) {
     this.canvas = canvas;
@@ -78,12 +78,38 @@ labMap: {
     this.bgDraw.imgW = imgW;
     this.bgDraw.imgH = imgH;
 
-    // STRETCH : l'image prend toujours tout l'écran.
-    // Pas de vide, pas de découpe.
-    this.bgDraw.x = 0;
-    this.bgDraw.y = 0;
-    this.bgDraw.w = this.width;
-    this.bgDraw.h = this.height;
+    /*
+      Méthode studio :
+      - le canvas reste plein écran
+      - la zone gameplay garde toujours le même ratio
+      - le fond décoratif remplit autour
+      - la piste et les monstres se basent sur cette zone gameplay
+    */
+    const baseW = 412;
+    const baseH = 914;
+
+    const scale = Math.min(this.width / baseW, this.height / baseH);
+
+    const stageW = baseW * scale;
+    const stageH = baseH * scale;
+
+    const stageX = (this.width - stageW) / 2;
+    const stageY = (this.height - stageH) / 2;
+
+    this.bgDraw.x = stageX;
+    this.bgDraw.y = stageY;
+    this.bgDraw.w = stageW;
+    this.bgDraw.h = stageH;
+
+    this.stageScale = scale;
+    this.stageX = stageX;
+    this.stageY = stageY;
+    this.stageW = stageW;
+    this.stageH = stageH;
+
+    document.documentElement.style.setProperty("--vm-stage-scale", String(scale));
+    document.documentElement.style.setProperty("--vm-stage-left", `${stageX}px`);
+    document.documentElement.style.setProperty("--vm-stage-top", `${stageY}px`);
   },
 
   render(state) {
@@ -126,6 +152,30 @@ labMap: {
     ctx.fillRect(0, 0, this.width, this.height);
 
     if (img) {
+      /*
+        1) Fond décoratif plein écran.
+        Il évite les bords noirs sur iPad, Fold, SE, etc.
+      */
+      const coverScale = Math.max(
+        this.width / img.naturalWidth,
+        this.height / img.naturalHeight
+      );
+
+      const coverW = img.naturalWidth * coverScale;
+      const coverH = img.naturalHeight * coverScale;
+      const coverX = (this.width - coverW) / 2;
+      const coverY = (this.height - coverH) / 2;
+
+      ctx.save();
+      ctx.globalAlpha = 0.72;
+      ctx.filter = "blur(14px) saturate(1.18) brightness(0.72)";
+      ctx.drawImage(img, coverX, coverY, coverW, coverH);
+      ctx.restore();
+
+      /*
+        2) Vraie zone gameplay proportionnelle.
+        La piste, les monstres et le lancer utilisent ce cadre.
+      */
       ctx.drawImage(img, this.bgDraw.x, this.bgDraw.y, this.bgDraw.w, this.bgDraw.h);
       return;
     }
@@ -783,19 +833,11 @@ labMap: {
 
 
   getWorldScale() {
-    const rect = this.getTrackRect();
-
     /*
-      Base officielle : ta piste sur Galaxy A51/A71.
-      A51 = scale 1.
-      Si la piste est 20% plus grande, les monstres deviennent 20% plus grands.
-      Si la piste est 20% plus petite, les monstres deviennent 20% plus petits.
+      Les monstres prennent exactement le même scale que la zone gameplay.
+      Donc piste + monstres + zone lancer restent proportionnels.
     */
-    const referenceTrackWidth = 396;
-
-    const scale = rect.width / referenceTrackWidth;
-
-    return Math.max(0.55, Math.min(2.80, scale));
+    return this.stageScale || 1;
   },
   getTrackRect() {
     const p = this.getTrackPolygonPoints();
