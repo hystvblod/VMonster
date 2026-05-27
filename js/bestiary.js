@@ -437,11 +437,6 @@
     await init();
 
     const numericLevel = Number(level || 1);
-
-    if (numericLevel < AUTO_POPUP_MIN_LEVEL) {
-      return false;
-    }
-
     const entry = getEntryByWorldAndLevel(worldId, numericLevel);
 
     if (!entry) {
@@ -456,7 +451,7 @@
       render();
       window.VMSShop?.render?.();
 
-      if (options.popup !== false) {
+      if (options.popup !== false && numericLevel >= AUTO_POPUP_MIN_LEVEL) {
         window.setTimeout(() => openPopup(entry.id), 240);
       }
     }
