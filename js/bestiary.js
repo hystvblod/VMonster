@@ -213,6 +213,8 @@
 
     render();
     window.VMSShop?.render?.();
+
+    return true;
   }
 
   function getProgress() {
@@ -449,7 +451,10 @@
     const isNew = markDiscovered(entry.id);
 
     if (isNew) {
+      window.VMSShop?.revealClassicFromBestiary?.(entry.worldId, entry.level);
+
       render();
+      window.VMSShop?.render?.();
 
       if (options.popup !== false) {
         window.setTimeout(() => openPopup(entry.id), 240);

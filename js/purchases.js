@@ -46,6 +46,7 @@
     vmonster_skinpack_volcano_candy: { kind: "skinpack", worldId: "volcano", styleId: "candy" },
     vmonster_skinpack_volcano_nature: { kind: "skinpack", worldId: "volcano", styleId: "nature" },
     vmonster_skinpack_volcano_neon: { kind: "skinpack", worldId: "volcano", styleId: "neon" },
+    vmonster_skinpack_volcano_cryo: { kind: "skinpack", worldId: "volcano", styleId: "cryo" },
 
     vmonster_skinpack_nuclear_candy: { kind: "skinpack", worldId: "nuclear", styleId: "candy" },
     vmonster_skinpack_nuclear_cryo: { kind: "skinpack", worldId: "nuclear", styleId: "cryo" },
@@ -449,19 +450,23 @@
       }
 
       if (sku.kind === "skinpack") {
-        await callMaybeAsync(() => window.VMSShop?.unlockSkinPack?.(sku.worldId, sku.styleId));
+        const ok = await callMaybeAsync(() => window.VMSShop?.unlockSkinPack?.(sku.worldId, sku.styleId));
+        if (!ok) throw new Error("unlock_skinpack_failed");
       }
 
       if (sku.kind === "ultimate") {
         const noAdsOk = await activateNoAdsSafe();
         if (!noAdsOk) throw new Error("ultimate_no_ads_failed");
 
-        await callMaybeAsync(() => window.VMSShop?.unlockUltimatePack?.());
+        const shopOk = await callMaybeAsync(() => window.VMSShop?.unlockUltimatePack?.());
+        if (!shopOk) throw new Error("ultimate_unlock_failed");
+
         await callMaybeAsync(() => window.VMSBestiary?.revealAll?.());
       }
 
       if (sku.kind === "bestiary_reveal_all") {
-        await callMaybeAsync(() => window.VMSBestiary?.revealAll?.());
+        const ok = await callMaybeAsync(() => window.VMSBestiary?.revealAll?.());
+        if (!ok) throw new Error("bestiary_reveal_all_failed");
       }
 
       try { window.VMSUserData?.saveLocal?.(); } catch (_) {}
