@@ -79,7 +79,6 @@ button {
 }
 
 .icon-btn,
-.back-btn,
 .hud-btn {
   width: 46px;
   height: 46px;
@@ -91,8 +90,25 @@ button {
 }
 
 .back-btn {
-  font-size: 34px;
-  line-height: 0;
+  width: clamp(42px, 5vw, 60px);
+  height: clamp(42px, 5vw, 60px);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  display: grid;
+  place-items: center;
+}
+
+.back-btn img {
+  width: clamp(32px, 4vw, 42px);
+  height: clamp(32px, 4vw, 42px);
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 8px 14px rgba(0,0,0,.45));
+  pointer-events: none;
 }
 
 .hidden {
