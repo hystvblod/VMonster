@@ -66,7 +66,6 @@ window.VMSUserData = {
     }
 
     this.saveLocal();
-    window.VMSSettings?.refreshAccountPseudo?.();
   },
 
   saveLocal() {

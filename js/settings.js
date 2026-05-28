@@ -7,7 +7,6 @@ window.VMSSettings = {
     this.buildLangGrid();
     this.bindSwitches();
     this.refresh();
-    this.refreshAccountPseudo();
 
     const help = document.getElementById("settingsHelpEmail");
     if (help) {
@@ -72,8 +71,6 @@ window.VMSSettings = {
       help.href = `mailto:${email}`;
     }
 
-    this.refreshAccountPseudo();
-
     const msg = document.getElementById("settingsMsg");
     if (msg) msg.textContent = VMSI18n.t("settings_msg_saved");
   },
@@ -122,8 +119,6 @@ window.VMSSettings = {
       ok = !!(await VMSAds?.openGooglePrivacyOptionsForm?.());
     } catch (_) {}
 
-    this.refreshAccountPseudo();
-
     const msg = document.getElementById("settingsMsg");
     if (msg) {
       msg.textContent = ok
@@ -135,20 +130,17 @@ window.VMSSettings = {
   toggleMusic() {
     VMSAudio.setMusic(!VMSAudio.enabledMusic);
     this.refresh();
-    this.refreshAccountPseudo();
   },
 
   toggleSfx() {
     VMSAudio.setSfx(!VMSAudio.enabledSfx);
     this.refresh();
-    this.refreshAccountPseudo();
   },
 
   toggleVibration() {
     this.vibration = !this.vibration;
     VMSStorage.set("vibration", this.vibration);
     this.refresh();
-    this.refreshAccountPseudo();
   },
 
   vibrate(ms = 20) {
@@ -156,8 +148,6 @@ window.VMSSettings = {
   },
 
   showSaved(key) {
-    this.refreshAccountPseudo();
-
     const msg = document.getElementById("settingsMsg");
     if (msg) msg.textContent = VMSI18n.t(key);
   },

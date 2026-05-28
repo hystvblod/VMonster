@@ -19,43 +19,6 @@
   text-shadow: 0 2px 8px rgba(0,0,0,.3);
 }
 
-.vm-account-card {
-  width: min(100%, 520px);
-  margin: 0 auto 14px;
-  padding: 12px 14px;
-  border-radius: 22px;
-  background: rgba(255,255,255,.08);
-  border: 1px solid rgba(255,255,255,.12);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  color: #fff;
-  box-shadow: 0 14px 30px rgba(0,0,0,.20);
-}
-
-.vm-account-label {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 1000;
-}
-
-.vm-account-desc {
-  margin: 3px 0 0;
-  font-size: 11px;
-  line-height: 1.25;
-  color: rgba(255,255,255,.68);
-}
-
-#settingsPlayerPseudo {
-  max-width: 52%;
-  font-size: 12px;
-  line-height: 1.2;
-  color: #ffe27a;
-  text-align: right;
-  word-break: break-all;
-}
-
 .vm-settings-card {
   width: min(100%, 520px);
   margin: 0 auto;
@@ -295,12 +258,8 @@
     calc(18px + env(safe-area-inset-bottom));
 }
 
-.vm-account-card,
 .vm-settings-card {
   width: min(100%, clamp(520px, 62vw, 780px));
-}
-
-.vm-settings-card {
   border-radius: clamp(22px, 3vw, 34px);
   padding: clamp(14px, 2vw, 26px);
 }
