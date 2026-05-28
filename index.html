@@ -30,20 +30,16 @@
   <div class="home-bg"></div>
 
   <header class="vm-home-top">
-    <button class="vm-home-icon vm-home-icon-left" type="button" data-action="open-shop" aria-label="Boutique">
-      <img src="./assets/ui/shop.webp" alt="" />
+    <button class="vm-home-icon vm-home-icon-left vm-home-icon-noads" type="button" data-action="open-noads" aria-label="No Ads">
+      <img src="./assets/ui/noads.webp" alt="" />
     </button>
 
     <div class="vm-home-top-right">
-      <button class="vm-home-icon" type="button" data-action="open-noads" aria-label="No Ads">
-        <img src="./assets/ui/noads.webp" alt="" />
-      </button>
-
-      <button class="vm-home-icon" type="button" data-action="open-crosspromo" aria-label="Cross promotion">
+      <button class="vm-home-icon vm-home-icon-crosspromo" type="button" data-action="open-crosspromo" aria-label="Cross promotion">
         <img src="./assets/ui/crosspromo.webp" alt="" />
       </button>
 
-      <button class="vm-home-icon" type="button" data-action="open-settings" aria-label="Paramètres">
+      <button class="vm-home-icon vm-home-icon-settings" type="button" data-action="open-settings" aria-label="Paramètres">
         <img src="./assets/ui/settings.webp" alt="" />
       </button>
     </div>
@@ -204,6 +200,15 @@
 
   <main class="vm-settings-page">
     <p class="vm-settings-intro" data-i18n="settings_lang_desc"></p>
+
+    <section class="vm-account-card">
+      <div>
+        <p class="vm-account-label" data-i18n="settings_account_title"></p>
+        <p class="vm-account-desc" data-i18n="settings_account_desc"></p>
+      </div>
+
+      <strong id="settingsPlayerPseudo"></strong>
+    </section>
 
     <section class="vm-settings-card">
       <div id="settingsLangGrid" class="vr-langGrid"></div>
