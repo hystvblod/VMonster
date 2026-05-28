@@ -84,7 +84,10 @@ if (action === "open-crosspromo") {
       }
 
       if (action === "open-skins") VMSRouter.show("screen-skins");
-      if (action === "open-settings") VMSRouter.show("screen-settings");
+      if (action === "open-settings") {
+        VMSSettings.refreshAccountPseudo?.();
+        VMSRouter.show("screen-settings");
+      }
       if (action === "open-rules") VMSRouter.show("screen-rules");
       if (action === "back-home") VMSRouter.home();
       if (action === "pause") VMSGame.pause();

@@ -569,8 +569,8 @@
 
   function renderTopProduct(item) {
     const bottom = item.kind === "reward"
-      ? imageTag(item.rewardIcon, "shop-price-icon")
-      : `<span>${esc(priceLabel(item.productId))}</span>`;
+      ? `<span class="shop-top-reward-price">${imageTag(item.rewardIcon, "shop-price-icon")}<span>${esc(tt("shop_reward_short"))}</span></span>`
+      : `<span class="shop-real-price-text">${esc(priceLabel(item.productId))}</span>`;
 
     return `
       <button class="shop-product-card ${item.wide ? "shop-product-card-wide" : ""} ${item.noads ? "shop-product-card-noads" : ""} ${item.diamond ? "shop-product-card-diamond" : ""} ${item.ultimate ? "shop-product-card-ultimate" : ""}" type="button" data-shop-action="${esc(item.kind)}" data-id="${esc(item.id)}" data-product-id="${esc(item.productId || "")}" data-reward-action="${esc(item.action || "")}">
