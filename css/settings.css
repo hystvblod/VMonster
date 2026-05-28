@@ -1,5 +1,23 @@
 .vm-settings-header {
   z-index: 5;
+  justify-content: center;
+  text-align: center;
+}
+
+.vm-settings-header .back-btn {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.vm-settings-title-wrap {
+  width: 100%;
+  text-align: center;
+}
+
+.vm-settings-title-wrap h2 {
+  margin: 0;
+  text-align: center;
 }
 
 .vm-settings-page {
@@ -29,10 +47,10 @@
 .vm-account-card {
   margin-bottom: 14px;
   padding: 12px 14px;
-  border-radius: 22px;
+  border-radius: 20px;
   background: rgba(10, 16, 36, .46);
   border: 1px solid rgba(255,255,255,.12);
-  box-shadow: 0 16px 34px rgba(0,0,0,.22);
+  box-shadow: 0 14px 28px rgba(0,0,0,.20);
   backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
@@ -44,23 +62,16 @@
   margin: 0;
   font-size: 14px;
   font-weight: 1000;
-  color: #fff;
-}
-
-.vm-account-desc {
-  margin: 3px 0 0;
-  font-size: 11px;
-  line-height: 1.25;
-  color: rgba(255,255,255,.68);
+  color: rgba(255,255,255,.92);
 }
 
 #settingsPlayerPseudo {
-  max-width: 54%;
-  font-size: 12px;
+  max-width: 58%;
+  font-size: 13px;
   line-height: 1.2;
   color: #ffe27a;
   text-align: right;
-  word-break: break-all;
+  word-break: break-word;
 }
 
 .vm-settings-card {

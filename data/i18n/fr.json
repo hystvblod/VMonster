@@ -815,6 +815,7 @@
   "game_tools_not_enough_tokens_text": "Tu n’as pas assez de jetons pour faire cette action.",
   "game_tools_no_undo_title": "Retour impossible",
   "game_tools_no_undo_text": "Aucun tir précédent ne peut être annulé pour l’instant.",
-  "inter.pause.ready": "Petite pause avant de continuer !"
+  "inter.pause.ready": "Petite pause avant de continuer !",
+  "settings_player_id_label": "ID joueur",
+  "settings_player_id_offline": "Hors ligne"
 }
-
