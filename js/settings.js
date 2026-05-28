@@ -8,7 +8,7 @@ window.VMSSettings = {
     this.bindSwitches();
     this.refresh();
     this.refreshHelpEmail();
-    this.refreshAccountPseudo();
+    this.refreshPlayerId();
   },
 
   buildLangGrid() {
@@ -59,7 +59,7 @@ window.VMSSettings = {
     this.buildLangGrid();
     this.markActiveLang();
     this.refreshHelpEmail();
-    this.refreshAccountPseudo();
+    this.refreshPlayerId();
 
     const msg = document.getElementById("settingsMsg");
     if (msg) msg.textContent = VMSI18n.t("settings_msg_saved");
@@ -74,18 +74,25 @@ window.VMSSettings = {
     help.href = `mailto:${email}`;
   },
 
-  getAccountPseudo() {
+  getPlayerIdLabel() {
     const profile = window.VMSUserData?.profile || {};
-    const value = profile.id || profile.user_id || profile.uid || "";
 
-    return value ? String(value) : VMSI18n.t("settings_account_offline");
+    if (profile.pseudo && String(profile.pseudo).trim()) {
+      return String(profile.pseudo).trim();
+    }
+
+    if (profile.id) {
+      return `VM-${String(profile.id).replaceAll("-", "").slice(0, 6).toUpperCase()}`;
+    }
+
+    return VMSI18n.t("settings_player_id_offline");
   },
 
-  refreshAccountPseudo() {
+  refreshPlayerId() {
     const el = document.getElementById("settingsPlayerPseudo");
     if (!el) return;
 
-    el.textContent = this.getAccountPseudo();
+    el.textContent = this.getPlayerIdLabel();
   },
 
   markActiveLang() {
@@ -175,6 +182,6 @@ window.VMSSettings = {
     if (vibration) vibration.checked = !!this.vibration;
 
     this.markActiveLang();
-    this.refreshAccountPseudo();
+    this.refreshPlayerId();
   }
 };

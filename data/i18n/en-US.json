@@ -280,5 +280,7 @@
   "bestiary.secret.13.personality": "Protecteur, ancien et menaçant",
   "bestiary.secret.13.description": "Une entité secrète entourée de reliques, de cristaux sombres et d’yeux lumineux.",
   "bestiary.secret.13.fusionRole": "Il sert de dernier grand palier avant les formes secrètes finales.",
-  "inter.pause.ready": "Quick break before continuing!"
+  "inter.pause.ready": "Quick break before continuing!",
+  "settings_player_id_label": "ID joueur",
+  "settings_player_id_offline": "Hors ligne"
 }
