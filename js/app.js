@@ -85,7 +85,7 @@ if (action === "open-crosspromo") {
 
       if (action === "open-skins") VMSRouter.show("screen-skins");
       if (action === "open-settings") {
-        VMSSettings.refreshAccountPseudo?.();
+        VMSSettings.refreshPlayerId?.();
         VMSRouter.show("screen-settings");
       }
       if (action === "open-rules") VMSRouter.show("screen-rules");
