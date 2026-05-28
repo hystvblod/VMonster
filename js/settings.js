@@ -7,13 +7,8 @@ window.VMSSettings = {
     this.buildLangGrid();
     this.bindSwitches();
     this.refresh();
-
-    const help = document.getElementById("settingsHelpEmail");
-    if (help) {
-      const email = VMSI18n.t("settings_help_email");
-      help.textContent = email;
-      help.href = `mailto:${email}`;
-    }
+    this.refreshHelpEmail();
+    this.refreshAccountPseudo();
   },
 
   buildLangGrid() {
@@ -63,16 +58,34 @@ window.VMSSettings = {
 
     this.buildLangGrid();
     this.markActiveLang();
-
-    const help = document.getElementById("settingsHelpEmail");
-    if (help) {
-      const email = VMSI18n.t("settings_help_email");
-      help.textContent = email;
-      help.href = `mailto:${email}`;
-    }
+    this.refreshHelpEmail();
+    this.refreshAccountPseudo();
 
     const msg = document.getElementById("settingsMsg");
     if (msg) msg.textContent = VMSI18n.t("settings_msg_saved");
+  },
+
+  refreshHelpEmail() {
+    const help = document.getElementById("settingsHelpEmail");
+    if (!help) return;
+
+    const email = VMSI18n.t("settings_help_email");
+    help.textContent = email;
+    help.href = `mailto:${email}`;
+  },
+
+  getAccountPseudo() {
+    const profile = window.VMSUserData?.profile || {};
+    const value = profile.id || profile.user_id || profile.uid || "";
+
+    return value ? String(value) : VMSI18n.t("settings_account_offline");
+  },
+
+  refreshAccountPseudo() {
+    const el = document.getElementById("settingsPlayerPseudo");
+    if (!el) return;
+
+    el.textContent = this.getAccountPseudo();
   },
 
   markActiveLang() {
@@ -162,5 +175,6 @@ window.VMSSettings = {
     if (vibration) vibration.checked = !!this.vibration;
 
     this.markActiveLang();
+    this.refreshAccountPseudo();
   }
 };
