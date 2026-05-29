@@ -532,8 +532,8 @@ labMap: {
       const fa = VMSGame.getMonsterFootprint(a);
       const fb = VMSGame.getMonsterFootprint(b);
 
-      const depthA = fa.y + fa.ry;
-      const depthB = fb.y + fb.ry;
+      const depthA = fa.bottom || fa.y;
+      const depthB = fb.bottom || fb.y;
 
       return depthA - depthB || fa.x - fb.x;
     });
@@ -612,52 +612,48 @@ labMap: {
 
       const meta = VMSLevels.getMonsterByLevel(monster.level) || {};
       const fp = VMSGame.getMonsterFootprint(monster);
+      const info = this.getMonsterDrawInfo ? this.getMonsterDrawInfo(monster) : null;
 
       const visualRadius = Number(monster.drawRadius || meta.drawRadius || monster.radius || 40);
       const labelY = monster.y - visualRadius * 1.25;
-      const depthY = fp.y + fp.ry;
 
-      // Ellipse verte = base au sol utilisée pour la profondeur visuelle.
-      ctx.globalAlpha = 0.95;
-      ctx.strokeStyle = "rgba(0,255,160,0.95)";
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.ellipse(fp.x, fp.y, fp.rx, fp.ry, 0, 0, Math.PI * 2);
-      ctx.stroke();
+      /*
+        Rectangle cyan = image visible affichée.
+        C'est la base de la réalité :
+        - collision
+        - fusion
+        - piste
+        - profondeur
+      */
+      if (info) {
+        ctx.globalAlpha = 0.95;
+        ctx.strokeStyle = "rgba(0,255,255,0.95)";
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 4]);
+        ctx.strokeRect(info.drawX, info.drawY, info.drawW, info.drawH);
+        ctx.setLineDash([]);
+      }
 
-      // Zone cyan = vraie zone utilisée par le test pixel-perfect :
-      // seuls les pixels opaques de l'image comptent.
-      this.drawOpaqueSpriteDebug(monster, "rgba(0,255,255,0.28)");
-
-      ctx.globalAlpha = 0.14;
-      ctx.fillStyle = "rgba(0,255,160,0.85)";
-      ctx.beginPath();
-      ctx.ellipse(fp.x, fp.y, fp.rx, fp.ry, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Ligne bleue = profondeur utilisée pour savoir qui passe devant.
-      ctx.globalAlpha = 0.9;
-      ctx.strokeStyle = "rgba(90,190,255,0.95)";
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(fp.x - fp.rx, depthY);
-      ctx.lineTo(fp.x + fp.rx, depthY);
-      ctx.stroke();
-
-      // Point rouge = centre de l'image.
+      /*
+        Point rouge = centre de l'image.
+      */
       ctx.globalAlpha = 1;
       ctx.fillStyle = "rgba(255,60,60,1)";
       ctx.beginPath();
       ctx.arc(monster.x, monster.y, 4, 0, Math.PI * 2);
       ctx.fill();
 
-      // Point vert = base / pied du monstre.
-      ctx.fillStyle = "rgba(0,255,160,1)";
+      /*
+        Ligne cyan basse = bas réel de l'image, utilisé pour la profondeur.
+      */
+      ctx.globalAlpha = 0.9;
+      ctx.strokeStyle = "rgba(0,255,255,0.95)";
+      ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.arc(fp.x, fp.y, 5, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.moveTo(fp.left, fp.bottom);
+      ctx.lineTo(fp.right, fp.bottom);
+      ctx.stroke();
 
-      // Label : ordre d'affichage + niveau.
       const label = `#${item.index + 1} L${monster.level}`;
 
       ctx.font = "700 12px Arial";
@@ -682,20 +678,26 @@ labMap: {
       const monster = VMSGame.currentMonster;
       const meta = VMSLevels.getMonsterByLevel(monster.level) || {};
       const fp = VMSGame.getMonsterFootprint(monster);
+      const info = this.getMonsterDrawInfo ? this.getMonsterDrawInfo(monster) : null;
 
       const visualRadius = Number(monster.drawRadius || meta.drawRadius || monster.radius || 40);
       const size = visualRadius * 2.35;
 
-      // Zone cyan = vraie zone opaque du monstre prêt à lancer.
-      this.drawOpaqueSpriteDebug(monster, "rgba(0,255,255,0.30)");
+      if (info) {
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = "rgba(0,255,255,0.95)";
+        ctx.lineWidth = 3;
+        ctx.setLineDash([5, 4]);
+        ctx.strokeRect(info.drawX, info.drawY, info.drawW, info.drawH);
+        ctx.setLineDash([]);
+      }
 
-      // Ellipse verte = base/profondeur/piste, pas la collision pixel-perfect.
-      ctx.globalAlpha = 1;
-      ctx.strokeStyle = "rgba(0,255,160,0.95)";
-      ctx.lineWidth = 3;
-
+      ctx.globalAlpha = 0.9;
+      ctx.strokeStyle = "rgba(0,255,255,0.95)";
+      ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.ellipse(fp.x, fp.y, fp.rx, fp.ry, 0, 0, Math.PI * 2);
+      ctx.moveTo(fp.left, fp.bottom);
+      ctx.lineTo(fp.right, fp.bottom);
       ctx.stroke();
 
       ctx.font = "800 12px Arial";
