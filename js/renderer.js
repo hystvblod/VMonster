@@ -586,7 +586,7 @@ labMap: {
       ctx.arc(
         monster.x,
         monster.y,
-        monster.radius || visualRadius,
+        fp.radius || monster.radius || visualRadius,
         0,
         Math.PI * 2
       );
