@@ -152,31 +152,70 @@ labMap: {
     ctx.fillRect(0, 0, this.width, this.height);
 
     if (img) {
-      /*
-        1) Fond décoratif plein écran.
-        Il évite les bords noirs sur iPad, Fold, SE, etc.
-      */
-      const coverScale = Math.max(
-        this.width / img.naturalWidth,
-        this.height / img.naturalHeight
-      );
+      const x = this.bgDraw.x;
+      const y = this.bgDraw.y;
+      const w = this.bgDraw.w;
+      const h = this.bgDraw.h;
 
-      const coverW = img.naturalWidth * coverScale;
-      const coverH = img.naturalHeight * coverScale;
-      const coverX = (this.width - coverW) / 2;
-      const coverY = (this.height - coverH) / 2;
+      const imgW = img.naturalWidth || img.width;
+      const imgH = img.naturalHeight || img.height;
+
+      /*
+        Marges décoratives sans flou :
+        - le vrai jeu reste net au centre
+        - les marges utilisent les bords du décor
+        - aucune déformation du gameplay
+      */
+      const edgeW = Math.max(16, Math.floor(imgW * 0.055));
+      const edgeH = Math.max(16, Math.floor(imgH * 0.055));
 
       ctx.save();
-      ctx.globalAlpha = 0.72;
-      ctx.filter = "blur(14px) saturate(1.18) brightness(0.72)";
-      ctx.drawImage(img, coverX, coverY, coverW, coverH);
+      ctx.globalAlpha = 0.9;
+      ctx.filter = "saturate(1.08) brightness(0.68)";
+
+      // Marge gauche
+      if (x > 0) {
+        ctx.drawImage(
+          img,
+          0, 0, edgeW, imgH,
+          0, y, x, h
+        );
+      }
+
+      // Marge droite
+      if (x + w < this.width) {
+        ctx.drawImage(
+          img,
+          imgW - edgeW, 0, edgeW, imgH,
+          x + w, y, this.width - (x + w), h
+        );
+      }
+
+      // Marge haute, seulement si elle existe
+      if (y > 0) {
+        ctx.drawImage(
+          img,
+          0, 0, imgW, edgeH,
+          0, 0, this.width, y
+        );
+      }
+
+      // Marge basse, seulement si elle existe
+      if (y + h < this.height) {
+        ctx.drawImage(
+          img,
+          0, imgH - edgeH, imgW, edgeH,
+          0, y + h, this.width, this.height - (y + h)
+        );
+      }
+
       ctx.restore();
 
       /*
-        2) Vraie zone gameplay proportionnelle.
-        La piste, les monstres et le lancer utilisent ce cadre.
+        Vraie zone gameplay proportionnelle.
+        La piste, les monstres, le spawn et les collisions utilisent ce cadre.
       */
-      ctx.drawImage(img, this.bgDraw.x, this.bgDraw.y, this.bgDraw.w, this.bgDraw.h);
+      ctx.drawImage(img, x, y, w, h);
       return;
     }
 
