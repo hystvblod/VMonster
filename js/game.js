@@ -57,29 +57,34 @@ window.VMSGame = {
       baseRadius
     );
 
+    const radius = baseRadius * worldScale;
     const visualRadius = baseVisualRadius * worldScale;
 
-    const rxFactor = Number.isFinite(Number(meta.footprintRxFactor))
-      ? Number(meta.footprintRxFactor)
-      : 0.52;
+    let rxFactor;
+    let ryFactor;
+    let offsetFactor;
 
-    const ryFactor = Number.isFinite(Number(meta.footprintRyFactor))
-      ? Number(meta.footprintRyFactor)
-      : 0.18;
-
-    const offsetFactor = Number.isFinite(Number(meta.footprintOffsetFactor))
-      ? Number(meta.footprintOffsetFactor)
-      : 0.74;
-
-    const collisionFactor = Number.isFinite(Number(meta.collisionFactor))
-      ? Number(meta.collisionFactor)
-      : 0.48;
+    if (level <= 3) {
+      rxFactor = 0.72;
+      ryFactor = 0.24;
+      offsetFactor = 0.52;
+    } else if (level <= 7) {
+      rxFactor = 0.75;
+      ryFactor = 0.23;
+      offsetFactor = 0.58;
+    } else if (level <= 11) {
+      rxFactor = 0.78;
+      ryFactor = 0.22;
+      offsetFactor = 0.64;
+    } else {
+      rxFactor = 0.80;
+      ryFactor = 0.21;
+      offsetFactor = 0.70;
+    }
 
     const rx = Math.round(visualRadius * rxFactor);
     const ry = Math.round(visualRadius * ryFactor);
     const offsetY = Math.round(visualRadius * offsetFactor);
-
-    const collisionRadius = Math.round(visualRadius * collisionFactor);
 
     return {
       x: monster.x,
@@ -87,8 +92,7 @@ window.VMSGame = {
       rx,
       ry,
       offsetY,
-      radius: collisionRadius,
-      collisionRadius,
+      radius,
       visualRadius,
       level
     };
@@ -380,32 +384,31 @@ window.VMSGame = {
   resolveWall(monster, track, bounce = 0.55) {
     const rect = VMSRenderer.getTrackRect();
     const footprint = this.getMonsterFootprint(monster);
+
     const bounds = VMSRenderer.getTrackBoundsAt(footprint.y, 0);
 
-    const minX = bounds.left + footprint.rx;
-    const maxX = bounds.right - footprint.rx;
-
-    if (minX >= maxX) {
-      monster.x = bounds.center;
-      monster.vx = 0;
-    } else if (footprint.x < minX) {
-      monster.x = minX;
+    if (footprint.x - footprint.rx < bounds.left) {
+      monster.x = bounds.left + footprint.rx;
       monster.vx = Math.abs(monster.vx) * bounce;
-    } else if (footprint.x > maxX) {
-      monster.x = maxX;
+    }
+
+    if (footprint.x + footprint.rx > bounds.right) {
+      monster.x = bounds.right - footprint.rx;
       monster.vx = -Math.abs(monster.vx) * bounce;
     }
 
-    const updatedFootprint = this.getMonsterFootprint(monster);
+    if (footprint.y - footprint.ry < rect.top) {
+      monster.y = rect.top + footprint.ry - footprint.offsetY;
 
-    if (updatedFootprint.y - updatedFootprint.ry < rect.top) {
-      monster.y = rect.top + updatedFootprint.ry - updatedFootprint.offsetY;
+      // Collision en haut basée sur la base au sol, pas sur le haut du sprite.
       monster.vy = Math.max(0, monster.vy) * 0.08;
       monster.vx *= 0.82;
     }
 
-    if (updatedFootprint.y + updatedFootprint.ry > rect.bottom) {
-      monster.y = rect.bottom - updatedFootprint.ry - updatedFootprint.offsetY;
+    if (footprint.y + footprint.ry > rect.bottom) {
+      monster.y = rect.bottom - footprint.ry - footprint.offsetY;
+
+      // Collision en bas basée sur la base au sol.
       monster.vy = -Math.abs(monster.vy) * 0.18;
       monster.vx *= 0.82;
     }
@@ -421,14 +424,13 @@ window.VMSGame = {
 
       if (!a || !b || a.merging || b.merging || a.collecting || b.collecting) continue;
 
-      const fa = this.getMonsterFootprint(a);
-      const fb = this.getMonsterFootprint(b);
-
-      const dx = fb.x - fa.x;
-      const dy = fb.y - fa.y;
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
       const distSq = dx * dx + dy * dy;
 
-      const minDist = fa.collisionRadius + fb.collisionRadius;
+      const fa = this.getMonsterFootprint(a);
+      const fb = this.getMonsterFootprint(b);
+      const minDist = fa.radius + fb.radius;
 
       // Même niveau : fusion dès qu'ils sont très proches.
       // Comme ça ils ne se chevauchent pas longtemps.

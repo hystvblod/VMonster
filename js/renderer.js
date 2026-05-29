@@ -577,17 +577,16 @@ labMap: {
       ctx.ellipse(fp.x, fp.y, fp.rx, fp.ry, 0, 0, Math.PI * 2);
       ctx.stroke();
 
-      // Cercle orange = collision réelle utilisée entre monstres.
-      // Elle est volontairement placée au sol, pas au centre de l'image.
+      // Cercle orange = vraie collision actuelle entre monstres.
       ctx.globalAlpha = 0.95;
       ctx.strokeStyle = "rgba(255,160,0,0.95)";
       ctx.lineWidth = 2;
       ctx.setLineDash([4, 4]);
       ctx.beginPath();
       ctx.arc(
-        fp.x,
-        fp.y,
-        fp.collisionRadius || fp.radius || visualRadius * 0.45,
+        monster.x,
+        monster.y,
+        monster.radius || visualRadius,
         0,
         Math.PI * 2
       );
