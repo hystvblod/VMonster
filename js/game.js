@@ -56,35 +56,46 @@ window.VMSGame = {
     const info = VMSRenderer.getMonsterDrawInfo ? VMSRenderer.getMonsterDrawInfo(monster) : null;
 
     if (!info) {
-      const rx = Math.round(visualRadius * 0.95);
-      const ry = Math.round(visualRadius * 0.95);
-      const offsetY = ry;
+      const size = visualRadius * 2.35;
+      const half = size / 2;
 
       return {
         x: monster.x,
-        y: monster.y + offsetY,
-        rx,
-        ry,
-        offsetY,
-        radius: Math.round(Math.max(rx, ry)),
+        y: monster.y + half,
+        rx: Math.round(half),
+        ry: Math.round(half),
+        offsetY: half,
+        radius: Math.round(half),
         visualRadius,
-        level
+        level,
+        left: monster.x - half,
+        right: monster.x + half,
+        top: monster.y - half,
+        bottom: monster.y + half
       };
     }
 
-    const rx = Math.round(info.drawW / 2);
-    const ry = Math.round(info.drawH / 2);
-    const offsetY = ry;
+    const left = info.drawX;
+    const right = info.drawX + info.drawW;
+    const top = info.drawY;
+    const bottom = info.drawY + info.drawH;
+
+    const rx = info.drawW / 2;
+    const ry = info.drawH / 2;
 
     return {
       x: monster.x,
-      y: monster.y + offsetY,
-      rx,
-      ry,
-      offsetY,
+      y: bottom,
+      rx: Math.round(rx),
+      ry: Math.round(ry),
+      offsetY: bottom - monster.y,
       radius: Math.round(Math.max(rx, ry)),
       visualRadius,
-      level
+      level,
+      left,
+      right,
+      top,
+      bottom
     };
   },
 
@@ -438,108 +449,143 @@ window.VMSGame = {
 
   resolveWall(monster, track, bounce = 0.55) {
     const rect = VMSRenderer.getTrackRect();
-    const footprint = this.getMonsterFootprint(monster);
+    let fp = this.getMonsterFootprint(monster);
 
-    const bounds = VMSRenderer.getTrackBoundsAt(footprint.y, 0);
+    /*
+      OPTION B :
+      Les limites de piste se basent sur l'image affichée du monstre.
+      Donc ce sont les bords visibles de l'image qui doivent rester dans la piste.
+    */
 
-    const minX = bounds.left + footprint.rx;
-    const maxX = bounds.right - footprint.rx;
+    let boundsAtBottom = VMSRenderer.getTrackBoundsAt(fp.bottom, 0);
 
-    if (minX >= maxX) {
-      monster.x = bounds.center;
+    const halfW = (fp.right - fp.left) / 2;
+    const halfH = (fp.bottom - fp.top) / 2;
+
+    const minCenterX = boundsAtBottom.left + halfW;
+    const maxCenterX = boundsAtBottom.right - halfW;
+
+    if (minCenterX >= maxCenterX) {
+      monster.x = boundsAtBottom.center;
       monster.vx = 0;
-    } else if (footprint.x < minX) {
-      monster.x = minX;
-      monster.vx = Math.abs(monster.vx) * bounce;
-    } else if (footprint.x > maxX) {
-      monster.x = maxX;
-      monster.vx = -Math.abs(monster.vx) * bounce;
+    } else if (monster.x < minCenterX) {
+      monster.x = minCenterX;
+      monster.vx = Math.abs(monster.vx) * bounce * 0.45;
+    } else if (monster.x > maxCenterX) {
+      monster.x = maxCenterX;
+      monster.vx = -Math.abs(monster.vx) * bounce * 0.45;
     }
 
-    const updatedFootprint = this.getMonsterFootprint(monster);
+    fp = this.getMonsterFootprint(monster);
 
-    if (updatedFootprint.y - updatedFootprint.ry < rect.top) {
-      monster.y = rect.top + updatedFootprint.ry - updatedFootprint.offsetY;
-
-      // Collision en haut basée sur la base au sol, pas sur le haut du sprite.
+    if (fp.top < rect.top) {
+      monster.y += rect.top - fp.top;
       monster.vy = Math.max(0, monster.vy) * 0.08;
       monster.vx *= 0.82;
     }
 
-    if (updatedFootprint.y + updatedFootprint.ry > rect.bottom) {
-      monster.y = rect.bottom - updatedFootprint.ry - updatedFootprint.offsetY;
+    fp = this.getMonsterFootprint(monster);
 
-      // Collision en bas basée sur la base au sol.
-      monster.vy = -Math.abs(monster.vy) * 0.18;
+    if (fp.bottom > rect.bottom) {
+      monster.y -= fp.bottom - rect.bottom;
+      monster.vy = -Math.abs(monster.vy) * 0.12;
       monster.vx *= 0.82;
     }
   },
 
   resolveMonsterCollisions(bounce) {
-  const monsters = this.state.monsters;
+    const monsters = this.state.monsters;
 
-  for (let i = 0; i < monsters.length; i++) {
-    for (let j = i + 1; j < monsters.length; j++) {
-      const a = monsters[i];
-      const b = monsters[j];
+    for (let i = 0; i < monsters.length; i++) {
+      for (let j = i + 1; j < monsters.length; j++) {
+        const a = monsters[i];
+        const b = monsters[j];
 
-      if (!a || !b || a.merging || b.merging || a.collecting || b.collecting) continue;
+        if (!a || !b || a.merging || b.merging || a.collecting || b.collecting) continue;
 
-      const dx = b.x - a.x;
-      const dy = b.y - a.y;
-      const distSq = dx * dx + dy * dy;
+        const fa = this.getMonsterFootprint(a);
+        const fb = this.getMonsterFootprint(b);
 
-      const fa = this.getMonsterFootprint(a);
-      const fb = this.getMonsterFootprint(b);
-      const minDist = fa.radius + fb.radius;
+        /*
+          Préfiltre large basé sur les boîtes visibles.
+          Si les images ne se chevauchent même pas en rectangle,
+          inutile de tester les pixels.
+        */
+        if (
+          fa.right < fb.left ||
+          fa.left > fb.right ||
+          fa.bottom < fb.top ||
+          fa.top > fb.bottom
+        ) {
+          continue;
+        }
 
-      if (distSq >= minDist * minDist) continue;
+        const opaqueTouch = this.monstersOpaqueTouch(a, b);
+        if (!opaqueTouch) continue;
 
-      const opaqueTouch = this.monstersOpaqueTouch(a, b);
-
-      if (a.level === b.level) {
-        if (opaqueTouch) {
+        /*
+          Même niveau :
+          si les pixels visibles se touchent vraiment, fusion.
+        */
+        if (a.level === b.level) {
           this.mergeMonsters(a, b);
           return;
         }
 
-        continue;
+        /*
+          Niveaux différents :
+          collision douce.
+          Le but est d'éviter le tremblement/rebond infini.
+        */
+        const dx = b.x - a.x;
+        const dy = b.y - a.y;
+        const dist = Math.max(0.001, Math.sqrt(dx * dx + dy * dy));
+
+        const nx = dx / dist;
+        const ny = dy / dist;
+
+        const speedA = Math.sqrt(a.vx * a.vx + a.vy * a.vy);
+        const speedB = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
+        const impactSpeed = speedA + speedB;
+
+        const push = impactSpeed > 180 ? 5.5 : 2.2;
+
+        a.x -= nx * push;
+        a.y -= ny * push;
+        b.x += nx * push;
+        b.y += ny * push;
+
+        if (impactSpeed > 180) {
+          const relativeVx = b.vx - a.vx;
+          const relativeVy = b.vy - a.vy;
+          const impulse = relativeVx * nx + relativeVy * ny;
+
+          if (impulse < 0) {
+            const force = impulse * bounce * 0.22;
+
+            a.vx += force * nx;
+            a.vy += force * ny;
+            b.vx -= force * nx;
+            b.vy -= force * ny;
+          }
+
+          a.vx *= 0.84;
+          a.vy *= 0.84;
+          b.vx *= 0.84;
+          b.vy *= 0.84;
+        } else {
+          /*
+            Contact lent :
+            on les cale doucement au lieu de les faire rebondir sans fin.
+          */
+          a.vx *= 0.58;
+          a.vy *= 0.58;
+          b.vx *= 0.58;
+          b.vy *= 0.58;
+        }
       }
-
-      if (!opaqueTouch) continue;
-
-      const dist = Math.max(0.001, Math.sqrt(distSq));
-      const nx = dx / dist;
-      const ny = dy / dist;
-      const overlap = minDist - dist;
-
-      // Séparation stricte pour éviter le chevauchement visuel.
-      a.x -= nx * overlap * 0.52;
-      a.y -= ny * overlap * 0.52;
-      b.x += nx * overlap * 0.52;
-      b.y += ny * overlap * 0.52;
-
-      const relativeVx = b.vx - a.vx;
-      const relativeVy = b.vy - a.vy;
-      const impulse = relativeVx * nx + relativeVy * ny;
-
-      if (impulse < 0) {
-        const force = impulse * bounce;
-
-        a.vx += force * nx;
-        a.vy += force * ny;
-        b.vx -= force * nx;
-        b.vy -= force * ny;
-      }
-
-      // Petit amortissement pour éviter qu'ils tremblent ou se repoussent trop fort.
-      a.vx *= 0.96;
-      a.vy *= 0.96;
-      b.vx *= 0.96;
-      b.vy *= 0.96;
     }
-  }
-},
+  },
 
   mergeMonsters(a, b) {
     a.merging = true;
