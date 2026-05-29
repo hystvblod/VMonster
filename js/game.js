@@ -387,26 +387,32 @@ window.VMSGame = {
 
     const bounds = VMSRenderer.getTrackBoundsAt(footprint.y, 0);
 
-    if (footprint.x - footprint.rx < bounds.left) {
-      monster.x = bounds.left + footprint.rx;
-      monster.vx = Math.abs(monster.vx) * bounce;
-    }
+    const minX = bounds.left + footprint.rx;
+    const maxX = bounds.right - footprint.rx;
 
-    if (footprint.x + footprint.rx > bounds.right) {
-      monster.x = bounds.right - footprint.rx;
+    if (minX >= maxX) {
+      monster.x = bounds.center;
+      monster.vx = 0;
+    } else if (footprint.x < minX) {
+      monster.x = minX;
+      monster.vx = Math.abs(monster.vx) * bounce;
+    } else if (footprint.x > maxX) {
+      monster.x = maxX;
       monster.vx = -Math.abs(monster.vx) * bounce;
     }
 
-    if (footprint.y - footprint.ry < rect.top) {
-      monster.y = rect.top + footprint.ry - footprint.offsetY;
+    const updatedFootprint = this.getMonsterFootprint(monster);
+
+    if (updatedFootprint.y - updatedFootprint.ry < rect.top) {
+      monster.y = rect.top + updatedFootprint.ry - updatedFootprint.offsetY;
 
       // Collision en haut basée sur la base au sol, pas sur le haut du sprite.
       monster.vy = Math.max(0, monster.vy) * 0.08;
       monster.vx *= 0.82;
     }
 
-    if (footprint.y + footprint.ry > rect.bottom) {
-      monster.y = rect.bottom - footprint.ry - footprint.offsetY;
+    if (updatedFootprint.y + updatedFootprint.ry > rect.bottom) {
+      monster.y = rect.bottom - updatedFootprint.ry - updatedFootprint.offsetY;
 
       // Collision en bas basée sur la base au sol.
       monster.vy = -Math.abs(monster.vy) * 0.18;
