@@ -6,6 +6,7 @@ window.VMSRenderer = {
   dpr: 1,
   imageCache: {},
   trimCache: {},
+  spriteMetricsCache: {},
 
   bgSrc: "./assets/environment/backgrounds/bg_lab_main_01.webp",
   backgroundMode: "cover",
@@ -584,8 +585,8 @@ labMap: {
       ctx.setLineDash([4, 4]);
       ctx.beginPath();
       ctx.arc(
-        monster.x,
-        monster.y,
+        fp.x,
+        fp.y,
         fp.radius || monster.radius || visualRadius,
         0,
         Math.PI * 2
@@ -994,6 +995,116 @@ labMap: {
       return trim;
     } catch (error) {
       this.trimCache[key] = null;
+      return null;
+    }
+  },
+
+  getImageFootprintMetrics(img) {
+    if (!img?.src) return null;
+
+    const key = img.src;
+
+    if (Object.prototype.hasOwnProperty.call(this.spriteMetricsCache, key)) {
+      return this.spriteMetricsCache[key];
+    }
+
+    try {
+      const trim = this.getImageTrim(img);
+
+      if (!trim) {
+        this.spriteMetricsCache[key] = null;
+        return null;
+      }
+
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      ctx.drawImage(img, 0, 0);
+
+      const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+      const alphaThreshold = 20;
+
+      function rowBounds(y) {
+        let minX = Infinity;
+        let maxX = -1;
+
+        for (let x = trim.x; x < trim.x + trim.w; x++) {
+          const alpha = data[(y * canvas.width + x) * 4 + 3];
+
+          if (alpha > alphaThreshold) {
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+          }
+        }
+
+        if (maxX < minX) return null;
+
+        return {
+          minX,
+          maxX,
+          width: maxX - minX + 1
+        };
+      }
+
+      const footSearchStart = trim.y + Math.floor(trim.h * 0.58);
+
+      let footCandidate = null;
+      let widestBottomCandidate = null;
+
+      for (let y = trim.y + trim.h - 1; y >= footSearchStart; y--) {
+        const bounds = rowBounds(y);
+        if (!bounds) continue;
+
+        if (
+          !footCandidate &&
+          bounds.width >= Math.max(4, Math.round(trim.w * 0.08))
+        ) {
+          footCandidate = { y, ...bounds };
+        }
+
+        if (!widestBottomCandidate || bounds.width > widestBottomCandidate.width) {
+          widestBottomCandidate = { y, ...bounds };
+        }
+      }
+
+      const foot = footCandidate || widestBottomCandidate;
+
+      if (!foot) {
+        this.spriteMetricsCache[key] = null;
+        return null;
+      }
+
+      const bodyStart = trim.y + Math.floor(trim.h * 0.30);
+      const bodyEnd = trim.y + Math.floor(trim.h * 0.82);
+
+      let bodyCandidate = null;
+
+      for (let y = bodyStart; y <= bodyEnd; y++) {
+        const bounds = rowBounds(y);
+        if (!bounds) continue;
+
+        if (!bodyCandidate || bounds.width > bodyCandidate.width) {
+          bodyCandidate = { y, ...bounds };
+        }
+      }
+
+      if (!bodyCandidate) {
+        bodyCandidate = foot;
+      }
+
+      const metrics = {
+        footCenterXRatio: (((foot.minX + foot.maxX) * 0.5) - trim.x) / trim.w,
+        footYRatio: (foot.y - trim.y) / trim.h,
+        footWidthRatio: foot.width / trim.w,
+        bodyWidthRatio: bodyCandidate.width / trim.w
+      };
+
+      this.spriteMetricsCache[key] = metrics;
+      return metrics;
+    } catch (error) {
+      this.spriteMetricsCache[key] = null;
       return null;
     }
   },
