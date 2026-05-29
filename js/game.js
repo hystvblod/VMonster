@@ -43,48 +43,38 @@ window.VMSGame = {
     const level = Number(monster.level || 1);
     const worldScale = VMSRenderer.getWorldScale ? VMSRenderer.getWorldScale() : 1;
 
-    const baseRadius = Number(
-      monster.baseRadius ||
+    const baseVisualRadius = Number(
+      monster.baseDrawRadius ||
+      monster.drawRadius ||
+      meta.drawRadius ||
       monster.radius ||
       meta.radius ||
       40
     );
 
-    const baseVisualRadius = Number(
-      monster.baseDrawRadius ||
-      monster.drawRadius ||
-      meta.drawRadius ||
-      baseRadius
-    );
-
-    const radius = baseRadius * worldScale;
     const visualRadius = baseVisualRadius * worldScale;
+    const info = VMSRenderer.getMonsterDrawInfo ? VMSRenderer.getMonsterDrawInfo(monster) : null;
 
-    let rxFactor;
-    let ryFactor;
-    let offsetFactor;
+    if (!info) {
+      const rx = Math.round(visualRadius * 0.95);
+      const ry = Math.round(visualRadius * 0.95);
+      const offsetY = ry;
 
-    if (level <= 3) {
-      rxFactor = 0.72;
-      ryFactor = 0.24;
-      offsetFactor = 0.52;
-    } else if (level <= 7) {
-      rxFactor = 0.75;
-      ryFactor = 0.23;
-      offsetFactor = 0.58;
-    } else if (level <= 11) {
-      rxFactor = 0.78;
-      ryFactor = 0.22;
-      offsetFactor = 0.64;
-    } else {
-      rxFactor = 0.80;
-      ryFactor = 0.21;
-      offsetFactor = 0.70;
+      return {
+        x: monster.x,
+        y: monster.y + offsetY,
+        rx,
+        ry,
+        offsetY,
+        radius: Math.round(Math.max(rx, ry)),
+        visualRadius,
+        level
+      };
     }
 
-    const rx = Math.round(visualRadius * rxFactor);
-    const ry = Math.round(visualRadius * ryFactor);
-    const offsetY = Math.round(visualRadius * offsetFactor);
+    const rx = Math.round(info.drawW / 2);
+    const ry = Math.round(info.drawH / 2);
+    const offsetY = ry;
 
     return {
       x: monster.x,
@@ -92,10 +82,75 @@ window.VMSGame = {
       rx,
       ry,
       offsetY,
-      radius,
+      radius: Math.round(Math.max(rx, ry)),
       visualRadius,
       level
     };
+  },
+
+  monstersOpaqueTouch(a, b) {
+    const spriteA = VMSRenderer.getMonsterDrawInfo ? VMSRenderer.getMonsterDrawInfo(a) : null;
+    const spriteB = VMSRenderer.getMonsterDrawInfo ? VMSRenderer.getMonsterDrawInfo(b) : null;
+
+    if (!spriteA || !spriteB) {
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const fa = this.getMonsterFootprint(a);
+      const fb = this.getMonsterFootprint(b);
+      const minDist = fa.radius + fb.radius;
+
+      return dx * dx + dy * dy <= minDist * minDist;
+    }
+
+    const maskA = VMSRenderer.getImageOpaqueMask ? VMSRenderer.getImageOpaqueMask(spriteA.img) : null;
+    const maskB = VMSRenderer.getImageOpaqueMask ? VMSRenderer.getImageOpaqueMask(spriteB.img) : null;
+
+    if (!maskA || !maskB) {
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const fa = this.getMonsterFootprint(a);
+      const fb = this.getMonsterFootprint(b);
+      const minDist = fa.radius + fb.radius;
+
+      return dx * dx + dy * dy <= minDist * minDist;
+    }
+
+    const left = Math.max(spriteA.drawX, spriteB.drawX);
+    const top = Math.max(spriteA.drawY, spriteB.drawY);
+    const right = Math.min(spriteA.drawX + spriteA.drawW, spriteB.drawX + spriteB.drawW);
+    const bottom = Math.min(spriteA.drawY + spriteA.drawH, spriteB.drawY + spriteB.drawH);
+
+    if (right <= left || bottom <= top) return false;
+
+    const startX = Math.floor(left);
+    const endX = Math.ceil(right);
+    const startY = Math.floor(top);
+    const endY = Math.ceil(bottom);
+    const alphaThreshold = 20;
+
+    for (let y = startY; y < endY; y++) {
+      const ay = Math.floor((((y + 0.5) - spriteA.drawY) / spriteA.drawH) * maskA.height);
+      const by = Math.floor((((y + 0.5) - spriteB.drawY) / spriteB.drawH) * maskB.height);
+
+      if (ay < 0 || ay >= maskA.height || by < 0 || by >= maskB.height) continue;
+
+      for (let x = startX; x < endX; x++) {
+        const ax = Math.floor((((x + 0.5) - spriteA.drawX) / spriteA.drawW) * maskA.width);
+        const bx = Math.floor((((x + 0.5) - spriteB.drawX) / spriteB.drawW) * maskB.width);
+
+        if (ax < 0 || ax >= maskA.width || bx < 0 || bx >= maskB.width) continue;
+
+        const alphaA = maskA.data[(ay * maskA.width + ax) * 4 + 3];
+        if (alphaA <= alphaThreshold) continue;
+
+        const alphaB = maskB.data[(by * maskB.width + bx) * 4 + 3];
+        if (alphaB <= alphaThreshold) continue;
+
+        return true;
+      }
+    }
+
+    return false;
   },
 
   getActiveShopBackgroundForCurrentWorld() {
@@ -438,12 +493,12 @@ window.VMSGame = {
       const fb = this.getMonsterFootprint(b);
       const minDist = fa.radius + fb.radius;
 
-      // Même niveau : fusion dès qu'ils sont très proches.
-      // Comme ça ils ne se chevauchent pas longtemps.
-      if (a.level === b.level) {
-        const mergeDist = minDist * 1.08;
+      if (distSq >= minDist * minDist) continue;
 
-        if (distSq <= mergeDist * mergeDist) {
+      const opaqueTouch = this.monstersOpaqueTouch(a, b);
+
+      if (a.level === b.level) {
+        if (opaqueTouch) {
           this.mergeMonsters(a, b);
           return;
         }
@@ -451,8 +506,7 @@ window.VMSGame = {
         continue;
       }
 
-      // Niveaux différents : collision normale, pas de fusion.
-      if (distSq >= minDist * minDist) continue;
+      if (!opaqueTouch) continue;
 
       const dist = Math.max(0.001, Math.sqrt(distSq));
       const nx = dx / dist;

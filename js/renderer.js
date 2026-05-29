@@ -6,6 +6,7 @@ window.VMSRenderer = {
   dpr: 1,
   imageCache: {},
   trimCache: {},
+  opaqueMaskCache: {},
 
   bgSrc: "./assets/environment/backgrounds/bg_lab_main_01.webp",
   backgroundMode: "cover",
@@ -996,6 +997,109 @@ labMap: {
       this.trimCache[key] = null;
       return null;
     }
+  },
+
+  getImageOpaqueMask(img) {
+    if (!img?.src) return null;
+
+    const key = img.src;
+
+    if (Object.prototype.hasOwnProperty.call(this.opaqueMaskCache, key)) {
+      return this.opaqueMaskCache[key];
+    }
+
+    try {
+      const trim = this.getImageTrim(img);
+
+      if (!trim) {
+        this.opaqueMaskCache[key] = null;
+        return null;
+      }
+
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+
+      canvas.width = trim.w;
+      canvas.height = trim.h;
+
+      ctx.drawImage(
+        img,
+        trim.x,
+        trim.y,
+        trim.w,
+        trim.h,
+        0,
+        0,
+        trim.w,
+        trim.h
+      );
+
+      const imageData = ctx.getImageData(0, 0, trim.w, trim.h);
+
+      const mask = {
+        width: trim.w,
+        height: trim.h,
+        data: imageData.data
+      };
+
+      this.opaqueMaskCache[key] = mask;
+      return mask;
+    } catch (error) {
+      this.opaqueMaskCache[key] = null;
+      return null;
+    }
+  },
+
+  getMonsterDrawInfo(monster) {
+    const meta = VMSLevels.getMonsterByLevel(Number(monster.level || 1)) || {};
+    const img = this.getImage(monster.asset || meta.asset);
+
+    if (!img) return null;
+
+    const trim = this.getImageTrim(img);
+    if (!trim) return null;
+
+    const worldScale = this.getWorldScale ? this.getWorldScale() : 1;
+
+    const baseVisualRadius = Number(
+      monster.baseDrawRadius ||
+      monster.drawRadius ||
+      meta.drawRadius ||
+      monster.radius ||
+      meta.radius ||
+      40
+    );
+
+    const visualRadius = baseVisualRadius * worldScale;
+    const size = visualRadius * 2.35;
+
+    const sourceRatio = trim.w / trim.h;
+    const targetRatio = 1;
+
+    let drawW = size;
+    let drawH = size;
+
+    if (sourceRatio > targetRatio) {
+      drawH = size / sourceRatio;
+    } else {
+      drawW = size * sourceRatio;
+    }
+
+    const drawX = monster.x - size / 2 + (size - drawW) / 2;
+    const drawY = monster.y - size / 2 + (size - drawH) / 2;
+
+    return {
+      img,
+      trim,
+      drawX,
+      drawY,
+      drawW,
+      drawH,
+      centerX: monster.x,
+      centerY: monster.y,
+      visualRadius,
+      size
+    };
   },
 
   loadImage(src) {
