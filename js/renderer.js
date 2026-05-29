@@ -548,6 +548,53 @@ labMap: {
     }
   },
 
+  drawOpaqueSpriteDebug(monster, color = "rgba(0,255,255,0.32)") {
+    const info = this.getMonsterDrawInfo ? this.getMonsterDrawInfo(monster) : null;
+    if (!info) return;
+
+    const mask = this.getImageOpaqueMask ? this.getImageOpaqueMask(info.img) : null;
+    if (!mask) return;
+
+    const ctx = this.ctx;
+    const alphaThreshold = 20;
+
+    const step = Math.max(
+      1,
+      Math.floor(Math.max(mask.width, mask.height) / 120)
+    );
+
+    ctx.save();
+
+    ctx.fillStyle = color;
+
+    const cellW = info.drawW / mask.width;
+    const cellH = info.drawH / mask.height;
+
+    for (let y = 0; y < mask.height; y += step) {
+      for (let x = 0; x < mask.width; x += step) {
+        const alpha = mask.data[(y * mask.width + x) * 4 + 3];
+
+        if (alpha > alphaThreshold) {
+          ctx.fillRect(
+            info.drawX + x * cellW,
+            info.drawY + y * cellH,
+            Math.max(1, cellW * step),
+            Math.max(1, cellH * step)
+          );
+        }
+      }
+    }
+
+    ctx.globalAlpha = 0.95;
+    ctx.strokeStyle = "rgba(0,255,255,0.95)";
+    ctx.lineWidth = 2;
+    ctx.setLineDash([5, 4]);
+    ctx.strokeRect(info.drawX, info.drawY, info.drawW, info.drawH);
+    ctx.setLineDash([]);
+
+    ctx.restore();
+  },
+
   drawMonsterVisualDebug(state) {
     if (!state?.monsters || !window.VMSGame) return;
 
@@ -578,21 +625,9 @@ labMap: {
       ctx.ellipse(fp.x, fp.y, fp.rx, fp.ry, 0, 0, Math.PI * 2);
       ctx.stroke();
 
-      // Cercle orange = vraie collision actuelle entre monstres.
-      ctx.globalAlpha = 0.95;
-      ctx.strokeStyle = "rgba(255,160,0,0.95)";
-      ctx.lineWidth = 2;
-      ctx.setLineDash([4, 4]);
-      ctx.beginPath();
-      ctx.arc(
-        monster.x,
-        monster.y,
-        fp.radius || monster.radius || visualRadius,
-        0,
-        Math.PI * 2
-      );
-      ctx.stroke();
-      ctx.setLineDash([]);
+      // Zone cyan = vraie zone utilisée par le test pixel-perfect :
+      // seuls les pixels opaques de l'image comptent.
+      this.drawOpaqueSpriteDebug(monster, "rgba(0,255,255,0.28)");
 
       ctx.globalAlpha = 0.14;
       ctx.fillStyle = "rgba(0,255,160,0.85)";
@@ -651,8 +686,12 @@ labMap: {
       const visualRadius = Number(monster.drawRadius || meta.drawRadius || monster.radius || 40);
       const size = visualRadius * 2.35;
 
+      // Zone cyan = vraie zone opaque du monstre prêt à lancer.
+      this.drawOpaqueSpriteDebug(monster, "rgba(0,255,255,0.30)");
+
+      // Ellipse verte = base/profondeur/piste, pas la collision pixel-perfect.
       ctx.globalAlpha = 1;
-      ctx.strokeStyle = "rgba(120,220,255,0.95)";
+      ctx.strokeStyle = "rgba(0,255,160,0.95)";
       ctx.lineWidth = 3;
 
       ctx.beginPath();
