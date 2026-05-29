@@ -57,122 +57,45 @@ window.VMSGame = {
       baseRadius
     );
 
+    const radius = baseRadius * worldScale;
     const visualRadius = baseVisualRadius * worldScale;
-    const fallbackCollisionRadius = baseRadius * worldScale;
 
-    const img = VMSRenderer.getImage(monster.asset || meta.asset);
-    const trim = img ? VMSRenderer.getImageTrim(img) : null;
-    const metrics = img ? VMSRenderer.getImageFootprintMetrics(img) : null;
+    let rxFactor;
+    let ryFactor;
+    let offsetFactor;
 
-    if (!img || !trim || !metrics) {
-      let rxFactor;
-      let ryFactor;
-      let offsetFactor;
-
-      if (level <= 3) {
-        rxFactor = 0.76;
-        ryFactor = 0.25;
-        offsetFactor = 0.58;
-      } else if (level <= 7) {
-        rxFactor = 0.80;
-        ryFactor = 0.24;
-        offsetFactor = 0.66;
-      } else if (level <= 11) {
-        rxFactor = 0.84;
-        ryFactor = 0.23;
-        offsetFactor = 0.72;
-      } else {
-        rxFactor = 0.88;
-        ryFactor = 0.22;
-        offsetFactor = 0.78;
-      }
-
-      const rx = Math.round(visualRadius * rxFactor);
-      const ry = Math.round(visualRadius * ryFactor);
-      const offsetY = Math.round(visualRadius * offsetFactor);
-
-      return {
-        x: monster.x,
-        y: monster.y + offsetY,
-        rx,
-        ry,
-        offsetY,
-        radius: Math.round(fallbackCollisionRadius * 1.10),
-        visualRadius,
-        level
-      };
-    }
-
-    const size = visualRadius * 2.35;
-
-    const sourceRatio = trim.w / trim.h;
-    const targetRatio = 1;
-
-    let drawW = size;
-    let drawH = size;
-
-    if (sourceRatio > targetRatio) {
-      drawH = size / sourceRatio;
+    if (level <= 3) {
+      rxFactor = 0.72;
+      ryFactor = 0.24;
+      offsetFactor = 0.52;
+    } else if (level <= 7) {
+      rxFactor = 0.75;
+      ryFactor = 0.23;
+      offsetFactor = 0.58;
+    } else if (level <= 11) {
+      rxFactor = 0.78;
+      ryFactor = 0.22;
+      offsetFactor = 0.64;
     } else {
-      drawW = size * sourceRatio;
+      rxFactor = 0.80;
+      ryFactor = 0.21;
+      offsetFactor = 0.70;
     }
 
-    const drawX = monster.x - size / 2 + (size - drawW) / 2;
-    const drawY = monster.y - size / 2 + (size - drawH) / 2;
-
-    const footX = drawX + drawW * metrics.footCenterXRatio;
-
-    const footY =
-      drawY +
-      drawH * metrics.footYRatio +
-      Math.max(4, drawH * 0.035);
-
-    const footWidth = drawW * metrics.footWidthRatio;
-
-    const rx = Math.round(
-      Math.max(
-        footWidth * 0.62,
-        visualRadius * 0.82
-      )
-    );
-
-    const ry = Math.round(
-      Math.max(
-        10,
-        Math.min(34, rx * 0.28)
-      )
-    );
-
-    const bodyWidth = drawW * metrics.bodyWidthRatio;
-
-    const radius = Math.round(
-      Math.max(
-        fallbackCollisionRadius * 1.12,
-        bodyWidth * 0.39
-      )
-    );
+    const rx = Math.round(visualRadius * rxFactor);
+    const ry = Math.round(visualRadius * ryFactor);
+    const offsetY = Math.round(visualRadius * offsetFactor);
 
     return {
-      x: footX,
-      y: footY,
+      x: monster.x,
+      y: monster.y + offsetY,
       rx,
       ry,
-      offsetY: footY - monster.y,
+      offsetY,
       radius,
       visualRadius,
       level
     };
-  },
-
-  getMonsterFusionRadius(monster) {
-    const fp = this.getMonsterFootprint(monster);
-
-    return Math.round(
-      Math.max(
-        fp.radius * 1.25,
-        fp.visualRadius * 1.02
-      )
-    );
   },
 
   getActiveShopBackgroundForCurrentWorld() {
@@ -507,27 +430,26 @@ window.VMSGame = {
 
       if (!a || !b || a.merging || b.merging || a.collecting || b.collecting) continue;
 
-      const fa = this.getMonsterFootprint(a);
-      const fb = this.getMonsterFootprint(b);
-
-      const dx = fb.x - fa.x;
-      const dy = fb.y - fa.y;
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
       const distSq = dx * dx + dy * dy;
 
-      if (a.level === b.level) {
-        const fusionRadiusA = this.getMonsterFusionRadius(a);
-        const fusionRadiusB = this.getMonsterFusionRadius(b);
-        const fusionDist = fusionRadiusA + fusionRadiusB;
+      const fa = this.getMonsterFootprint(a);
+      const fb = this.getMonsterFootprint(b);
+      const minDist = fa.radius + fb.radius;
 
-        if (distSq <= fusionDist * fusionDist) {
+      // Même niveau : fusion dès qu'ils sont très proches.
+      // Comme ça ils ne se chevauchent pas longtemps.
+      if (a.level === b.level) {
+        const mergeDist = minDist * 1.08;
+
+        if (distSq <= mergeDist * mergeDist) {
           this.mergeMonsters(a, b);
           return;
         }
 
         continue;
       }
-
-      const minDist = fa.radius + fb.radius;
 
       // Niveaux différents : collision normale, pas de fusion.
       if (distSq >= minDist * minDist) continue;
