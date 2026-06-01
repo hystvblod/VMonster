@@ -503,86 +503,73 @@ window.VMSGame = {
 
         if (!a || !b || a.merging || b.merging || a.collecting || b.collecting) continue;
 
+        const dx = b.x - a.x;
+        const dy = b.y - a.y;
+        const distSq = dx * dx + dy * dy;
+
         const fa = this.getMonsterFootprint(a);
         const fb = this.getMonsterFootprint(b);
-
-        /*
-          Préfiltre large basé sur les boîtes visibles.
-          Si les images ne se chevauchent même pas en rectangle,
-          inutile de tester les pixels.
-        */
-        if (
-          fa.right < fb.left ||
-          fa.left > fb.right ||
-          fa.bottom < fb.top ||
-          fa.top > fb.bottom
-        ) {
-          continue;
-        }
-
-        const opaqueTouch = this.monstersOpaqueTouch(a, b);
-        if (!opaqueTouch) continue;
+        const minDist = fa.radius + fb.radius;
 
         /*
           Même niveau :
-          si les pixels visibles se touchent vraiment, fusion.
+          la fusion utilise l'image réelle si disponible.
+          Si le test pixel n'est pas disponible, fallback ancien système.
         */
         if (a.level === b.level) {
-          this.mergeMonsters(a, b);
-          return;
+          const mergeDist = minDist * 1.08;
+          const broadTouch = distSq <= mergeDist * mergeDist;
+
+          if (!broadTouch) continue;
+
+          const opaqueTouch = this.monstersOpaqueTouch
+            ? this.monstersOpaqueTouch(a, b)
+            : true;
+
+          if (opaqueTouch) {
+            this.mergeMonsters(a, b);
+            return;
+          }
+
+          continue;
         }
 
         /*
           Niveaux différents :
-          collision douce.
-          Le but est d'éviter le tremblement/rebond infini.
+          retour à l'ancien comportement stable.
+          Pas de test pixel ici, sinon ça tremble.
         */
-        const dx = b.x - a.x;
-        const dy = b.y - a.y;
-        const dist = Math.max(0.001, Math.sqrt(dx * dx + dy * dy));
+        if (distSq >= minDist * minDist) continue;
 
+        const dist = Math.max(0.001, Math.sqrt(distSq));
         const nx = dx / dist;
         const ny = dy / dist;
+        const overlap = minDist - dist;
 
-        const speedA = Math.sqrt(a.vx * a.vx + a.vy * a.vy);
-        const speedB = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
-        const impactSpeed = speedA + speedB;
+        // Séparation stricte comme avant.
+        a.x -= nx * overlap * 0.52;
+        a.y -= ny * overlap * 0.52;
+        b.x += nx * overlap * 0.52;
+        b.y += ny * overlap * 0.52;
 
-        const push = impactSpeed > 180 ? 5.5 : 2.2;
+        const relativeVx = b.vx - a.vx;
+        const relativeVy = b.vy - a.vy;
+        const impulse = relativeVx * nx + relativeVy * ny;
 
-        a.x -= nx * push;
-        a.y -= ny * push;
-        b.x += nx * push;
-        b.y += ny * push;
+        if (impulse < 0) {
+          const force = impulse * bounce;
 
-        if (impactSpeed > 180) {
-          const relativeVx = b.vx - a.vx;
-          const relativeVy = b.vy - a.vy;
-          const impulse = relativeVx * nx + relativeVy * ny;
-
-          if (impulse < 0) {
-            const force = impulse * bounce * 0.22;
-
-            a.vx += force * nx;
-            a.vy += force * ny;
-            b.vx -= force * nx;
-            b.vy -= force * ny;
-          }
-
-          a.vx *= 0.84;
-          a.vy *= 0.84;
-          b.vx *= 0.84;
-          b.vy *= 0.84;
-        } else {
-          /*
-            Contact lent :
-            on les cale doucement au lieu de les faire rebondir sans fin.
-          */
-          a.vx *= 0.58;
-          a.vy *= 0.58;
-          b.vx *= 0.58;
-          b.vy *= 0.58;
+          a.vx += force * nx;
+          a.vy += force * ny;
+          b.vx -= force * nx;
+          b.vy -= force * ny;
         }
+
+        // Ancien amortissement.
+        a.vx *= 0.96;
+        a.vy *= 0.96;
+        b.vx *= 0.96;
+        b.vy *= 0.96;
       }
     }
   },
