@@ -100,17 +100,17 @@ window.VMSGame = {
   },
 
   getCollisionAlphaThreshold() {
-    // 90 ignore les halos/lueurs faibles. Monte à 110 si ça fusionne encore trop tôt.
-    return 90;
+    // Ignore les halos/lueurs faibles autour des monstres.
+    return 95;
   },
 
   getFusionPaddingPx() {
-    // Petite tolérance propre pour la fusion : vrai corps + quelques pixels.
-    return 5;
+    // Fusion un peu plus permissive : vrais pixels + petit contour.
+    return 8;
   },
 
   getPixelCollisionStep() {
-    // 1 = très précis. 2 = plus léger si beaucoup de monstres sur mobile.
+    // 1 = précis. 2 = plus léger si beaucoup de monstres.
     return this.state?.monsters?.length > 12 ? 2 : 1;
   },
 
@@ -126,18 +126,17 @@ window.VMSGame = {
   },
 
   isSpriteOpaqueAtScreenPoint(sprite, mask, screenX, screenY, alphaThreshold, paddingPx = 0) {
-    const localX = ((screenX - sprite.drawX) / sprite.drawW) * mask.width;
-    const localY = ((screenY - sprite.drawY) / sprite.drawH) * mask.height;
-
-    if (localX < 0 || localX >= mask.width || localY < 0 || localY >= mask.height) {
-      return false;
-    }
-
-    const centerX = Math.floor(localX);
-    const centerY = Math.floor(localY);
+    const rawX = ((screenX - sprite.drawX) / sprite.drawW) * mask.width;
+    const rawY = ((screenY - sprite.drawY) / sprite.drawH) * mask.height;
 
     const padX = Math.max(0, Math.ceil((paddingPx / sprite.drawW) * mask.width));
     const padY = Math.max(0, Math.ceil((paddingPx / sprite.drawH) * mask.height));
+
+    if (rawX < -padX || rawX > mask.width - 1 + padX) return false;
+    if (rawY < -padY || rawY > mask.height - 1 + padY) return false;
+
+    const centerX = Math.max(0, Math.min(mask.width - 1, Math.round(rawX)));
+    const centerY = Math.max(0, Math.min(mask.height - 1, Math.round(rawY)));
 
     const minX = Math.max(0, centerX - padX);
     const maxX = Math.min(mask.width - 1, centerX + padX);
@@ -164,7 +163,6 @@ window.VMSGame = {
       const fa = this.getMonsterFootprint(a);
       const fb = this.getMonsterFootprint(b);
       const minDist = fa.radius + fb.radius;
-
       return dx * dx + dy * dy <= minDist * minDist;
     }
 
@@ -177,7 +175,6 @@ window.VMSGame = {
       const fa = this.getMonsterFootprint(a);
       const fb = this.getMonsterFootprint(b);
       const minDist = fa.radius + fb.radius;
-
       return dx * dx + dy * dy <= minDist * minDist;
     }
 
@@ -185,10 +182,6 @@ window.VMSGame = {
     const paddingPx = Number(options.paddingPx || 0);
     const step = Math.max(1, Number(options.step || this.getPixelCollisionStep()));
 
-    /*
-      Ce rectangle n'est PAS la collision.
-      Il sert seulement à limiter la zone où on vérifie les vrais pixels opaques.
-    */
     const overlap = this.getSpriteOverlapRect(spriteA, spriteB, paddingPx, paddingPx);
     if (!overlap) return false;
 
@@ -228,6 +221,84 @@ window.VMSGame = {
     }
 
     return false;
+  },
+
+  getMonsterPhysicsCollider(monster) {
+    const meta = VMSLevels.getMonsterByLevel(Number(monster.level || 1)) || {};
+    const info = VMSRenderer.getMonsterDrawInfo ? VMSRenderer.getMonsterDrawInfo(monster) : null;
+    const worldScale = VMSRenderer.getWorldScale ? VMSRenderer.getWorldScale() : 1;
+
+    if (!info) {
+      const visualRadius = Number(
+        monster.baseDrawRadius ||
+        monster.drawRadius ||
+        meta.drawRadius ||
+        monster.radius ||
+        meta.radius ||
+        40
+      ) * worldScale;
+
+      return {
+        x: monster.x,
+        y: monster.y,
+        radius: visualRadius * 0.82
+      };
+    }
+
+    return {
+      x: monster.x,
+      y: info.drawY + info.drawH * 0.62,
+      radius: Math.max(info.drawW * 0.34, info.drawH * 0.28)
+    };
+  },
+
+  getMonsterTrackFootprint(monster) {
+    const meta = VMSLevels.getMonsterByLevel(Number(monster.level || 1)) || {};
+    const info = VMSRenderer.getMonsterDrawInfo ? VMSRenderer.getMonsterDrawInfo(monster) : null;
+    const worldScale = VMSRenderer.getWorldScale ? VMSRenderer.getWorldScale() : 1;
+
+    if (!info) {
+      const visualRadius = Number(
+        monster.baseDrawRadius ||
+        monster.drawRadius ||
+        meta.drawRadius ||
+        monster.radius ||
+        meta.radius ||
+        40
+      ) * worldScale;
+
+      const rx = visualRadius * 0.42;
+      const ry = visualRadius * 0.16;
+      const y = monster.y + visualRadius * 0.72;
+
+      return {
+        x: monster.x,
+        y,
+        rx,
+        ry,
+        left: monster.x - rx,
+        right: monster.x + rx,
+        top: y - ry,
+        bottom: y + ry,
+        offsetY: y - monster.y
+      };
+    }
+
+    const rx = Math.max(10 * worldScale, info.drawW * 0.27);
+    const ry = Math.max(5 * worldScale, info.drawH * 0.09);
+    const y = info.drawY + info.drawH * 0.86;
+
+    return {
+      x: monster.x,
+      y,
+      rx,
+      ry,
+      left: monster.x - rx,
+      right: monster.x + rx,
+      top: y - ry,
+      bottom: y + ry,
+      offsetY: y - monster.y
+    };
   },
 
   getActiveShopBackgroundForCurrentWorld() {
@@ -403,7 +474,10 @@ window.VMSGame = {
       pas au centre de l'image.
       Comme ça, petit monstre ou dragon énorme : leur base est placée pareil.
     */
-    const footprint = this.getMonsterFootprint(monster);
+    const footprint = this.getMonsterTrackFootprint
+      ? this.getMonsterTrackFootprint(monster)
+      : this.getMonsterFootprint(monster);
+
     monster.y = spawn.y - footprint.offsetY;
 
     this.currentMonster = monster;
@@ -498,9 +572,11 @@ window.VMSGame = {
       }
 
       const dangerY = VMSRenderer.getDangerY();
-      const footprint = this.getMonsterFootprint(monster);
+      const footprint = this.getMonsterTrackFootprint
+        ? this.getMonsterTrackFootprint(monster)
+        : this.getMonsterFootprint(monster);
 
-      if (monster.age > 700 && footprint.y + footprint.ry > dangerY - 8 && monster.vy > 0) {
+      if (monster.age > 700 && footprint.bottom > dangerY - 8 && monster.vy > 0) {
         monster.vy *= 0.35;
       }
 
@@ -515,34 +591,28 @@ window.VMSGame = {
 
   resolveWall(monster, track, bounce = 0.55) {
     const rect = VMSRenderer.getTrackRect();
-    let fp = this.getMonsterFootprint(monster);
 
     /*
-      OPTION B :
-      Les limites de piste se basent sur l'image affichée du monstre.
-      Donc ce sont les bords visibles de l'image qui doivent rester dans la piste.
+      Pour la piste, on n'utilise PAS les pixels du haut, les cornes ou les ailes.
+      On utilise une petite ellipse au sol : la base du monstre.
     */
+    let fp = this.getMonsterTrackFootprint
+      ? this.getMonsterTrackFootprint(monster)
+      : this.getMonsterFootprint(monster);
 
-    let boundsAtBottom = VMSRenderer.getTrackBoundsAt(fp.bottom, 0);
+    const boundsAtBase = VMSRenderer.getTrackBoundsAt(fp.y, 0);
 
-    const halfW = (fp.right - fp.left) / 2;
-    const halfH = (fp.bottom - fp.top) / 2;
-
-    const minCenterX = boundsAtBottom.left + halfW;
-    const maxCenterX = boundsAtBottom.right - halfW;
-
-    if (minCenterX >= maxCenterX) {
-      monster.x = boundsAtBottom.center;
-      monster.vx = 0;
-    } else if (monster.x < minCenterX) {
-      monster.x = minCenterX;
+    if (fp.left < boundsAtBase.left) {
+      monster.x += boundsAtBase.left - fp.left;
       monster.vx = Math.abs(monster.vx) * bounce * 0.45;
-    } else if (monster.x > maxCenterX) {
-      monster.x = maxCenterX;
+    } else if (fp.right > boundsAtBase.right) {
+      monster.x -= fp.right - boundsAtBase.right;
       monster.vx = -Math.abs(monster.vx) * bounce * 0.45;
     }
 
-    fp = this.getMonsterFootprint(monster);
+    fp = this.getMonsterTrackFootprint
+      ? this.getMonsterTrackFootprint(monster)
+      : this.getMonsterFootprint(monster);
 
     if (fp.top < rect.top) {
       monster.y += rect.top - fp.top;
@@ -550,7 +620,9 @@ window.VMSGame = {
       monster.vx *= 0.82;
     }
 
-    fp = this.getMonsterFootprint(monster);
+    fp = this.getMonsterTrackFootprint
+      ? this.getMonsterTrackFootprint(monster)
+      : this.getMonsterFootprint(monster);
 
     if (fp.bottom > rect.bottom) {
       monster.y -= fp.bottom - rect.bottom;
@@ -569,28 +641,9 @@ window.VMSGame = {
 
         if (!a || !b || a.merging || b.merging || a.collecting || b.collecting) continue;
 
-        const spriteA = VMSRenderer.getMonsterDrawInfo ? VMSRenderer.getMonsterDrawInfo(a) : null;
-        const spriteB = VMSRenderer.getMonsterDrawInfo ? VMSRenderer.getMonsterDrawInfo(b) : null;
-
-        let broadTouch = false;
-
-        if (spriteA && spriteB) {
-          const padding = a.level === b.level ? this.getFusionPaddingPx() : 0;
-          broadTouch = !!this.getSpriteOverlapRect(spriteA, spriteB, padding, padding);
-        } else {
-          const dx = b.x - a.x;
-          const dy = b.y - a.y;
-          const fa = this.getMonsterFootprint(a);
-          const fb = this.getMonsterFootprint(b);
-          const minDist = fa.radius + fb.radius;
-          broadTouch = dx * dx + dy * dy <= minDist * minDist;
-        }
-
-        if (!broadTouch) continue;
-
         /*
-          Même niveau : fusion sur les vrais pixels de l'image,
-          avec un petit contour de tolérance pour que le contact soit agréable.
+          Même niveau :
+          fusion avec les vrais pixels + petit contour.
         */
         if (a.level === b.level) {
           const fusionTouch = this.monstersOpaqueTouch(a, b, {
@@ -608,8 +661,10 @@ window.VMSGame = {
         }
 
         /*
-          Niveaux différents : collision sur les vrais pixels de l'image.
-          Pas de rayon inventé, pas de fond transparent pris comme solide.
+          Niveaux différents :
+          les pixels décident SI ça touche.
+          Mais la poussée reste douce/stable comme avant.
+          C'est ça qui évite le tremblement.
         */
         const collisionTouch = this.monstersOpaqueTouch(a, b, {
           paddingPx: 0,
@@ -619,56 +674,64 @@ window.VMSGame = {
 
         if (!collisionTouch) continue;
 
-        const dx = b.x - a.x;
-        const dy = b.y - a.y;
+        const ca = this.getMonsterPhysicsCollider
+          ? this.getMonsterPhysicsCollider(a)
+          : this.getMonsterFootprint(a);
+
+        const cb = this.getMonsterPhysicsCollider
+          ? this.getMonsterPhysicsCollider(b)
+          : this.getMonsterFootprint(b);
+
+        const dx = cb.x - ca.x;
+        const dy = cb.y - ca.y;
         const dist = Math.max(0.001, Math.sqrt(dx * dx + dy * dy));
+
         const nx = dx / dist;
         const ny = dy / dist;
 
-        let overlap = 6;
-
-        if (spriteA && spriteB) {
-          const overlapX = Math.min(
-            spriteA.drawX + spriteA.drawW,
-            spriteB.drawX + spriteB.drawW
-          ) - Math.max(spriteA.drawX, spriteB.drawX);
-
-          const overlapY = Math.min(
-            spriteA.drawY + spriteA.drawH,
-            spriteB.drawY + spriteB.drawH
-          ) - Math.max(spriteA.drawY, spriteB.drawY);
-
-          overlap = Math.max(1, Math.min(overlapX, overlapY));
-        }
+        const minDist = ca.radius + cb.radius;
+        const rawOverlap = minDist - dist;
 
         /*
-          Important : les pixels décident du contact.
-          Ce push sert seulement à séparer doucement les monstres après contact.
+          Si les vrais pixels se touchent mais que les corps physiques sont encore à peine séparés,
+          on fait une mini séparation. Pas de gros rebond.
         */
-        const push = Math.min(7, Math.max(1.4, overlap * 0.28));
+        const overlap = rawOverlap > 0 ? rawOverlap : 3.2;
+        const push = Math.min(6, Math.max(0.9, overlap * 0.34));
 
         a.x -= nx * push * 0.5;
         a.y -= ny * push * 0.5;
+
         b.x += nx * push * 0.5;
         b.y += ny * push * 0.5;
 
         const relativeVx = b.vx - a.vx;
         const relativeVy = b.vy - a.vy;
-        const closingSpeed = relativeVx * nx + relativeVy * ny;
+        const approachSpeed = relativeVx * nx + relativeVy * ny;
 
-        if (closingSpeed < 0) {
-          const force = closingSpeed * Math.max(0.06, Math.min(0.22, bounce || 0.12));
+        /*
+          Si les monstres arrivent fort l'un sur l'autre : petit rebond.
+          Si c'est lent : on amortit, pour éviter "colle / sépare / recolle".
+        */
+        if (approachSpeed < -8) {
+          const force = approachSpeed * Math.max(0.05, Math.min(0.24, bounce || 0.12));
 
           a.vx += force * nx;
           a.vy += force * ny;
+
           b.vx -= force * nx;
           b.vy -= force * ny;
+        } else {
+          a.vx *= 0.72;
+          a.vy *= 0.72;
+          b.vx *= 0.72;
+          b.vy *= 0.72;
         }
 
-        a.vx *= 0.92;
-        a.vy *= 0.92;
-        b.vx *= 0.92;
-        b.vy *= 0.92;
+        a.vx *= 0.93;
+        a.vy *= 0.93;
+        b.vx *= 0.93;
+        b.vy *= 0.93;
       }
     }
   },

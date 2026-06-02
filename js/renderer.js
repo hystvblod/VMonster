@@ -47,7 +47,7 @@ labMap: {
 
   // Mets false quand tout est bien calé.
   debugZones: true,
-  debugMonsterVisuals: false,
+  debugMonsterVisuals: true,
 
   init(canvas) {
     this.canvas = canvas;
@@ -617,6 +617,20 @@ labMap: {
       */
       if (info) {
         this.drawOpaqueSpriteDebug(monster);
+
+        const floor = window.VMSGame?.getMonsterTrackFootprint
+          ? window.VMSGame.getMonsterTrackFootprint(monster)
+          : null;
+
+        if (floor) {
+          ctx.globalAlpha = 1;
+          ctx.strokeStyle = "rgba(255,220,70,0.95)";
+          ctx.lineWidth = 2;
+          ctx.setLineDash([]);
+          ctx.beginPath();
+          ctx.ellipse(floor.x, floor.y, floor.rx, floor.ry, 0, 0, Math.PI * 2);
+          ctx.stroke();
+        }
       }
 
       /*
@@ -670,6 +684,20 @@ labMap: {
 
       if (info) {
         this.drawOpaqueSpriteDebug(monster, "rgba(255,255,0,0.38)");
+
+        const floor = window.VMSGame?.getMonsterTrackFootprint
+          ? window.VMSGame.getMonsterTrackFootprint(monster)
+          : null;
+
+        if (floor) {
+          ctx.globalAlpha = 1;
+          ctx.strokeStyle = "rgba(255,220,70,0.95)";
+          ctx.lineWidth = 2;
+          ctx.setLineDash([]);
+          ctx.beginPath();
+          ctx.ellipse(floor.x, floor.y, floor.rx, floor.ry, 0, 0, Math.PI * 2);
+          ctx.stroke();
+        }
       }
 
       ctx.globalAlpha = 0.9;
