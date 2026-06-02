@@ -99,7 +99,62 @@ window.VMSGame = {
     };
   },
 
-  monstersOpaqueTouch(a, b) {
+  getCollisionAlphaThreshold() {
+    // 90 ignore les halos/lueurs faibles. Monte à 110 si ça fusionne encore trop tôt.
+    return 90;
+  },
+
+  getFusionPaddingPx() {
+    // Petite tolérance propre pour la fusion : vrai corps + quelques pixels.
+    return 5;
+  },
+
+  getPixelCollisionStep() {
+    // 1 = très précis. 2 = plus léger si beaucoup de monstres sur mobile.
+    return this.state?.monsters?.length > 12 ? 2 : 1;
+  },
+
+  getSpriteOverlapRect(spriteA, spriteB, paddingA = 0, paddingB = 0) {
+    const left = Math.max(spriteA.drawX - paddingA, spriteB.drawX - paddingB);
+    const top = Math.max(spriteA.drawY - paddingA, spriteB.drawY - paddingB);
+    const right = Math.min(spriteA.drawX + spriteA.drawW + paddingA, spriteB.drawX + spriteB.drawW + paddingB);
+    const bottom = Math.min(spriteA.drawY + spriteA.drawH + paddingA, spriteB.drawY + spriteB.drawH + paddingB);
+
+    if (right <= left || bottom <= top) return null;
+
+    return { left, top, right, bottom, width: right - left, height: bottom - top };
+  },
+
+  isSpriteOpaqueAtScreenPoint(sprite, mask, screenX, screenY, alphaThreshold, paddingPx = 0) {
+    const localX = ((screenX - sprite.drawX) / sprite.drawW) * mask.width;
+    const localY = ((screenY - sprite.drawY) / sprite.drawH) * mask.height;
+
+    if (localX < 0 || localX >= mask.width || localY < 0 || localY >= mask.height) {
+      return false;
+    }
+
+    const centerX = Math.floor(localX);
+    const centerY = Math.floor(localY);
+
+    const padX = Math.max(0, Math.ceil((paddingPx / sprite.drawW) * mask.width));
+    const padY = Math.max(0, Math.ceil((paddingPx / sprite.drawH) * mask.height));
+
+    const minX = Math.max(0, centerX - padX);
+    const maxX = Math.min(mask.width - 1, centerX + padX);
+    const minY = Math.max(0, centerY - padY);
+    const maxY = Math.min(mask.height - 1, centerY + padY);
+
+    for (let y = minY; y <= maxY; y++) {
+      for (let x = minX; x <= maxX; x++) {
+        const alpha = mask.data[(y * mask.width + x) * 4 + 3];
+        if (alpha > alphaThreshold) return true;
+      }
+    }
+
+    return false;
+  },
+
+  monstersOpaqueTouch(a, b, options = {}) {
     const spriteA = VMSRenderer.getMonsterDrawInfo ? VMSRenderer.getMonsterDrawInfo(a) : null;
     const spriteB = VMSRenderer.getMonsterDrawInfo ? VMSRenderer.getMonsterDrawInfo(b) : null;
 
@@ -126,38 +181,49 @@ window.VMSGame = {
       return dx * dx + dy * dy <= minDist * minDist;
     }
 
-    const left = Math.max(spriteA.drawX, spriteB.drawX);
-    const top = Math.max(spriteA.drawY, spriteB.drawY);
-    const right = Math.min(spriteA.drawX + spriteA.drawW, spriteB.drawX + spriteB.drawW);
-    const bottom = Math.min(spriteA.drawY + spriteA.drawH, spriteB.drawY + spriteB.drawH);
+    const alphaThreshold = Number(options.alphaThreshold ?? this.getCollisionAlphaThreshold());
+    const paddingPx = Number(options.paddingPx || 0);
+    const step = Math.max(1, Number(options.step || this.getPixelCollisionStep()));
 
-    if (right <= left || bottom <= top) return false;
+    /*
+      Ce rectangle n'est PAS la collision.
+      Il sert seulement à limiter la zone où on vérifie les vrais pixels opaques.
+    */
+    const overlap = this.getSpriteOverlapRect(spriteA, spriteB, paddingPx, paddingPx);
+    if (!overlap) return false;
 
-    const startX = Math.floor(left);
-    const endX = Math.ceil(right);
-    const startY = Math.floor(top);
-    const endY = Math.ceil(bottom);
-    const alphaThreshold = 20;
+    const startX = Math.floor(overlap.left);
+    const endX = Math.ceil(overlap.right);
+    const startY = Math.floor(overlap.top);
+    const endY = Math.ceil(overlap.bottom);
 
-    for (let y = startY; y < endY; y++) {
-      const ay = Math.floor((((y + 0.5) - spriteA.drawY) / spriteA.drawH) * maskA.height);
-      const by = Math.floor((((y + 0.5) - spriteB.drawY) / spriteB.drawH) * maskB.height);
+    for (let y = startY; y < endY; y += step) {
+      const screenY = y + 0.5;
 
-      if (ay < 0 || ay >= maskA.height || by < 0 || by >= maskB.height) continue;
+      for (let x = startX; x < endX; x += step) {
+        const screenX = x + 0.5;
 
-      for (let x = startX; x < endX; x++) {
-        const ax = Math.floor((((x + 0.5) - spriteA.drawX) / spriteA.drawW) * maskA.width);
-        const bx = Math.floor((((x + 0.5) - spriteB.drawX) / spriteB.drawW) * maskB.width);
+        const opaqueA = this.isSpriteOpaqueAtScreenPoint(
+          spriteA,
+          maskA,
+          screenX,
+          screenY,
+          alphaThreshold,
+          paddingPx
+        );
 
-        if (ax < 0 || ax >= maskA.width || bx < 0 || bx >= maskB.width) continue;
+        if (!opaqueA) continue;
 
-        const alphaA = maskA.data[(ay * maskA.width + ax) * 4 + 3];
-        if (alphaA <= alphaThreshold) continue;
+        const opaqueB = this.isSpriteOpaqueAtScreenPoint(
+          spriteB,
+          maskB,
+          screenX,
+          screenY,
+          alphaThreshold,
+          paddingPx
+        );
 
-        const alphaB = maskB.data[(by * maskB.width + bx) * 4 + 3];
-        if (alphaB <= alphaThreshold) continue;
-
-        return true;
+        if (opaqueB) return true;
       }
     }
 
@@ -503,30 +569,37 @@ window.VMSGame = {
 
         if (!a || !b || a.merging || b.merging || a.collecting || b.collecting) continue;
 
-        const dx = b.x - a.x;
-        const dy = b.y - a.y;
-        const distSq = dx * dx + dy * dy;
+        const spriteA = VMSRenderer.getMonsterDrawInfo ? VMSRenderer.getMonsterDrawInfo(a) : null;
+        const spriteB = VMSRenderer.getMonsterDrawInfo ? VMSRenderer.getMonsterDrawInfo(b) : null;
 
-        const fa = this.getMonsterFootprint(a);
-        const fb = this.getMonsterFootprint(b);
-        const minDist = fa.radius + fb.radius;
+        let broadTouch = false;
+
+        if (spriteA && spriteB) {
+          const padding = a.level === b.level ? this.getFusionPaddingPx() : 0;
+          broadTouch = !!this.getSpriteOverlapRect(spriteA, spriteB, padding, padding);
+        } else {
+          const dx = b.x - a.x;
+          const dy = b.y - a.y;
+          const fa = this.getMonsterFootprint(a);
+          const fb = this.getMonsterFootprint(b);
+          const minDist = fa.radius + fb.radius;
+          broadTouch = dx * dx + dy * dy <= minDist * minDist;
+        }
+
+        if (!broadTouch) continue;
 
         /*
-          Même niveau :
-          la fusion utilise l'image réelle si disponible.
-          Si le test pixel n'est pas disponible, fallback ancien système.
+          Même niveau : fusion sur les vrais pixels de l'image,
+          avec un petit contour de tolérance pour que le contact soit agréable.
         */
         if (a.level === b.level) {
-          const mergeDist = minDist * 1.08;
-          const broadTouch = distSq <= mergeDist * mergeDist;
+          const fusionTouch = this.monstersOpaqueTouch(a, b, {
+            paddingPx: this.getFusionPaddingPx(),
+            alphaThreshold: this.getCollisionAlphaThreshold(),
+            step: Math.max(2, this.getPixelCollisionStep())
+          });
 
-          if (!broadTouch) continue;
-
-          const opaqueTouch = this.monstersOpaqueTouch
-            ? this.monstersOpaqueTouch(a, b)
-            : true;
-
-          if (opaqueTouch) {
+          if (fusionTouch) {
             this.mergeMonsters(a, b);
             return;
           }
@@ -535,29 +608,56 @@ window.VMSGame = {
         }
 
         /*
-          Niveaux différents :
-          retour à l'ancien comportement stable.
-          Pas de test pixel ici, sinon ça tremble.
+          Niveaux différents : collision sur les vrais pixels de l'image.
+          Pas de rayon inventé, pas de fond transparent pris comme solide.
         */
-        if (distSq >= minDist * minDist) continue;
+        const collisionTouch = this.monstersOpaqueTouch(a, b, {
+          paddingPx: 0,
+          alphaThreshold: this.getCollisionAlphaThreshold(),
+          step: this.getPixelCollisionStep()
+        });
 
-        const dist = Math.max(0.001, Math.sqrt(distSq));
+        if (!collisionTouch) continue;
+
+        const dx = b.x - a.x;
+        const dy = b.y - a.y;
+        const dist = Math.max(0.001, Math.sqrt(dx * dx + dy * dy));
         const nx = dx / dist;
         const ny = dy / dist;
-        const overlap = minDist - dist;
 
-        // Séparation stricte comme avant.
-        a.x -= nx * overlap * 0.52;
-        a.y -= ny * overlap * 0.52;
-        b.x += nx * overlap * 0.52;
-        b.y += ny * overlap * 0.52;
+        let overlap = 6;
+
+        if (spriteA && spriteB) {
+          const overlapX = Math.min(
+            spriteA.drawX + spriteA.drawW,
+            spriteB.drawX + spriteB.drawW
+          ) - Math.max(spriteA.drawX, spriteB.drawX);
+
+          const overlapY = Math.min(
+            spriteA.drawY + spriteA.drawH,
+            spriteB.drawY + spriteB.drawH
+          ) - Math.max(spriteA.drawY, spriteB.drawY);
+
+          overlap = Math.max(1, Math.min(overlapX, overlapY));
+        }
+
+        /*
+          Important : les pixels décident du contact.
+          Ce push sert seulement à séparer doucement les monstres après contact.
+        */
+        const push = Math.min(7, Math.max(1.4, overlap * 0.28));
+
+        a.x -= nx * push * 0.5;
+        a.y -= ny * push * 0.5;
+        b.x += nx * push * 0.5;
+        b.y += ny * push * 0.5;
 
         const relativeVx = b.vx - a.vx;
         const relativeVy = b.vy - a.vy;
-        const impulse = relativeVx * nx + relativeVy * ny;
+        const closingSpeed = relativeVx * nx + relativeVy * ny;
 
-        if (impulse < 0) {
-          const force = impulse * bounce;
+        if (closingSpeed < 0) {
+          const force = closingSpeed * Math.max(0.06, Math.min(0.22, bounce || 0.12));
 
           a.vx += force * nx;
           a.vy += force * ny;
@@ -565,11 +665,10 @@ window.VMSGame = {
           b.vy -= force * ny;
         }
 
-        // Ancien amortissement.
-        a.vx *= 0.96;
-        a.vy *= 0.96;
-        b.vx *= 0.96;
-        b.vy *= 0.96;
+        a.vx *= 0.92;
+        a.vy *= 0.92;
+        b.vx *= 0.92;
+        b.vy *= 0.92;
       }
     }
   },
