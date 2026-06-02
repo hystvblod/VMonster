@@ -643,13 +643,14 @@ window.VMSGame = {
 
         /*
           Même niveau :
-          fusion avec les vrais pixels + petit contour.
+          la fusion utilise les vrais pixels de l'image,
+          avec une petite marge propre autour.
         */
         if (a.level === b.level) {
           const fusionTouch = this.monstersOpaqueTouch(a, b, {
-            paddingPx: this.getFusionPaddingPx(),
-            alphaThreshold: this.getCollisionAlphaThreshold(),
-            step: Math.max(2, this.getPixelCollisionStep())
+            paddingPx: this.getFusionPaddingPx ? this.getFusionPaddingPx() : 8,
+            alphaThreshold: this.getCollisionAlphaThreshold ? this.getCollisionAlphaThreshold() : 95,
+            step: Math.max(2, this.getPixelCollisionStep ? this.getPixelCollisionStep() : 1)
           });
 
           if (fusionTouch) {
@@ -662,18 +663,22 @@ window.VMSGame = {
 
         /*
           Niveaux différents :
-          les pixels décident SI ça touche.
-          Mais la poussée reste douce/stable comme avant.
-          C'est ça qui évite le tremblement.
+          les pixels servent seulement à confirmer le vrai contact visuel.
+          Si les pixels ne se touchent pas, il n'y a aucune collision.
         */
         const collisionTouch = this.monstersOpaqueTouch(a, b, {
           paddingPx: 0,
-          alphaThreshold: this.getCollisionAlphaThreshold(),
-          step: this.getPixelCollisionStep()
+          alphaThreshold: this.getCollisionAlphaThreshold ? this.getCollisionAlphaThreshold() : 95,
+          step: this.getPixelCollisionStep ? this.getPixelCollisionStep() : 1
         });
 
         if (!collisionTouch) continue;
 
+        /*
+          À partir d'ici, on revient à l'ancienne physique stable :
+          direction centre à centre, séparation douce, rebond selon la force,
+          amortissement à 0.96.
+        */
         const ca = this.getMonsterPhysicsCollider
           ? this.getMonsterPhysicsCollider(a)
           : this.getMonsterFootprint(a);
@@ -684,54 +689,55 @@ window.VMSGame = {
 
         const dx = cb.x - ca.x;
         const dy = cb.y - ca.y;
-        const dist = Math.max(0.001, Math.sqrt(dx * dx + dy * dy));
+        const distSq = dx * dx + dy * dy;
+
+        const minDist = ca.radius + cb.radius;
+        const dist = Math.max(0.001, Math.sqrt(distSq));
 
         const nx = dx / dist;
         const ny = dy / dist;
 
-        const minDist = ca.radius + cb.radius;
-        const rawOverlap = minDist - dist;
+        /*
+          Si les pixels se touchent mais que les cercles physiques ne sont pas encore
+          assez enfoncés, on donne une petite profondeur minimum.
+          Ça évite le contact qui clignote : colle / sépare / recolle.
+        */
+        const overlap = Math.max(2.5, minDist - dist);
 
         /*
-          Si les vrais pixels se touchent mais que les corps physiques sont encore à peine séparés,
-          on fait une mini séparation. Pas de gros rebond.
+          Ancienne séparation stable.
         */
-        const overlap = rawOverlap > 0 ? rawOverlap : 3.2;
-        const push = Math.min(6, Math.max(0.9, overlap * 0.34));
+        a.x -= nx * overlap * 0.52;
+        a.y -= ny * overlap * 0.52;
 
-        a.x -= nx * push * 0.5;
-        a.y -= ny * push * 0.5;
-
-        b.x += nx * push * 0.5;
-        b.y += ny * push * 0.5;
+        b.x += nx * overlap * 0.52;
+        b.y += ny * overlap * 0.52;
 
         const relativeVx = b.vx - a.vx;
         const relativeVy = b.vy - a.vy;
-        const approachSpeed = relativeVx * nx + relativeVy * ny;
+        const impulse = relativeVx * nx + relativeVy * ny;
 
         /*
-          Si les monstres arrivent fort l'un sur l'autre : petit rebond.
-          Si c'est lent : on amortit, pour éviter "colle / sépare / recolle".
+          Ancien rebond selon la force d'arrivée.
         */
-        if (approachSpeed < -8) {
-          const force = approachSpeed * Math.max(0.05, Math.min(0.24, bounce || 0.12));
+        if (impulse < 0) {
+          const force = impulse * bounce;
 
           a.vx += force * nx;
           a.vy += force * ny;
 
           b.vx -= force * nx;
           b.vy -= force * ny;
-        } else {
-          a.vx *= 0.72;
-          a.vy *= 0.72;
-          b.vx *= 0.72;
-          b.vy *= 0.72;
         }
 
-        a.vx *= 0.93;
-        a.vy *= 0.93;
-        b.vx *= 0.93;
-        b.vy *= 0.93;
+        /*
+          Ancien amortissement.
+        */
+        a.vx *= 0.96;
+        a.vy *= 0.96;
+
+        b.vx *= 0.96;
+        b.vy *= 0.96;
       }
     }
   },
