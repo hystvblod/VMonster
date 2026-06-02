@@ -556,7 +556,9 @@ labMap: {
     if (!mask) return;
 
     const ctx = this.ctx;
-    const alphaThreshold = 20;
+    const alphaThreshold = window.VMSGame?.getCollisionAlphaThreshold
+      ? window.VMSGame.getCollisionAlphaThreshold()
+      : 90;
 
     const step = Math.max(
       1,
@@ -564,7 +566,6 @@ labMap: {
     );
 
     ctx.save();
-
     ctx.fillStyle = color;
 
     const cellW = info.drawW / mask.width;
@@ -584,13 +585,6 @@ labMap: {
         }
       }
     }
-
-    ctx.globalAlpha = 0.95;
-    ctx.strokeStyle = "rgba(0,255,255,0.95)";
-    ctx.lineWidth = 2;
-    ctx.setLineDash([5, 4]);
-    ctx.strokeRect(info.drawX, info.drawY, info.drawW, info.drawH);
-    ctx.setLineDash([]);
 
     ctx.restore();
   },
@@ -618,20 +612,11 @@ labMap: {
       const labelY = monster.y - visualRadius * 1.25;
 
       /*
-        Rectangle cyan = image visible affichée.
-        C'est la base de la réalité :
-        - collision
-        - fusion
-        - piste
-        - profondeur
+        Masque cyan = vrais pixels pris en compte pour collision/fusion.
+        Le rectangle du fichier n'est plus affiché, car il ne représente pas la hitbox.
       */
       if (info) {
-        ctx.globalAlpha = 0.95;
-        ctx.strokeStyle = "rgba(0,255,255,0.95)";
-        ctx.lineWidth = 2;
-        ctx.setLineDash([5, 4]);
-        ctx.strokeRect(info.drawX, info.drawY, info.drawW, info.drawH);
-        ctx.setLineDash([]);
+        this.drawOpaqueSpriteDebug(monster);
       }
 
       /*
@@ -684,12 +669,7 @@ labMap: {
       const size = visualRadius * 2.35;
 
       if (info) {
-        ctx.globalAlpha = 1;
-        ctx.strokeStyle = "rgba(0,255,255,0.95)";
-        ctx.lineWidth = 3;
-        ctx.setLineDash([5, 4]);
-        ctx.strokeRect(info.drawX, info.drawY, info.drawW, info.drawH);
-        ctx.setLineDash([]);
+        this.drawOpaqueSpriteDebug(monster, "rgba(255,255,0,0.38)");
       }
 
       ctx.globalAlpha = 0.9;
