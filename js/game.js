@@ -641,10 +641,24 @@ window.VMSGame = {
 
         if (!a || !b || a.merging || b.merging || a.collecting || b.collecting) continue;
 
+        const dx = b.x - a.x;
+        const dy = b.y - a.y;
+        const distSq = dx * dx + dy * dy;
+
+        const fa = this.getMonsterPhysicsCollider
+          ? this.getMonsterPhysicsCollider(a)
+          : this.getMonsterFootprint(a);
+
+        const fb = this.getMonsterPhysicsCollider
+          ? this.getMonsterPhysicsCollider(b)
+          : this.getMonsterFootprint(b);
+
+        const minDist = fa.radius + fb.radius;
+
         /*
           Même niveau :
-          la fusion utilise les vrais pixels de l'image,
-          avec une petite marge propre autour.
+          fusion basée sur les vrais pixels de l'image,
+          avec une petite marge pour rendre la fusion plus agréable.
         */
         if (a.level === b.level) {
           const fusionTouch = this.monstersOpaqueTouch(a, b, {
@@ -663,46 +677,15 @@ window.VMSGame = {
 
         /*
           Niveaux différents :
-          les pixels servent seulement à confirmer le vrai contact visuel.
-          Si les pixels ne se touchent pas, il n'y a aucune collision.
+          retour à l'ancien comportement stable.
+          Pas de test pixel ici, car c'est lui qui peut créer le tremblement.
         */
-        const collisionTouch = this.monstersOpaqueTouch(a, b, {
-          paddingPx: 0,
-          alphaThreshold: this.getCollisionAlphaThreshold ? this.getCollisionAlphaThreshold() : 95,
-          step: this.getPixelCollisionStep ? this.getPixelCollisionStep() : 1
-        });
+        if (distSq >= minDist * minDist) continue;
 
-        if (!collisionTouch) continue;
-
-        /*
-          À partir d'ici, on revient à l'ancienne physique stable :
-          direction centre à centre, séparation douce, rebond selon la force,
-          amortissement à 0.96.
-        */
-        const ca = this.getMonsterPhysicsCollider
-          ? this.getMonsterPhysicsCollider(a)
-          : this.getMonsterFootprint(a);
-
-        const cb = this.getMonsterPhysicsCollider
-          ? this.getMonsterPhysicsCollider(b)
-          : this.getMonsterFootprint(b);
-
-        const dx = cb.x - ca.x;
-        const dy = cb.y - ca.y;
-        const distSq = dx * dx + dy * dy;
-
-        const minDist = ca.radius + cb.radius;
         const dist = Math.max(0.001, Math.sqrt(distSq));
-
         const nx = dx / dist;
         const ny = dy / dist;
-
-        /*
-          Si les pixels se touchent mais que les cercles physiques ne sont pas encore
-          assez enfoncés, on donne une petite profondeur minimum.
-          Ça évite le contact qui clignote : colle / sépare / recolle.
-        */
-        const overlap = Math.max(2.5, minDist - dist);
+        const overlap = minDist - dist;
 
         /*
           Ancienne séparation stable.
@@ -717,9 +700,6 @@ window.VMSGame = {
         const relativeVy = b.vy - a.vy;
         const impulse = relativeVx * nx + relativeVy * ny;
 
-        /*
-          Ancien rebond selon la force d'arrivée.
-        */
         if (impulse < 0) {
           const force = impulse * bounce;
 
