@@ -617,20 +617,6 @@ labMap: {
       */
       if (info) {
         this.drawOpaqueSpriteDebug(monster);
-
-        const floor = window.VMSGame?.getMonsterTrackFootprint
-          ? window.VMSGame.getMonsterTrackFootprint(monster)
-          : null;
-
-        if (floor) {
-          ctx.globalAlpha = 1;
-          ctx.strokeStyle = "rgba(255,220,70,0.95)";
-          ctx.lineWidth = 2;
-          ctx.setLineDash([]);
-          ctx.beginPath();
-          ctx.ellipse(floor.x, floor.y, floor.rx, floor.ry, 0, 0, Math.PI * 2);
-          ctx.stroke();
-        }
       }
 
       /*
@@ -649,8 +635,8 @@ labMap: {
       ctx.strokeStyle = "rgba(0,255,255,0.95)";
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.moveTo(fp.left, fp.bottom);
-      ctx.lineTo(fp.right, fp.bottom);
+      ctx.moveTo(fp.x - fp.rx, fp.y + fp.ry);
+      ctx.lineTo(fp.x + fp.rx, fp.y + fp.ry);
       ctx.stroke();
 
       const label = `#${item.index + 1} L${monster.level}`;
@@ -684,28 +670,14 @@ labMap: {
 
       if (info) {
         this.drawOpaqueSpriteDebug(monster, "rgba(255,255,0,0.38)");
-
-        const floor = window.VMSGame?.getMonsterTrackFootprint
-          ? window.VMSGame.getMonsterTrackFootprint(monster)
-          : null;
-
-        if (floor) {
-          ctx.globalAlpha = 1;
-          ctx.strokeStyle = "rgba(255,220,70,0.95)";
-          ctx.lineWidth = 2;
-          ctx.setLineDash([]);
-          ctx.beginPath();
-          ctx.ellipse(floor.x, floor.y, floor.rx, floor.ry, 0, 0, Math.PI * 2);
-          ctx.stroke();
-        }
       }
 
       ctx.globalAlpha = 0.9;
       ctx.strokeStyle = "rgba(0,255,255,0.95)";
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.moveTo(fp.left, fp.bottom);
-      ctx.lineTo(fp.right, fp.bottom);
+      ctx.moveTo(fp.x - fp.rx, fp.y + fp.ry);
+      ctx.lineTo(fp.x + fp.rx, fp.y + fp.ry);
       ctx.stroke();
 
       ctx.font = "800 12px Arial";
