@@ -21,15 +21,16 @@ window.VMSLevels = {
   },
 
   normalizeLevels(rawLevels) {
-    const normalized = rawLevels.map((row, index) => {
-      if (!Array.isArray(row)) {
-        return {
-          ...row,
-          id: index + 1
-        };
-      }
+  const normalized = rawLevels.map((row, index) => {
+    let level;
 
-      return {
+    if (!Array.isArray(row)) {
+      level = {
+        ...row,
+        id: index + 1
+      };
+    } else {
+      level = {
         id: index + 1,
         originalId: row[0],
         worldId: row[1],
@@ -42,17 +43,34 @@ window.VMSLevels = {
         wallBounce: row[7],
         monsterBounce: row[8],
         orders: (row[9] || []).map((order) => ({
-          monsterLevel: order[0],
-          amount: order[1]
+          monsterLevel: Number(order[0] || 1),
+          amount: Math.max(1, Number(order[1] || 1))
         }))
       };
-    });
+    }
 
-    return normalized.map((level) => ({
+    const orders = Array.isArray(level.orders)
+      ? level.orders.map((order) => ({
+          monsterLevel: Number(order.monsterLevel || 1),
+          amount: Math.max(1, Number(order.amount || 1))
+        }))
+      : [];
+
+    return {
       ...level,
-      wavesPerWorld: normalized.filter((item) => item.worldId === level.worldId).length
-    }));
-  },
+      orders,
+      spawnPoolMaxLevel: this.getPlayableSpawnMaxLevel(
+        orders,
+        Number(level.spawnPoolMaxLevel || 2)
+      )
+    };
+  });
+
+  return normalized.map((level) => ({
+    ...level,
+    wavesPerWorld: normalized.filter((item) => item.worldId === level.worldId).length
+  }));
+},
 
   getLevel(index) {
     const totalLevels = this.getTotalLevels();
@@ -161,17 +179,114 @@ window.VMSLevels = {
 },
 
 getMaxMonsterLevel() {
-    return 15;
-  },
+  return 15;
+},
 
-  getRandomSpawnLevel(maxLevel = 3) {
-    const cappedMax = Math.max(1, Math.min(Number(maxLevel || 2), 4));
-    const roll = Math.random();
+getPlayableSpawnMaxLevel(orders, originalMaxLevel = 2) {
+  const safeOrders = Array.isArray(orders) ? orders : [];
 
-    if (cappedMax >= 4 && roll > 0.94) return 4;
-    if (cappedMax >= 3 && roll > 0.84) return 3;
-    if (cappedMax >= 2 && roll > 0.62) return 2;
-
-    return 1;
+  if (!safeOrders.length) {
+    return Math.max(
+      1,
+      Math.min(Number(originalMaxLevel || 2), this.getMaxMonsterLevel())
+    );
   }
+
+  const highestOrderLevel = safeOrders.reduce((max, order) => {
+    return Math.max(max, Number(order.monsterLevel || 1));
+  }, 1);
+
+  const totalOrderAmount = safeOrders.reduce((sum, order) => {
+    return sum + Math.max(1, Number(order.amount || 1));
+  }, 0);
+
+  /*
+    Équilibrage campagne propre :
+
+    - commande simple :
+      spawn max = niveau demandé - 4
+
+    - commande double ou multiple :
+      spawn max = niveau demandé - 3
+
+    - niveau 11 seulement pour :
+      niveau 15 demandé
+      ou plusieurs monstres niveau 14
+
+    Exemple important :
+    2 monstres niveau 7 => spawn max 4
+    Donc le jeu donne 1, 2, 3 ou 4.
+    Il ne donne pas niveau 5.
+  */
+
+  const isComplexOrder = totalOrderAmount >= 2 || safeOrders.length >= 2;
+  const difficultyGap = isComplexOrder ? 3 : 4;
+
+  let autoMaxLevel = highestOrderLevel - difficultyGap;
+  autoMaxLevel = Math.max(2, autoMaxLevel);
+
+  const allowLevel11 = highestOrderLevel >= 15 || (
+    highestOrderLevel >= 14 &&
+    totalOrderAmount >= 2
+  );
+
+  if (!allowLevel11) {
+    autoMaxLevel = Math.min(autoMaxLevel, 10);
+  }
+
+  return Math.max(
+    2,
+    Math.min(
+      Math.max(Number(originalMaxLevel || 2), autoMaxLevel),
+      this.getMaxMonsterLevel(),
+      allowLevel11 ? 11 : 10
+    )
+  );
+},
+
+getRandomSpawnLevel(maxLevel = 3) {
+  const cappedMax = Math.max(
+    1,
+    Math.min(Number(maxLevel || 2), this.getMaxMonsterLevel(), 11)
+  );
+
+  /*
+    Fenêtre de 4 niveaux.
+
+    Exemples :
+    max 4  => 1, 2, 3, 4
+    max 8  => 5, 6, 7, 8
+    max 10 => 7, 8, 9, 10
+    max 11 => 8, 9, 10, 11
+  */
+  const minLevel = Math.max(1, cappedMax - 3);
+  const pool = [];
+
+  for (let level = minLevel; level <= cappedMax; level += 1) {
+    pool.push(level);
+  }
+
+  /*
+    Chances dans la fenêtre :
+    - plus petit niveau : 55 %
+    - suivant : 28 %
+    - suivant : 12 %
+    - niveau max : 5 %
+  */
+  const baseWeights = [55, 28, 12, 5];
+  const weights = baseWeights.slice(0, pool.length);
+  const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+
+  let roll = Math.random() * totalWeight;
+
+  for (let i = 0; i < pool.length; i += 1) {
+    roll -= weights[i];
+
+    if (roll <= 0) {
+      return pool[i];
+    }
+  }
+
+  return pool[pool.length - 1] || 1;
+}
 };
