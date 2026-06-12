@@ -112,7 +112,7 @@ window.VMSInfinite = {
         const watched = await VMSAds.showRewarded("unlock_infinite_world");
         if (!watched) return;
 
-        const spent = VMSEconomy.spendCoins(this.priceVCoins);
+        const spent = await VMSEconomy.spendCoins(this.priceVCoins);
         if (!spent) return;
 
         VMSEconomy.unlockInfiniteWorld(world.id);
