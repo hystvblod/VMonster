@@ -226,6 +226,23 @@
     window.VMSStorage?.set?.(BESTIARY_DISCOVERED_KEY, map);
   }
 
+  function isBestiaryDiscovered(worldId, monster) {
+    const entryId = bestiaryIdFromWorldAndMonster(worldId, monster);
+    if (!entryId) return false;
+
+    const map = window.VMSStorage?.get?.(BESTIARY_DISCOVERED_KEY, {}) || {};
+    return !!map[entryId];
+  }
+
+  function isMonsterUnlockedEverywhere(worldId, monster) {
+    const classicId = classicIdFromWorldAndMonster(worldId, monster);
+
+    return (
+      isBestiaryDiscovered(worldId, monster) ||
+      isClassicRevealed(classicId)
+    );
+  }
+
   function revealMonsterEverywhere(worldId, monster) {
     const classicId = classicIdFromWorldAndMonster(worldId, monster);
     if (!classicId) return;
@@ -250,19 +267,14 @@
     const monster = MONSTERS.find((item) => item.number === Number(level));
     if (!monster) return false;
 
-    markClassicRevealed(classicIdFromWorldAndMonster(worldId, monster));
+    revealMonsterEverywhere(worldId, monster);
     window.VMSShop?.render?.();
 
     return true;
   }
 
   function revealAllClassicMonsters() {
-    WORLDS.forEach((world) => {
-      MONSTERS.forEach((monster) => {
-        markClassicRevealed(classicIdFromWorldAndMonster(world.id, monster));
-      });
-    });
-
+    revealAllWorldsEverywhere();
     window.VMSShop?.render?.();
 
     return true;
@@ -433,13 +445,14 @@
   }
 
   function isClassicNormallyVisible(worldId, monster) {
-    const level = Number(window.VMSEconomy?.currentLevel || window.VMSStorage?.get?.("currentLevel", 1) || 1);
-    return isWorldNormallyAccessible(worldId) && monster.level <= level;
+    return (
+      (worldId === "lab" && Number(monster.number) === 1) ||
+      isMonsterUnlockedEverywhere(worldId, monster)
+    );
   }
 
   function isMonsterVisibleInShop(worldId, monster) {
-    const classicId = classicIdFromWorldAndMonster(worldId, monster);
-    return isClassicNormallyVisible(worldId, monster) || isClassicRevealed(classicId);
+    return isClassicNormallyVisible(worldId, monster);
   }
 
   function getStyleItems(world, style) {
@@ -458,11 +471,12 @@
 
 
     MONSTERS.forEach((monster) => {
-      const visible = isMonsterVisibleInShop(world.id, monster);
+      const skinId = `${world.id}_${style.id}_monster_${monster.padded}`;
+      const visible = isMonsterVisibleInShop(world.id, monster) || isOwned(skinId);
 
       items.push({
         type: "monster_skin",
-        id: `${world.id}_${style.id}_monster_${monster.padded}`,
+        id: skinId,
         worldId: world.id,
         styleId: style.id,
         monsterNumber: monster.number,
@@ -478,7 +492,7 @@
   function getClassicItems(world) {
     return MONSTERS.map((monster) => {
       const id = `classic_${world.id}_monster_${monster.padded}`;
-      const visible = isClassicNormallyVisible(world.id, monster) || isClassicRevealed(id);
+      const visible = isMonsterVisibleInShop(world.id, monster);
       return {
         type: "classic",
         id,
@@ -819,6 +833,7 @@
     if (!ok) return showMessage(tt("shop_not_enough_vcoins_title"), tt("shop_not_enough_vcoins_text"));
 
     markOwned(itemId);
+    revealMonsterEverywhere(worldId, monster);
     showMessage(tt("shop_skin_unlocked_title"), tt("shop_skin_unlocked_text"));
     window.VMSShop?.render?.();
   }
@@ -903,6 +918,12 @@
 
   window.VMSShop = {
     async init() {
+      const starterMonster = MONSTERS.find((monster) => monster.number === 1);
+
+      if (starterMonster) {
+        revealMonsterEverywhere("lab", starterMonster);
+      }
+
       this.render();
     },
 

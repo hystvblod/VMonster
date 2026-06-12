@@ -402,6 +402,9 @@ window.VMSGame = {
 
     this.currentMonster = monster;
 
+    const bestiaryWorldId = this.state?.level?.worldId || VMSLevels.getCurrentWorld?.()?.id || "lab";
+    window.VMSBestiary?.discover?.(bestiaryWorldId, level, { popup: false });
+
     this.nextMonsterLevel = VMSLevels.getRandomSpawnLevel(this.state.level.spawnPoolMaxLevel || 3);
     this.refreshHud();
     this.spawnParticles(monster.x, spawn.y, "#9cecff", 10);
