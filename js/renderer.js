@@ -117,6 +117,7 @@ labMap: {
     this.updateBackgroundCover();
 
     this.drawBackground();
+    this.drawTrackLightVeil();
 
     if (this.debugZones) {
       this.drawDebugZones();
@@ -226,6 +227,37 @@ labMap: {
     grd.addColorStop(1, "#080611");
     ctx.fillStyle = grd;
     ctx.fillRect(0, 0, this.width, this.height);
+  },
+
+  drawTrackLightVeil() {
+    const ctx = this.ctx;
+    const p = this.getTrackPolygonPoints();
+    const top = this.imageToScreen(0.5, this.labMap.trackTopY).y;
+    const bottom = this.imageToScreen(0.5, this.labMap.trackBottomY).y;
+
+    ctx.save();
+
+    ctx.beginPath();
+    ctx.moveTo(p.topLeft.x, p.topLeft.y);
+    ctx.lineTo(p.topRight.x, p.topRight.y);
+    ctx.lineTo(p.bottomRight.x, p.bottomRight.y);
+    ctx.lineTo(p.bottomLeft.x, p.bottomLeft.y);
+    ctx.closePath();
+
+    const grd = ctx.createLinearGradient(0, top, 0, bottom);
+    grd.addColorStop(0, "rgba(255,255,255,.055)");
+    grd.addColorStop(0.50, "rgba(155,230,255,.045)");
+    grd.addColorStop(1, "rgba(255,255,255,.075)");
+
+    ctx.fillStyle = grd;
+    ctx.fill();
+
+    ctx.globalAlpha = 0.14;
+    ctx.strokeStyle = "rgba(210,245,255,.22)";
+    ctx.lineWidth = Math.max(1, this.width * 0.002);
+    ctx.stroke();
+
+    ctx.restore();
   },
 
   drawDebugZones() {
@@ -431,17 +463,33 @@ labMap: {
       const imgSize = slot.size;
 
       if (img) {
-        ctx.globalAlpha = completed ? 1 : 0.34;
-        this.drawTrimmedImage(ctx, img, -imgSize / 2, -imgSize / 2, imgSize, imgSize);
+        const doneH = imgSize * fillRatio;
+        const remainingH = imgSize - doneH;
 
-        if (!completed) {
+        if (doneH > 0) {
           ctx.save();
           ctx.beginPath();
           ctx.rect(
             -imgSize / 2,
-            -imgSize / 2 + imgSize * (1 - fillRatio),
+            -imgSize / 2 + remainingH,
             imgSize,
-            imgSize * fillRatio
+            doneH
+          );
+          ctx.clip();
+
+          ctx.globalAlpha = completed ? 0.24 : 0.32;
+          this.drawTrimmedImage(ctx, img, -imgSize / 2, -imgSize / 2, imgSize, imgSize);
+          ctx.restore();
+        }
+
+        if (remainingH > 0) {
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(
+            -imgSize / 2,
+            -imgSize / 2,
+            imgSize,
+            remainingH
           );
           ctx.clip();
 
@@ -486,18 +534,18 @@ labMap: {
     const isVeryNarrow = this.width <= 360;
 
     const size = isVeryNarrow
-      ? Math.max(34, Math.min(40, this.width * 0.112))
-      : Math.max(40, Math.min(50, this.width * 0.126));
+      ? Math.max(38, Math.min(46, this.width * 0.126))
+      : Math.max(46, Math.min(58, this.width * 0.14));
 
-    const gap = isVeryNarrow ? size + 9 : size + 12;
+    const gap = isVeryNarrow ? size + 10 : size + 13;
 
-    const panelW = isVeryNarrow ? 56 : 64;
-    const panelH = Math.max(size + 42, count * size + (count - 1) * 12 + 36);
+    const panelW = isVeryNarrow ? 62 : 72;
+    const panelH = Math.max(size + 46, count * size + (count - 1) * 13 + 40);
 
-    const panelX = this.width - panelW - (isVeryNarrow ? 9 : 13);
-    const panelY = isVeryNarrow ? 54 : 58;
+    const panelX = this.width - panelW - (isVeryNarrow ? 8 : 11);
+    const panelY = isVeryNarrow ? 48 : 50;
 
-    const startY = panelY + 28;
+    const startY = panelY + 30;
 
     return {
       panel: {
