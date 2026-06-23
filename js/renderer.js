@@ -29,14 +29,14 @@ setBackground(src) {
   // Réglage précis pour TON image.
   // La piste est en trapèze, donc on ne fait plus un simple rectangle.
 labMap: {
-  trackTopY: 0.198,
-  trackBottomY: 0.905,
+  trackTopY: 0.190,
+  trackBottomY: 0.915,
 
-  trackTopLeftX: 0.290,
-  trackTopRightX: 0.710,
+  trackTopLeftX: 0.275,
+  trackTopRightX: 0.725,
 
-  trackBottomLeftX: 0.020,
-  trackBottomRightX: 0.980,
+  trackBottomLeftX: 0.008,
+  trackBottomRightX: 0.992,
 
   dangerY: 0.815,
 
