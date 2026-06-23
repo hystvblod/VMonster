@@ -46,7 +46,7 @@ labMap: {
 
 
   // Mets false quand tout est bien calé.
-  debugZones: false,
+  debugZones: true,
   debugMonsterVisuals: false,
 
   init(canvas) {
@@ -80,37 +80,59 @@ labMap: {
     this.bgDraw.imgH = imgH;
 
     /*
-      Méthode studio :
-      - le canvas reste plein écran
-      - la zone gameplay garde toujours le même ratio
-      - le fond décoratif remplit autour
-      - la piste et les monstres se basent sur cette zone gameplay
+      ÉTAPE 1 : référence Galaxy A51.
+
+      L'image principale occupe exactement tout le canvas.
+      Aucun bord ajouté.
+      Aucun recadrage.
+      Aucun respect du ratio original de l'image.
     */
-    const baseW = 412;
-    const baseH = 914;
+    this.bgDraw.x = 0;
+    this.bgDraw.y = 0;
+    this.bgDraw.w = this.width;
+    this.bgDraw.h = this.height;
 
-    const scale = Math.min(this.width / baseW, this.height / baseH);
+    /*
+      La scène de jeu correspond maintenant à tout l'écran.
+    */
+    this.stageX = 0;
+    this.stageY = 0;
+    this.stageW = this.width;
+    this.stageH = this.height;
 
-    const stageW = baseW * scale;
-    const stageH = baseH * scale;
+    /*
+      La largeur de référence est 412.
+      Les monstres gardent leur taille proportionnelle à la largeur
+      de la piste sur l'A51.
+    */
+    this.stageScaleX = this.width / 412;
+    this.stageScaleY = this.height / 914;
+    this.stageScale = this.stageScaleX;
 
-    const stageX = (this.width - stageW) / 2;
-    const stageY = (this.height - stageH) / 2;
+    document.documentElement.style.setProperty(
+      "--vm-stage-scale",
+      String(this.stageScale)
+    );
 
-    this.bgDraw.x = stageX;
-    this.bgDraw.y = stageY;
-    this.bgDraw.w = stageW;
-    this.bgDraw.h = stageH;
+    document.documentElement.style.setProperty(
+      "--vm-stage-left",
+      "0px"
+    );
 
-    this.stageScale = scale;
-    this.stageX = stageX;
-    this.stageY = stageY;
-    this.stageW = stageW;
-    this.stageH = stageH;
+    document.documentElement.style.setProperty(
+      "--vm-stage-top",
+      "0px"
+    );
 
-    document.documentElement.style.setProperty("--vm-stage-scale", String(scale));
-    document.documentElement.style.setProperty("--vm-stage-left", `${stageX}px`);
-    document.documentElement.style.setProperty("--vm-stage-top", `${stageY}px`);
+    document.documentElement.style.setProperty(
+      "--vm-stage-width",
+      `${this.width}px`
+    );
+
+    document.documentElement.style.setProperty(
+      "--vm-stage-height",
+      `${this.height}px`
+    );
   },
 
   render(state) {
@@ -154,77 +176,43 @@ labMap: {
     ctx.fillRect(0, 0, this.width, this.height);
 
     if (img) {
-      const x = this.bgDraw.x;
-      const y = this.bgDraw.y;
-      const w = this.bgDraw.w;
-      const h = this.bgDraw.h;
-
-      const imgW = img.naturalWidth || img.width;
-      const imgH = img.naturalHeight || img.height;
-
       /*
-        Marges décoratives sans flou :
-        - le vrai jeu reste net au centre
-        - les marges utilisent les bords du décor
-        - aucune déformation du gameplay
+        L'image entière est étirée exactement sur tout l'écran A51.
+
+        La piste virtuelle utilise elle aussi :
+        x = 0
+        y = 0
+        largeur = largeur complète
+        hauteur = hauteur complète
+
+        Elle suit donc automatiquement la piste de l'image.
       */
-      const edgeW = Math.max(16, Math.floor(imgW * 0.055));
-      const edgeH = Math.max(16, Math.floor(imgH * 0.055));
+      ctx.drawImage(
+        img,
+        0,
+        0,
+        img.naturalWidth || img.width,
+        img.naturalHeight || img.height,
+        0,
+        0,
+        this.width,
+        this.height
+      );
 
-      ctx.save();
-      ctx.globalAlpha = 0.9;
-      ctx.filter = "saturate(1.08) brightness(0.68)";
-
-      // Marge gauche
-      if (x > 0) {
-        ctx.drawImage(
-          img,
-          0, 0, edgeW, imgH,
-          0, y, x, h
-        );
-      }
-
-      // Marge droite
-      if (x + w < this.width) {
-        ctx.drawImage(
-          img,
-          imgW - edgeW, 0, edgeW, imgH,
-          x + w, y, this.width - (x + w), h
-        );
-      }
-
-      // Marge haute, seulement si elle existe
-      if (y > 0) {
-        ctx.drawImage(
-          img,
-          0, 0, imgW, edgeH,
-          0, 0, this.width, y
-        );
-      }
-
-      // Marge basse, seulement si elle existe
-      if (y + h < this.height) {
-        ctx.drawImage(
-          img,
-          0, imgH - edgeH, imgW, edgeH,
-          0, y + h, this.width, this.height - (y + h)
-        );
-      }
-
-      ctx.restore();
-
-      /*
-        Vraie zone gameplay proportionnelle.
-        La piste, les monstres, le spawn et les collisions utilisent ce cadre.
-      */
-      ctx.drawImage(img, x, y, w, h);
       return;
     }
 
-    const grd = ctx.createLinearGradient(0, 0, 0, this.height);
+    const grd = ctx.createLinearGradient(
+      0,
+      0,
+      0,
+      this.height
+    );
+
     grd.addColorStop(0, "#261957");
     grd.addColorStop(0.55, "#17142b");
     grd.addColorStop(1, "#080611");
+
     ctx.fillStyle = grd;
     ctx.fillRect(0, 0, this.width, this.height);
   },
