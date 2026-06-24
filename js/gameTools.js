@@ -4,6 +4,10 @@
   const DELETE_TOKEN_COST = 1;
   const UNDO_TOKEN_COST = 1;
 
+  const TRAJECTORY_TOKEN_COST = 1;
+  const TRAJECTORY_LAUNCH_COUNT = 20;
+  const TRAJECTORY_STORAGE_KEY = "advancedTrajectoryLaunches";
+
   let deleteMode = false;
   let deletePaymentMode = "token";
   let selectedMonsterId = null;
@@ -52,6 +56,8 @@
     closeToolsPopup();
 
     const tokens = Number(window.VMSEconomy?.tokens || 0);
+    const trajectoryRemaining = getAdvancedTrajectoryRemaining();
+
     const tokenIcon = "./assets/ui/jeton.webp";
     const rewardIcon = "./assets/ui/reward.webp";
 
@@ -104,6 +110,29 @@
             </span>
             <span class="game-tools-action-label">${escapeHtml(t("game_tools_undo_reward_short"))}</span>
           </button>
+
+          <button
+            class="game-tools-action-card game-tools-trajectory-card"
+            type="button"
+            data-game-tool-action="trajectory-token"
+          >
+            <span class="game-tools-action-cost">
+              <img src="${tokenIcon}" alt="" />
+              <strong>1</strong>
+            </span>
+
+            <span class="game-tools-action-label">
+              ${escapeHtml(
+                trajectoryRemaining > 0
+                  ? t("game_tools_trajectory_active", {
+                      count: trajectoryRemaining
+                    })
+                  : t("game_tools_trajectory", {
+                      count: TRAJECTORY_LAUNCH_COUNT
+                    })
+              )}
+            </span>
+          </button>
         </div>
 
         <button class="game-tools-cancel" type="button" data-game-tool-action="cancel">
@@ -155,6 +184,12 @@
       if (action === "undo-reward") {
         closeToolsPopup();
         undoWithReward();
+        return;
+      }
+
+      if (action === "trajectory-token") {
+        closeToolsPopup();
+        confirmAdvancedTrajectory();
       }
     });
 
@@ -398,6 +433,134 @@
     restoreUndoSnapshot();
   }
 
+  function getAdvancedTrajectoryRemaining() {
+    return Math.max(
+      0,
+      Number(
+        window.VMSStorage?.get?.(
+          TRAJECTORY_STORAGE_KEY,
+          0
+        ) || 0
+      )
+    );
+  }
+
+  function setAdvancedTrajectoryRemaining(value) {
+    const safeValue = Math.max(
+      0,
+      Math.floor(Number(value || 0))
+    );
+
+    window.VMSStorage?.set?.(
+      TRAJECTORY_STORAGE_KEY,
+      safeValue
+    );
+
+    return safeValue;
+  }
+
+  function isAdvancedTrajectoryActive() {
+    return getAdvancedTrajectoryRemaining() > 0;
+  }
+
+  function consumeAdvancedTrajectoryLaunch() {
+    const remaining = getAdvancedTrajectoryRemaining();
+
+    if (remaining <= 0) {
+      return 0;
+    }
+
+    return setAdvancedTrajectoryRemaining(
+      remaining - 1
+    );
+  }
+
+  function confirmAdvancedTrajectory() {
+    const current = getAdvancedTrajectoryRemaining();
+
+    window.VMSModals.show({
+      title: t(
+        "game_tools_trajectory_confirm_title"
+      ),
+
+      text: t(
+        "game_tools_trajectory_confirm_text",
+        {
+          count: TRAJECTORY_LAUNCH_COUNT,
+          current
+        }
+      ),
+
+      primaryText: t("game_tools_confirm"),
+      secondaryText: t("btn_close"),
+
+      onPrimary: () => {
+        activateAdvancedTrajectoryWithToken();
+      },
+
+      onSecondary: () => {}
+    });
+  }
+
+  async function activateAdvancedTrajectoryWithToken() {
+    const paid =
+      await window.VMSEconomy?.spendToken?.(
+        TRAJECTORY_TOKEN_COST
+      );
+
+    if (!paid) {
+      window.VMSModals.show({
+        title: t(
+          "game_tools_not_enough_tokens_title"
+        ),
+
+        text: t(
+          "game_tools_not_enough_tokens_text"
+        ),
+
+        primaryText: t("game_tools_buy_12"),
+        secondaryText: t("btn_close"),
+
+        onPrimary: () => {
+          window.VMSPurchases?.buy?.(
+            "vmonster_jetons_12"
+          );
+        },
+
+        onSecondary: () => {}
+      });
+
+      return;
+    }
+
+    const total =
+      setAdvancedTrajectoryRemaining(
+        getAdvancedTrajectoryRemaining() +
+          TRAJECTORY_LAUNCH_COUNT
+      );
+
+    window.VMSEconomy?.refreshHud?.();
+
+    window.VMSModals.show({
+      title: t(
+        "game_tools_trajectory_activated_title"
+      ),
+
+      text: t(
+        "game_tools_trajectory_activated_text",
+        {
+          count: total
+        }
+      ),
+
+      primaryText: t("btn_ok"),
+      secondaryText: t("btn_close"),
+
+      onPrimary: () => {},
+      onSecondary: () => {}
+    });
+  }
+
   function showNoUndoPopup() {
     window.VMSModals.show({
       title: t("game_tools_no_undo_title"),
@@ -421,6 +584,10 @@
     handleCanvasPointerDown,
     createUndoSnapshot,
     restoreUndoSnapshot,
-    isDeleteModeActive
+    isDeleteModeActive,
+
+    getAdvancedTrajectoryRemaining,
+    isAdvancedTrajectoryActive,
+    consumeAdvancedTrajectoryLaunch
   };
 })();

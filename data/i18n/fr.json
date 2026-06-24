@@ -818,5 +818,18 @@
   "game_tools_no_undo_text": "Aucun tir précédent ne peut être annulé pour l’instant.",
   "inter.pause.ready": "Petite pause avant de continuer !",
   "settings_player_id_label": "ID joueur",
-  "settings_player_id_offline": "Hors ligne"
+  "settings_player_id_offline": "Hors ligne",
+
+  "game_tools_trajectory": "Trajectoire complète — {count} lancers",
+  "game_tools_trajectory_active": "Trajectoire active — {count} lancers restants",
+
+  "game_tools_trajectory_confirm_title": "Activer la trajectoire complète",
+
+  "game_tools_trajectory_confirm_text": "Utiliser 1 jeton pour ajouter {count} lancers avec la trajectoire complète ? Il vous en reste actuellement {current}.",
+
+  "game_tools_trajectory_activated_title": "Trajectoire activée",
+
+  "game_tools_trajectory_activated_text": "La trajectoire complète est disponible pendant {count} lancers.",
+
+  "trajectory_remaining_short": "{count} lancers"
 }

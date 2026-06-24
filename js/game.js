@@ -17,6 +17,7 @@ window.VMSGame = {
 
   currentMonster: null,
   nextMonsterLevel: 1,
+  trajectoryPreviewCache: null,
 
   state: {
     delta: 16,
@@ -284,6 +285,7 @@ window.VMSGame = {
     this.state.particles = [];
     this.state.orders = [];
     this.state.aim.active = false;
+    this.trajectoryPreviewCache = null;
 
     this.state.level = this.mode === "infinite"
       ? VMSLevels.getInfiniteLevel(this.infiniteWorldId || "lab")
@@ -444,6 +446,8 @@ window.VMSGame = {
     aim.vx = normalizedX * power * 3.2;
     aim.vy = normalizedY * power * 3.2;
 
+    this.trajectoryPreviewCache = null;
+
     if (aim.vy > -260) {
       aim.vy = -260;
     }
@@ -463,15 +467,359 @@ window.VMSGame = {
     monster.age = 0;
 
     this.state.monsters.push(monster);
+
     this.currentMonster = null;
     this.spawnCooldown = 420;
     this.state.aim.active = false;
+    this.trajectoryPreviewCache = null;
+
+    window.VMSGameTools
+      ?.consumeAdvancedTrajectoryLaunch?.();
 
     VMSSettings.vibrate(14);
   },
 
   cancelAim() {
     this.state.aim.active = false;
+  },
+
+  getAdvancedTrajectoryPreview() {
+    if (
+      !window.VMSGameTools
+        ?.isAdvancedTrajectoryActive?.()
+    ) {
+      return null;
+    }
+
+    if (
+      !this.state?.aim?.active ||
+      !this.currentMonster
+    ) {
+      return null;
+    }
+
+    const aim = this.state.aim;
+    const now = performance.now();
+    const cache = this.trajectoryPreviewCache;
+
+    if (
+      cache &&
+      now - cache.createdAt < 75 &&
+      Math.abs(cache.vx - aim.vx) < 1.5 &&
+      Math.abs(cache.vy - aim.vy) < 1.5
+    ) {
+      return cache.result;
+    }
+
+    const result =
+      this.simulateAdvancedTrajectory(
+        this.currentMonster,
+        aim
+      );
+
+    this.trajectoryPreviewCache = {
+      createdAt: now,
+      vx: aim.vx,
+      vy: aim.vy,
+      result
+    };
+
+    return result;
+  },
+
+  simulateAdvancedTrajectory(monster, aim) {
+    const delta = 16.67;
+    const dt = delta / 1000;
+    const maxSteps = 420;
+
+    const level = this.state.level || {};
+    const track = VMSRenderer.getTrackRect();
+
+    const points = [
+      {
+        x: monster.x,
+        y: monster.y
+      }
+    ];
+
+    const bounces = [];
+
+    const body = {
+      ...monster,
+
+      x: Number(monster.x || 0),
+      y: Number(monster.y || 0),
+
+      vx: Number(aim.vx || 0),
+      vy: Number(aim.vy || 0),
+
+      age: 0,
+      collecting: false,
+      merging: false
+    };
+
+    const obstacles =
+      (this.state.monsters || [])
+        .filter((item) => {
+          return (
+            item &&
+            !item.collecting &&
+            !item.merging
+          );
+        })
+        .map((item) => ({
+          ...item,
+
+          x: Number(item.x || 0),
+          y: Number(item.y || 0),
+
+          vx: Number(item.vx || 0),
+          vy: Number(item.vy || 0)
+        }));
+
+    let stoppedFrames = 0;
+    let impact = null;
+
+    for (
+      let step = 0;
+      step < maxSteps;
+      step += 1
+    ) {
+      body.age += delta;
+
+      body.x += body.vx * dt;
+      body.y += body.vy * dt;
+
+      const friction = Math.pow(
+        level.friction || 0.992,
+        delta / 16.67
+      );
+
+      body.vx *= friction;
+      body.vy *= friction;
+
+      if (body.vy > 0) {
+        body.vy *= 0.74;
+      }
+
+      if (Math.abs(body.vx) < 6) {
+        body.vx = 0;
+      }
+
+      if (Math.abs(body.vy) < 6) {
+        body.vy = 0;
+      }
+
+      const footprint =
+        this.getMonsterFootprint(body);
+
+      const bounds =
+        VMSRenderer.getTrackBoundsAt(
+          footprint.y,
+          0
+        );
+
+      let bounced = false;
+
+      if (
+        footprint.x - footprint.rx <
+        bounds.left
+      ) {
+        body.x =
+          bounds.left + footprint.rx;
+
+        body.vx =
+          Math.abs(body.vx) *
+          (level.wallBounce || 0.55);
+
+        bounced = true;
+      }
+
+      if (
+        footprint.x + footprint.rx >
+        bounds.right
+      ) {
+        body.x =
+          bounds.right - footprint.rx;
+
+        body.vx =
+          -Math.abs(body.vx) *
+          (level.wallBounce || 0.55);
+
+        bounced = true;
+      }
+
+      if (
+        footprint.y - footprint.ry <
+        track.top
+      ) {
+        body.y =
+          track.top +
+          footprint.ry -
+          footprint.offsetY;
+
+        body.vy =
+          Math.max(0, body.vy) * 0.08;
+
+        body.vx *= 0.82;
+        bounced = true;
+      }
+
+      if (
+        footprint.y + footprint.ry >
+        track.bottom
+      ) {
+        body.y =
+          track.bottom -
+          footprint.ry -
+          footprint.offsetY;
+
+        body.vy =
+          -Math.abs(body.vy) * 0.18;
+
+        body.vx *= 0.82;
+        bounced = true;
+      }
+
+      for (const obstacle of obstacles) {
+        obstacle.x += obstacle.vx * dt;
+        obstacle.y += obstacle.vy * dt;
+
+        obstacle.vx *= friction;
+        obstacle.vy *= friction;
+
+        if (obstacle.vy > 0) {
+          obstacle.vy *= 0.74;
+        }
+
+        if (Math.abs(obstacle.vx) < 6) {
+          obstacle.vx = 0;
+        }
+
+        if (Math.abs(obstacle.vy) < 6) {
+          obstacle.vy = 0;
+        }
+      }
+
+      const movingFootprint =
+        this.getMonsterFootprint(body);
+
+      for (const obstacle of obstacles) {
+        const obstacleFootprint =
+          this.getMonsterFootprint(obstacle);
+
+        const sumRx = Math.max(
+          1,
+          movingFootprint.rx +
+            obstacleFootprint.rx
+        );
+
+        const sumRy = Math.max(
+          1,
+          movingFootprint.ry +
+            obstacleFootprint.ry
+        );
+
+        const nx =
+          (
+            movingFootprint.x -
+            obstacleFootprint.x
+          ) / sumRx;
+
+        const ny =
+          (
+            movingFootprint.y -
+            obstacleFootprint.y
+          ) / sumRy;
+
+        if (nx * nx + ny * ny <= 1) {
+          impact = {
+            x: body.x,
+            y: body.y,
+
+            monsterId: obstacle.id,
+
+            sameLevel:
+              Number(obstacle.level) ===
+              Number(body.level)
+          };
+
+          break;
+        }
+      }
+
+      if (bounced) {
+        bounces.push({
+          x: body.x,
+          y: body.y
+        });
+      }
+
+      if (
+        step % 3 === 0 ||
+        bounced ||
+        impact
+      ) {
+        points.push({
+          x: body.x,
+          y: body.y
+        });
+      }
+
+      if (impact) {
+        break;
+      }
+
+      const speed = Math.sqrt(
+        body.vx * body.vx +
+        body.vy * body.vy
+      );
+
+      stoppedFrames =
+        speed < 8
+          ? stoppedFrames + 1
+          : 0;
+
+      if (stoppedFrames >= 18) {
+        break;
+      }
+    }
+
+    const lastPoint =
+      points[points.length - 1];
+
+    if (
+      !lastPoint ||
+      Math.hypot(
+        lastPoint.x - body.x,
+        lastPoint.y - body.y
+      ) > 0.5
+    ) {
+      points.push({
+        x: body.x,
+        y: body.y
+      });
+    }
+
+    const end =
+      points[points.length - 1] || {
+        x: body.x,
+        y: body.y
+      };
+
+    return {
+      points,
+      bounces,
+      end,
+      impact,
+
+      monster: {
+        ...monster,
+        x: end.x,
+        y: end.y,
+        collectAlpha: 0.3
+      }
+    };
   },
 
   updatePhysics(delta) {

@@ -464,3 +464,25 @@
     padding: 13px;
   }
 }
+
+/* Trajectoire complète achetée avec un jeton */
+.game-tools-trajectory-card {
+  border-color: rgba(105, 224, 255, 0.34);
+
+  background:
+    radial-gradient(
+      circle at 20% 10%,
+      rgba(123, 235, 255, 0.2),
+      transparent 38%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(77, 133, 190, 0.23),
+      rgba(43, 41, 92, 0.2)
+    );
+
+  box-shadow:
+    0 13px 26px rgba(0, 0, 0, 0.24),
+    inset 0 0 22px
+      rgba(97, 222, 255, 0.06);
+}
