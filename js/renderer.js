@@ -826,11 +826,266 @@ labMap: {
     ctx.fillText(String(monster.level), 0, r * 0.38);
   },
 
+  drawAdvancedTrajectory(preview, monster) {
+    if (
+      !preview?.points ||
+      preview.points.length < 2
+    ) {
+      return false;
+    }
+
+    const ctx = this.ctx;
+
+    const worldScale =
+      this.getWorldScale
+        ? this.getWorldScale()
+        : 1;
+
+    const first = preview.points[0];
+
+    const end =
+      preview.end ||
+      preview.points[
+        preview.points.length - 1
+      ];
+
+    const impactColor =
+      preview.impact?.sameLevel
+        ? "#7dffad"
+        : preview.impact
+          ? "#ffb66f"
+          : "#8fe8ff";
+
+    ctx.save();
+
+    const gradient =
+      ctx.createLinearGradient(
+        first.x,
+        first.y,
+        end.x,
+        end.y
+      );
+
+    gradient.addColorStop(
+      0,
+      "rgba(143,232,255,.98)"
+    );
+
+    gradient.addColorStop(
+      0.7,
+      "rgba(130,228,255,.82)"
+    );
+
+    gradient.addColorStop(
+      1,
+      impactColor
+    );
+
+    ctx.strokeStyle = gradient;
+
+    ctx.lineWidth = Math.max(
+      2.5,
+      4.5 * worldScale
+    );
+
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+
+    ctx.setLineDash([
+      10 * worldScale,
+      7 * worldScale
+    ]);
+
+    ctx.shadowColor =
+      "rgba(100,220,255,.9)";
+
+    ctx.shadowBlur =
+      13 * worldScale;
+
+    ctx.beginPath();
+    ctx.moveTo(first.x, first.y);
+
+    for (
+      let index = 1;
+      index < preview.points.length;
+      index += 1
+    ) {
+      const point =
+        preview.points[index];
+
+      ctx.lineTo(
+        point.x,
+        point.y
+      );
+    }
+
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    for (
+      const bounce of
+      preview.bounces || []
+    ) {
+      ctx.fillStyle =
+        "rgba(255,255,255,.95)";
+
+      ctx.strokeStyle =
+        "rgba(94,218,255,.95)";
+
+      ctx.lineWidth = Math.max(
+        2,
+        2.5 * worldScale
+      );
+
+      ctx.beginPath();
+
+      ctx.arc(
+        bounce.x,
+        bounce.y,
+        Math.max(
+          4,
+          6 * worldScale
+        ),
+        0,
+        Math.PI * 2
+      );
+
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    ctx.restore();
+
+    if (preview.monster) {
+      this.drawMonster(
+        preview.monster,
+        false
+      );
+    }
+
+    ctx.save();
+
+    ctx.strokeStyle = impactColor;
+
+    ctx.fillStyle =
+      preview.impact
+        ? "rgba(255,182,111,.2)"
+        : "rgba(143,232,255,.18)";
+
+    ctx.lineWidth = Math.max(
+      2,
+      3 * worldScale
+    );
+
+    ctx.shadowColor = impactColor;
+    ctx.shadowBlur = 14 * worldScale;
+
+    ctx.beginPath();
+
+    ctx.arc(
+      end.x,
+      end.y,
+      Math.max(
+        12,
+        18 * worldScale
+      ),
+      0,
+      Math.PI * 2
+    );
+
+    ctx.fill();
+    ctx.stroke();
+
+    const remaining =
+      window.VMSGameTools
+        ?.getAdvancedTrajectoryRemaining?.() ||
+      0;
+
+    const label =
+      window.VMSI18n?.t?.(
+        "trajectory_remaining_short",
+        {
+          count: remaining
+        }
+      ) || String(remaining);
+
+    const fontSize = Math.max(
+      11,
+      13 * worldScale
+    );
+
+    ctx.font =
+      `900 ${fontSize}px Arial`;
+
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    const textWidth =
+      ctx.measureText(label).width;
+
+    const padX =
+      8 * worldScale;
+
+    const boxW =
+      textWidth + padX * 2;
+
+    const boxH =
+      25 * worldScale;
+
+    const boxX =
+      end.x - boxW / 2;
+
+    const boxY =
+      end.y - 42 * worldScale;
+
+    ctx.shadowBlur = 0;
+
+    ctx.fillStyle =
+      "rgba(10,11,25,.82)";
+
+    this.roundRect(
+      ctx,
+      boxX,
+      boxY,
+      boxW,
+      boxH,
+      10 * worldScale
+    );
+
+    ctx.fill();
+
+    ctx.fillStyle = "#ffffff";
+
+    ctx.fillText(
+      label,
+      end.x,
+      boxY + boxH / 2
+    );
+
+    ctx.restore();
+
+    return true;
+  },
+
   drawAim(state) {
     const aim = state?.aim;
     const monster = window.VMSGame?.currentMonster;
 
     if (!aim?.active || !monster) return;
+
+    const preview =
+      window.VMSGame
+        ?.getAdvancedTrajectoryPreview?.();
+
+    if (
+      preview &&
+      this.drawAdvancedTrajectory(
+        preview,
+        monster
+      )
+    ) {
+      return;
+    }
 
     const ctx = this.ctx;
     const endX = monster.x + aim.vx * 0.18;
